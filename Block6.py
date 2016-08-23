@@ -3,17 +3,16 @@
 # ---------------------- IMPORTS ---------------------
 from pygame import sprite, image, Surface
 # from random import randrange
+''' A parent class for all sprites in the game screen, such as the main player,
+    all kind of platforms, enemies and so on.'''
 
-# ----------------- INITIALIZATIONS ------------------
-# A parent class for all objects in the game screen
 
-
+# General Block sprite class
 class Block(sprite.Sprite):
-    # Constructor
+    # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
-        # We must call the parent class' constructor first
-        # super().__init__()
-        sprite.Sprite.__init__(self)
+        # -- Parent constructor ---------------
+        super().__init__()                      # sprite.Sprite.__init__(self)
         self.name = "Block"
         self.velX = 0
         self.velY = 0
@@ -32,21 +31,21 @@ class Block(sprite.Sprite):
         # Draw the ellipse
         # pygame.draw.ellipse(self.image, color, [50, 50, width, height])
 
+    # ---------- Methods --------------------------
     def docs(self):
         return self.name
 
 
 class Snow(Block):
-    # Constructor
+    # ---------- Constructor ----------------------
     def __init__(self, color, width, height, screen_size):
-        # super(color,width,height).__init__()
-        Block.__init__(self, color, width, height)
+        super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
         self.name = "Snow"
         self.screen_size = screen_size
         self.firstX = 0
         self.acc = 5
 
-    # Methods
+    # ---------- Methods --------------------------
     # Update method
     def update(self):
         self.rect.y += 1
@@ -62,38 +61,42 @@ class Snow(Block):
             pass
 
 
+# Class for ground floor tiles
 class Floor(Block):
-    # Constructor
+    # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
-        # super(color,width,height).__init__()
-        Block.__init__(self, color, width, height)
+        super().__init__(color, width, height)      # Block.__init__(self, color, width, height)
         self.name = "Floor"
 
 
-class Hero(Block):
-    # Constructor
+# Class for ground tiles
+class Hole(Block):
+    # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
-        # super(color,width,height).__init__()
-        Block.__init__(self, color, width, height)
-        self.name = "Hero"
+        super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
+        self.name = "Hole"
+
+
+# Class for the player character
+class Player(Block):
+    # ---------- Constructor ----------------------
+    def __init__(self, color, width, height):
+        super().__init__(color, width, height)      # Block.__init__(self, color, width, height)
+        self.name = "Player"
         self.life = 100
         self.velY = .35
         self.maxFallVelocity = 10
+        self.plainLevel = False                     # Enable/Disable horizontal gravity
         self.jumping = False
         # self.acc = 9
 
-    # Methods
+    # ---------- Methods --------------------------
     # Update method
     def update(self):
         self.rect.x += self.velX
         self.rect.y += self.velY
-        self.fall()
-        # Checks if the player can physically jump
-        '''
-        if self.velY > 1.5 or self.velY < -1.5:
-            self.jumping = True
-        else:
-            self.jumping = False '''
+        if not self.plainLevel:
+            self.fall()
         # print "X: " + str(self.rect.x) + "; Y: " + str(self.rect.y) + "; vX: "
         # + str(self.velX) + "; velY: " + str(self.velY)
 
@@ -107,10 +110,23 @@ class Hero(Block):
         # print "Goin' right"
         self.velX = 3
 
+    # Y up movement (Only used on plain levels)
+    def go_up(self):
+        self.velY = -3
+
+    # Y down movement (Only used on plain levels)
+    def go_down(self):
+        self.velY = 3
+
     # Stop for the X axis
     def stop_x(self):
         # print "Stoppin'"
         self.velX = 0
+
+    # Stop for the X axis
+    def stop_y(self):
+        # print "Stoppin'"
+        self.velY = 0
 
     # Y movement for jumping
     def jump(self):
@@ -128,9 +144,6 @@ class Hero(Block):
     # This is a simple gravity calculus for hero's fall velocity
     def fall(self):
         # print "Falling"
-        # if self.velY == 0:
-        # pass
-        # else:
         self.velY += .35
         if self.velY > self.maxFallVelocity:
             self.velY = self.maxFallVelocity

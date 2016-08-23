@@ -2,24 +2,23 @@
 
 # ---------------------- IMPORTS ---------------------
 # Python libs
-# import pygame
-from pygame import image, font, sprite
+from pygame import image, font, sprite, mixer
 from random import randrange
 # Own libs
 # We could just import the Block module, but it's more reliable as is
-from Block6 import Snow, Hero, Floor
-from constants6 import WHITE, RED, BLUE, ROOT
+from Block6 import Snow, Player, Floor, Hole
+from constants6 import WHITE, RED, BLUE, BLACK, ROOT
 ''' This class manages all in terms of creating level structures
     and loading graphic and audio resources. Every level created
     has inheritance from this Level class.'''
 
 
+# General class
 class Level(object):
     # Globals
     root = ROOT
 
     # ---------- Constructor ----------------------
-    # def __init__(self, screen, scr_size, root, debug=False):
     def __init__(self, screen, scr_size, debug=False):
         # -- Attributes -----------------------
         self.debug = debug                      # Flag for debugging into the game
@@ -30,97 +29,152 @@ class Level(object):
         self.structure = []
         self.backgroundImg = image.load(self.root + "/images/astro.jpg").convert()
         self.font = font.SysFont('Calibri', 25, True, False)
-        # self.ring = pygame.mixer.Sound("sounds/fart.ogg")
+        # self.ring = mixer.Sound("sounds/fart.ogg")
         # Sprite lists for the win!
         self.colliders = sprite.Group()  # Walls, platforms, floor, enemies, switches...
         self.temporary = sprite.Group()  # Coins, ammo, lifepoints...
         self.bodies = sprite.Group()     # All sprites (this is for render on the screen)
-        self.hero = Hero(RED, 50, 50)
-        self.bodies.add(self.hero)              # Appends the hero body for checking collisions
+        self.player = Player(RED, 50, 50)
+        self.bodies.add(self.player)              # Appends the player body for checking collisions
         # HUD elements
         self.coinText = self.font.render("Coins: " + str(self.coins), True, WHITE)
-        self.lifeText = self.font.render("Life: " + str(self.hero.life), True, WHITE)
+        self.lifeText = self.font.render("Life: " + str(self.player.life), True, WHITE)
         # Debug
         if self.debug:
-            self.coords = self.font.render("X: " + str(self.hero.rect.x)
-                                           + "; Y: " + str(self.hero.rect.y), True, WHITE)
+            self.coords = self.font.render("X: " + str(self.player.rect.x)
+                                           + "; Y: " + str(self.player.rect.y), True, WHITE)
+
+    # ---------- Methods --------------------------
+    def display(self):
+        self.screen.blit(self.backgroundImg, [0, 0])
+        self.bodies.draw(self.screen)
+        self.screen.blit(self.coinText, [50, 50])
+        self.screen.blit(self.lifeText, [50, 70])
+        if self.debug:
+            self.screen.blit(self.coords, [500, 70])
+
+
+# 2D Plain level's type class
+class PlainLevel(Level):
+    # ---------- Constructor ----------------------
+    def __init__(self, screen, scr_size, debug=False):
+        # -- Parent constructor ---------------
+        super().__init__(screen, scr_size, debug)
+        self.player.plainLevel = True
 
     # ---------- Methods --------------------------
     def update(self):
         # Update all elements in level
-        # self.hero.update()
         self.bodies.update()
         # It merges all collisions done in two lists (False for avoiding automatic drop)
-        solid = sprite.spritecollide(self.hero, self.colliders, False)
-        weak = sprite.spritecollide(self.hero, self.temporary, True)
+        solid = sprite.spritecollide(self.player, self.colliders, False)
+        weak = sprite.spritecollide(self.player, self.temporary, True)
         for body in solid:
             if body.docs() == "Floor":
-                # self.hero.velY = 0
-                self.hero.stop_fall()
-                self.hero.rect.y = body.rect.y - 50
-            
+                break
+                # self.hero.rect.y = body.rect.y - 50
+
+            if body.docs() == "Hole":
+                self.player.life -= 1
+                # self.hero.rect.y = body.rect.y - 50
+
         for body in weak:
             if body.docs() == "Snow":
-                self.hero.life -= 1
+                self.player.life -= 1
                 # self.ring.play()
-                self.lifeText = self.font.render("Life: " + str(self.hero.life), True, WHITE)
-        
+                self.lifeText = self.font.render("Life: " + str(self.player.life), True, WHITE)
+
         if self.debug:
-            self.coords = self.font.render("X: " + str(self.hero.rect.x) + "; Y: "
-                                           + str(self.hero.rect.y)
-                                           + "VelX: " + str(self.hero.velX)
-                                           + "; VelY: " + str(self.hero.velY), True, WHITE)
-    
-    def display(self):
-        self.screen.blit(self.backgroundImg, [0, 0])
-        self.bodies.draw(self.screen)
-        self.screen.blit(self.coinText, [50, 50])		
-        self.screen.blit(self.lifeText, [50, 70])
-        if self.debug:
-            self.screen.blit(self.coords, [500, 70])		
+            self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
+                                           + str(self.player.rect.y)
+                                           + "VelX: " + str(self.player.velX)
+                                           + "; VelY: " + str(self.player.velY), True, WHITE)
+
+        return False
+
+
+# 2D Horizontal level's type class
+class HorizontalLevel(Level):
+    # ---------- Constructor ----------------------
+    def __init__(self, screen, scr_size, debug=False):
+        # -- Parent constructor ---------------
+        super().__init__(screen, scr_size, debug)
+        self.player.plainLevel = False
+
+    # ---------- Methods --------------------------
+    def update(self):
+        # Update all elements in level
+        self.bodies.update()
+        # Checks the condition for going out the level
+        if len(self.temporary) != 40:
+            # It merges all collisions done in two lists (False for avoiding automatic drop)
+            solid = sprite.spritecollide(self.player, self.colliders, False)
+            weak = sprite.spritecollide(self.player, self.temporary, True)
+            count = len(self.temporary)
+            for body in solid:
+                if body.docs() == "Floor":
+                    self.player.stop_fall()
+                    self.player.rect.y = body.rect.y - 50
+
+            for body in weak:
+                if body.docs() == "Snow":
+                    self.player.life -= 1
+                    # self.ring.play()
+                    self.lifeText = self.font.render("Life: " + str(self.player.life), True, WHITE)
+
+            if self.debug:
+                '''self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
+                                               + str(self.player.rect.y)
+                                               + "VelX: " + str(self.player.velX)
+                                               + "; VelY: " + str(self.player.velY), True, WHITE)'''
+                self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
+                                               + str(self.player.rect.y)
+                                               + "; Obj: " + str(count), True, WHITE)
+
+            return False
+        else:
+            return True
 
 
 # All levels must inherit from 'Level'
-class Level1(Level):
+class Level1(HorizontalLevel):
     # ---------- Constructor ----------------------
     # def __init__(self, screen, src_size, root, debug=False):
-    def __init__(self, screen, src_size, debug=False):
+    def __init__(self, screen, scr_size, debug=False):
         # -- Parent constructor ---------------
-        # Level.__init__(self, screen, src_size, self.root, debug)
-        Level.__init__(self, screen, src_size, debug)
+        super().__init__(screen, scr_size, debug)
         # self.lvlSize = (800,600)
         # -- Attributes -----------------------
         # self.scr_size[0] = 800
         # self.scr_size[1] = 600
         # -- Extra attributes -----------------
-        self.structure = \
-            [['f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f'],
-             ['f', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'f'],
-             ['f', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'f'],
-             ['f', ' ', ' ', ' ', 'f', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'f', ' ', ' ', 'f'],
-             ['f', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'f', 'f', ' ', ' ', 'f'],
-             ['f', ' ', ' ', 'f', ' ', 'f', 'f', 'f', 'f', ' ', 'f', 'f', 'f', ' ', ' ', 'f'],
-             ['f', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'f', ' ', 'f'],
-             ['f', ' ', 'f', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'f'],
-             ['f', 'h', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'f'],
-             ['f', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'f'],
-             ['f', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ', 'f'],
-             ['f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f', 'f']]
+        self.structure = ["ffffffffffffffff",
+                          "f              f",
+                          "f              f",
+                          "f   f       f  f",
+                          "f          ff  f",
+                          "f  f ffff fff  f",
+                          "f            f f",
+                          "f f            f",
+                          "fP             f",
+                          "f              f",
+                          "f              f",
+                          "ffffffffffffffff"]
         # Populating level
         cnt_y = 0                                       # Initial Y-axis grid
         for row in self.structure:
             cnt_x = 0                                   # Initial X-axis grid
             for column in row:
-                if column == 'f':                       # 'f' stands for 'Floor'
+                if column == "f":                       # 'f' stands for 'Floor'
                     floor = Floor(BLUE, 50, 50)
                     floor.rect.x = cnt_x
                     floor.rect.y = cnt_y
                     self.colliders.add(floor)
                     self.bodies.add(floor)
-                elif column == 'h':                     # 'h' stands for 'Hero'
+                elif column == "P":                     # 'P' stands for 'Player'
                     # self.hero = Hero(RED, 50, 50)
-                    self.hero.rect.x = cnt_x
-                    self.hero.rect.y = cnt_y
+                    self.player.rect.x = cnt_x
+                    self.player.rect.y = cnt_y
                     # self.bodies.add(self.hero)
 
                 cnt_x += 50                             # Increment X-axis for the next tile
@@ -138,5 +192,51 @@ class Level1(Level):
             flake.firstX = flake.rect.x
             self.temporary.add(flake)
             self.bodies.add(flake)
-    
-    # ------------ Methods ------------------------
+
+
+# All levels must inherit from 'Level'
+class Level2(PlainLevel):
+    # ---------- Constructor ----------------------
+    def __init__(self, screen, src_size, debug=False):
+        # -- Parent constructor ---------------
+        super().__init__(screen, src_size, debug)
+        # -- Attributes -----------------------
+        self.structure = \
+            ["fffffff ffffffff",
+             "f       f      f",
+             "f fffff f      f",
+             "f fhf h     f  f",
+             "f f        ff  f",
+             "f ff    f fff  f",
+             "f f   h      f f",
+             "f ff  h        f",
+             "f     h        f",
+             "ffff ff        f",
+             "fP   hf       ff",
+             "fffffffffffffff "]
+        # Populating level
+        cnt_y = 0                                       # Initial Y-axis tile grid
+        for row in self.structure:
+            cnt_x = 0                                   # Initial X-axis tile grid
+            for column in row:
+                if column == "f":                       # 'f' stands for 'Floor'
+                    floor = Floor(BLUE, 50, 50)
+                    floor.rect.x = cnt_x
+                    floor.rect.y = cnt_y
+                    self.colliders.add(floor)
+                    self.bodies.add(floor)
+                elif column == "h":                     # 'h' stands for 'Hole'
+                    hole = Hole(BLACK, 50, 50)
+                    hole.rect.x = cnt_x
+                    hole.rect.y = cnt_y
+                    self.colliders.add(hole)
+                    self.bodies.add(hole)
+                elif column == "P":                     # 'P' stands for 'Player'
+                    # self.hero = Hero(RED, 50, 50)
+                    self.player.rect.x = cnt_x
+                    self.player.rect.y = cnt_y
+                    # self.bodies.add(self.hero)
+
+                cnt_x += 50                             # Increment X-axis for the next tile
+
+            cnt_y += 50  # Increment Y-axis for the next tile

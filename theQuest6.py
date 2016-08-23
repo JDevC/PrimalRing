@@ -4,11 +4,14 @@
 import pygame                                   # Python libs
 import Game6                                    # Own libs
 from constants6 import SCR_HEIGHT, SCR_WIDTH
+""" This is the main game file, where all classes and functions are
+    called from. Now it's a tiny file, but we're on developing, so
+    it's more than possible that it will grow from now on. """
+
 
 # ------------------- FUNCTIONS ----------------------
-
-
-def main():                                     # MAIN FUNCTION (Here is where all actions run)
+# MAIN FUNCTION (Here is where all actions run)
+def main():
     # Initializing library
     pygame.init()
     # -------------------- Variables ---------------------
@@ -33,7 +36,6 @@ def main():                                     # MAIN FUNCTION (Here is where a
         game.run_logic()
         # 3rd step: Displaying all
         game.display_frame()
-        # done = game.gameOver
         # --- Limit to 60 frames per second
         clock.tick(60)
     
