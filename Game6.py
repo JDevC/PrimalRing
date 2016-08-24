@@ -8,7 +8,7 @@ import pygame
 # from os import path
 # Own libs
 from Level6 import Level1, Level2
-from constants6 import BLACK, WHITE  # ROOT
+from constants6 import BLACK, WHITE, ANTIALIASING, DEBUG  # ROOT
 ''' This is the general manager game class. It has the
     main functions and attributes which rule above all
     the rest.'''
@@ -22,12 +22,15 @@ class Game(object):
         self.screen = screen
         self.scr_size = scr_size
         self.font = pygame.font.SysFont('Calibri', 25, True, False)
-        self.gOverText = self.font.render("GAME OVER", True, WHITE)
+        # self.gOverText = self.font.render("GAME OVER", True, WHITE)
+        self.gOverText = []
+        self.gOverText.append(self.font.render("GAME OVER", ANTIALIASING, WHITE))
+        self.gOverText.append(self.font.render("Want to try again?", ANTIALIASING, WHITE))
+        self.gOverText.append(self.font.render("Yes / No", ANTIALIASING, WHITE))
         # Levels
         self.levels = []                                            # Contains all levels
-        self.levels.append(Level1(screen, scr_size, True))          # We append all levels (True is for debug reasons)
-        self.levels.append(Level2(screen, scr_size, True))
-        self.level1 = Level1(screen, scr_size, True)                # asdf
+        self.levels.append(Level1(screen, scr_size, DEBUG))         # We append all levels
+        self.levels.append(Level2(screen, scr_size, DEBUG))
         self.currentLevel = 0
         self.level = self.levels[self.currentLevel]                 # This contains the level in which we are at first
 
@@ -40,43 +43,37 @@ class Game(object):
             elif event.type == pygame.KEYDOWN:
                 # Figure out if it was an arrow key. If it's so, adjust speed.
                 if event.key == pygame.K_LEFT:
-                    # self.level1.player.go_left()
                     self.level.player.go_left()
                 elif event.key == pygame.K_RIGHT:
-                    # self.level1.player.go_right()
                     self.level.player.go_right()
                 elif event.key == pygame.K_UP:
-                    # if self.level1.player.plainLevel:
                     if self.level.player.plainLevel:
-                        # self.level1.player.go_up()
                         self.level.player.go_up()
                     else:
-                        # self.level1.player.jump()
                         self.level.player.jump()
                 elif event.key == pygame.K_DOWN:
-                    # if self.level1.player.plainLevel:
                     if self.level.player.plainLevel:
-                        # self.level1.player.go_down()
                         self.level.player.go_down()
             elif event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                    # self.level1.player.stop_x()
                     self.level.player.stop_x()
                 elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                    # if self.level1.player.plainLevel:
                     if self.level.player.plainLevel:
-                        # self.level1.player.stop_y()
                         self.level.player.stop_y()
+
         return False
 
     # This function is given to refresh all objects and check collisions
     def run_logic(self):
         # Checks if the player still lives on
         if not self.gameOver:
-            # Updates all sprites
-            # self.gameOver = self.level1.update()
+            # Updates all sprites and checks if the player has made a level change
             reached = self.level.update()
             if reached:
+                # It swaps into another level.
+                # This point needs a revision: our game map should consist on a central level from where we can
+                # travel into the others, but at least it's a beginning
+                # self.gameOver = True
                 if self.currentLevel < len(self.levels):
                     self.currentLevel += 1
                     self.level = self.levels[self.currentLevel]
@@ -89,7 +86,9 @@ class Game(object):
         # Checks if the player still lives on
         if self.gameOver:
             # print "Perdiste!"
-            self.screen.blit(self.gOverText, [(self.scr_size[0]/2) - 50, self.scr_size[1]/2])
+            self.screen.blit(self.gOverText[0], [(self.scr_size[0]/2) - 45, self.scr_size[1]/2 - 50])
+            self.screen.blit(self.gOverText[1], [(self.scr_size[0]/2) - 70, self.scr_size[1]/2 - 25])
+            self.screen.blit(self.gOverText[2], [(self.scr_size[0]/2) - 50, self.scr_size[1]/2 + 50])
         else:
             # self.level1.display()
             self.level.display()
