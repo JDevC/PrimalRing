@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 
 # ---------------------- IMPORTS ---------------------
-from pygame import sprite, image, Surface
-from constants6 import GRAVITY, MAX_FALL_VELOCITY
-# from random import randrange
+from pygame import sprite, image, mixer, Surface
+from constants6 import GRAVITY, MAX_FALL_VELOCITY, COLORS
 ''' A parent class for all sprites in the game screen, such as the main player,
     all kind of platforms, enemies and so on.'''
 
@@ -21,16 +20,8 @@ class Block(sprite.Sprite):
         self.image = Surface([width, height])
         # We fill this 'surface' with a color
         self.image.fill(color)
-        # Set our transparent color
-        # self.image.set_colorkey(WHITE)
-        # self.image.set_colorkey((255, 0, 0))
         # We get the 'collider' box
         self.rect = self.image.get_rect()
-
-        # Load the image
-        # self.image = image.load("player.png").convert()
-        # Draw the ellipse
-        # pygame.draw.ellipse(self.image, color, [50, 50, width, height])
 
     # ---------- Methods --------------------------
     def docs(self):
@@ -61,7 +52,6 @@ class Snow(Block):
         if self.rect.x == self.firstX:
             pass
         else:
-            # self.rect.x +=
             pass
 
 
@@ -71,6 +61,17 @@ class Floor(Block):
     def __init__(self, color, width, height):
         super().__init__(color, width, height)      # Block.__init__(self, color, width, height)
         self.name = "Floor"
+
+
+# Class for coins
+class Coin(Block):
+    # ---------- Constructor ----------------------
+    def __init__(self, color, width, height):
+        super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
+        self.name = "Coin"
+        self.image = image.load('images\\coin.png').convert()
+        # We set a transparent color for the image
+        self.image.set_colorkey(COLORS['WHITE'])
 
 
 # Class for ground tiles
@@ -88,15 +89,15 @@ class Player(Block):
         super().__init__(color, width, height)      # Block.__init__(self, color, width, height)
         self.name = "Player"
         self.life = 100
-        self.velY = GRAVITY
+        self.coins = 0
+        # Insert here your favourite sound, and all coins will 'tink' when you touch them!
+        self.coinSound = mixer.Sound('sounds\\coin.wav')
         self.maxFallVelocity = MAX_FALL_VELOCITY
         self.plainLevel = False                     # Enable/Disable horizontal gravity
         self.jumping = False
-        # self.acc = 9
 
     # ---------- Methods --------------------------
     # Update method
-    #def update(self):
     def update(self, solid, weak):
         # Collecting all 'solid' boxes (they don't vanish for colliding)
         solid_boxes = solid
@@ -120,7 +121,9 @@ class Player(Block):
         for body in weak_collide_list:
             if body.docs() == "Snow":
                 self.life -= 1
-                # self.ring.play()
+            elif body.docs() == "Coin":
+                self.coins += 1
+                self.coinSound.play()
 
         # ------- VERTICAL CHECKING -------------------
         # We move the player on the Y axis
@@ -141,7 +144,9 @@ class Player(Block):
         for body in weak_collide_list:
             if body.docs() == "Snow":
                 self.life -= 1
-                # self.ring.play()
+            elif body.docs() == "Coin":
+                self.coins += 1
+                self.coinSound.play()
 
         if not self.plainLevel:
             self.fall()
@@ -187,9 +192,9 @@ class Player(Block):
         self.velY = 0
         self.jumping = False
 
-    # This is a simple gravity calculus for hero's fall velocity
+    # This is a simple gravity calculus for player's fall velocity
     def fall(self):
         # print "Falling"
-        self.velY += .35
+        self.velY += GRAVITY
         if self.velY > self.maxFallVelocity:
             self.velY = self.maxFallVelocity

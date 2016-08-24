@@ -2,12 +2,12 @@
 
 # ---------------------- IMPORTS ---------------------
 # Python libs
-from pygame import image, font, sprite, mixer
+from pygame import image, font, sprite
 from random import randrange
 # Own libs
 # We could just import the Block module, but it's more reliable as is
-from Block6 import Snow, Player, Floor, Hole
-from constants6 import WHITE, RED, BLUE, BLACK, ANTIALIASING, ROOT
+from Block6 import Snow, Player, Floor, Hole, Coin
+from constants6 import COLORS, ANTIALIASING, ROOT, PLAYER_SIZE, COIN_SIZE, FLOOR_SIZE
 ''' This class manages all in terms of creating level structures
     and loading graphic and audio resources. Every level created
     has inheritance from this Level class.'''
@@ -24,24 +24,22 @@ class Level(object):
         self.debug = debug                          # Flag for debugging into the game
         self.screen = screen                        # A reference for the main screen
         self.scr_size = scr_size                    # The screen size
-        self.coins = 0                              # Coins collected
+        # self.coins = 0                              # Coins collected
         self.structure = []
         self.backgroundImg = image.load(self.root + "/images/astro.jpg").convert()
         self.font = font.SysFont('Calibri', 25, True, False)
-        # self.ring = mixer.Sound("sounds/fart.ogg")
         # Sprite lists for the win!
         self.colliders = sprite.Group()             # Walls, platforms, floor, enemies, switches...
         self.temporary = sprite.Group()             # Coins, ammo, lifepoints...
         self.bodies = sprite.Group()                # All sprites (this is for render on the screen)
-        self.player = Player(RED, 45, 45)
-        # self.bodies.add(self.player)                # Appends the player body for checking collisions
+        self.player = Player(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE)
         # HUD elements
-        self.coinText = self.font.render("Coins: " + str(self.coins), ANTIALIASING, WHITE)
-        self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, WHITE)
+        self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
+        self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
         # Debug
         if self.debug:
             self.coords = self.font.render("X: " + str(self.player.rect.x)
-                                           + "; Y: " + str(self.player.rect.y), ANTIALIASING, WHITE)
+                                           + "; Y: " + str(self.player.rect.y), ANTIALIASING, COLORS['WHITE'])
 
     # ---------- Methods --------------------------
     def display(self):
@@ -69,10 +67,12 @@ class PlainLevel(Level):
         # Update all elements in level
         self.bodies.update()
         self.player.update(self.colliders, self.temporary)
+        self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
+        self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
         if self.debug:
             self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
                                            + str(self.player.rect.y) + "VelX: " + str(self.player.velX)
-                                           + "; VelY: " + str(self.player.velY), True, WHITE)
+                                           + "; VelY: " + str(self.player.velY), True, COLORS['WHITE'])
 
         return False
 
@@ -90,17 +90,20 @@ class HorizontalLevel(Level):
         # Update all elements in level
         self.bodies.update()
         # Checks the condition for going out the level
-        if len(self.temporary) != 30:
+        if self.player.coins < 10:
             self.player.update(self.colliders, self.temporary)
-            count = len(self.temporary)
+            self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
+            self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
             if self.debug:
                 '''self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
                                                + str(self.player.rect.y)
                                                + "VelX: " + str(self.player.velX)
-                                               + "; VelY: " + str(self.player.velY), ANTIALIASING, WHITE)'''
+                                               + "; VelY: "
+                                               + str(self.player.velY), ANTIALIASING, COLORS['WHITE'])'''
                 self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
                                                + str(self.player.rect.y)
-                                               + "; Obj: " + str(count), ANTIALIASING, WHITE)
+                                               + "; Obj: "
+                                               + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
 
             return False
 
@@ -117,14 +120,14 @@ class Level1(HorizontalLevel):
         super().__init__(screen, scr_size, debug)
         # Level map structure
         self.structure = ["ffffffffffffffff",
-                          "f              f",
-                          "f              f",
+                          "f            ccf",
+                          "f   c       c  f",
                           "f   f       f  f",
                           "f          ff  f",
-                          "f  f ffff fff  f",
-                          "f            f f",
-                          "f f            f",
-                          "fP             f",
+                          "f  f ffff fffc f",
+                          "f     c c c  f f",
+                          "f f   c c c    f",
+                          "fP f           f",
                           "f              f",
                           "f              f",
                           "ffffffffffffffff"]
@@ -134,16 +137,20 @@ class Level1(HorizontalLevel):
             cnt_x = 0                                   # Initial X-axis grid
             for column in row:
                 if column == "f":                       # 'f' stands for 'Floor'
-                    floor = Floor(BLUE, 50, 50)
+                    floor = Floor(COLORS['BLUE'], FLOOR_SIZE, FLOOR_SIZE)
                     floor.rect.x = cnt_x
                     floor.rect.y = cnt_y
                     self.colliders.add(floor)
                     self.bodies.add(floor)
                 elif column == "P":                     # 'P' stands for 'Player'
-                    # self.hero = Hero(RED, 50, 50)
                     self.player.rect.x = cnt_x
                     self.player.rect.y = cnt_y
-                    # self.bodies.add(self.hero)
+                elif column == "c":                     # 'c' stands for 'Coin'
+                    coin = Coin(COLORS['ORANGE'], COIN_SIZE, COIN_SIZE)
+                    coin.rect.x = cnt_x + 10
+                    coin.rect.y = cnt_y + 10
+                    self.temporary.add(coin)
+                    self.bodies.add(coin)
 
                 cnt_x += 50                             # Increment X-axis for the next tile
 
@@ -152,7 +159,7 @@ class Level1(HorizontalLevel):
         # Random location for snow flakes
         for i in range(50):     # 50
             # Snow instance
-            flake = Snow(WHITE, 2, 2, self.scr_size)
+            flake = Snow(COLORS['WHITE'], 2, 2, self.scr_size)
             # We create a random placement
             flake.rect.x = randrange(self.scr_size[0])
             flake.rect.y = randrange(self.scr_size[1])
@@ -187,13 +194,13 @@ class Level2(PlainLevel):
             cnt_x = 0                                   # Initial X-axis tile grid
             for column in row:
                 if column == "f":                       # 'f' stands for 'Floor'
-                    floor = Floor(BLUE, 50, 50)
+                    floor = Floor(COLORS['BLUE'], 50, 50)
                     floor.rect.x = cnt_x
                     floor.rect.y = cnt_y
                     self.colliders.add(floor)
                     self.bodies.add(floor)
                 elif column == "h":                     # 'h' stands for 'Hole'
-                    hole = Hole(BLACK, 50, 50)
+                    hole = Hole(COLORS['BLACK'], 50, 50)
                     hole.rect.x = cnt_x
                     hole.rect.y = cnt_y
                     self.colliders.add(hole)

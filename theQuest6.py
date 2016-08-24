@@ -14,6 +14,7 @@ from constants6 import SCR_HEIGHT, SCR_WIDTH
 def main():
     # Initializing library
     pygame.init()
+    pygame.mixer.pre_init(44100, 16, 2, 4096)
     # -------------------- Variables ---------------------
     # Screen attributes
     scr_size = (SCR_WIDTH, SCR_HEIGHT)		    # Setting and showing a window
@@ -38,7 +39,7 @@ def main():
         game.display_frame()
         # --- Limit to 60 frames per second
         clock.tick(60)
-    
+
     pygame.quit()
     
 if __name__ == "__main__":
