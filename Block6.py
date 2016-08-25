@@ -2,6 +2,7 @@
 
 # ---------------------- IMPORTS ---------------------
 from pygame import sprite, image, mixer, Surface
+from math import sqrt
 from constants6 import GRAVITY, MAX_FALL_VELOCITY, COLORS
 ''' A parent class for all sprites in the game screen, such as the main player,
     all kind of platforms, enemies and so on.'''
@@ -89,7 +90,7 @@ class Player(Block):
         super().__init__(color, width, height)      # Block.__init__(self, color, width, height)
         self.name = "Player"
         self.life = 100
-        self.coins = 0
+        self.coins = 9
         # Insert here your favourite sound, and all coins will 'tink' when you touch them!
         self.coinSound = mixer.Sound('sounds\\coin.wav')
         self.maxFallVelocity = MAX_FALL_VELOCITY
@@ -118,6 +119,14 @@ class Player(Block):
                 elif self.velX < 0:
                     self.rect.left = body.getRect().right
 
+            elif body.docs() == "Hole":
+                if self.safe_distance(self.rect.centerx, self.rect.centery,
+                                      body.getRect().centerx, body.getRect().centery) < body.rect.width:
+                    if self.rect.x > body.getRect().x:
+                        self.rect.x -= 2
+                    elif self.rect.x < body.getRect().x:
+                        self.rect.x += 2
+
         for body in weak_collide_list:
             if body.docs() == "Snow":
                 self.life -= 1
@@ -139,7 +148,16 @@ class Player(Block):
                     self.rect.bottom = body.getRect().top
                 # Wall upon the player
                 elif self.velY < 0:
+                    self.stop_y()
                     self.rect.top = body.getRect().bottom
+
+            elif body.docs() == "Hole":
+                if self.safe_distance(self.rect.centerx, self.rect.centery,
+                                      body.getRect().centerx, body.getRect().centery) < body.rect.width:
+                    if self.rect.y > body.getRect().y:
+                        self.rect.y -= 2
+                    elif self.rect.y < body.getRect().y:
+                        self.rect.y += 2
 
         for body in weak_collide_list:
             if body.docs() == "Snow":
@@ -198,3 +216,18 @@ class Player(Block):
         self.velY += GRAVITY
         if self.velY > self.maxFallVelocity:
             self.velY = self.maxFallVelocity
+
+    # Calculus for safe distance between the player and a hole
+    def safe_distance(self, player_center_x, player_center_y, hole_center_x, hole_center_y):
+        # It emulates the following formula:
+        #        _____________________________
+        #  d = \/(x_2 - x_1)^2 + (y_2 - y_1)^2
+        x_1 = player_center_x * 1.0
+        y_1 = player_center_y * 1.0
+        x_2 = hole_center_x * 1.0
+        y_2 = hole_center_y * 1.0
+        # Calculation time
+        x_operator = (x_2 - x_1)*(x_2 - x_1)
+        y_operator = (y_2 - y_1) * (y_2 - y_1)
+        return sqrt(x_operator + y_operator)
+

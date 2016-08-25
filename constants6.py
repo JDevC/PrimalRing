@@ -15,7 +15,7 @@ COLORS = {'BLACK': [0x00, 0x00, 0x00],                      # Hex for black
           'ORANGE': [0xFF, 0xFF, 0x00]}                     # Hex for orange
 # ---------------------- Stats -----------------------
 # --------------------- Player -----------------------
-PLAYER_SIZE = 45                                            # X and Y player's size
+PLAYER_SIZE = 40                                            # X and Y player's size
 MAX_FALL_VELOCITY = 10                                      # Player maximum fall velocity
 # ---------------------- Floor -----------------------
 FLOOR_SIZE = 50                                             # X and Y floor's size

@@ -24,7 +24,6 @@ class Level(object):
         self.debug = debug                          # Flag for debugging into the game
         self.screen = screen                        # A reference for the main screen
         self.scr_size = scr_size                    # The screen size
-        # self.coins = 0                              # Coins collected
         self.structure = []
         self.backgroundImg = image.load(self.root + "/images/astro.jpg").convert()
         self.font = font.SysFont('Calibri', 25, True, False)
