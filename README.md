@@ -16,3 +16,21 @@ Besides, can you trust on your misterious captors? They've never shown themselve
 or another kind of creature. They seem to be too much shy for those who have captured you.
 
 Go, face the duty! Stay alive!
+
+----------------------------------------------------------------------------------------------------------------------
+
+# Controls
+
+Level 1:
+
+- Up, Left and Right keys = Moving and jumping
+
+Level 2:
+
+- Up, Down, Left and Right keys = Moving
+
+General: 
+
+- p = Enter/Exit pause screen
+
+That's all for now! I'm working on new features, stay tunned for news :D
