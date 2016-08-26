@@ -1,4 +1,4 @@
-# SpaceQuest
+# Primal Ring
 An odd 2D space-platform adventure!
 
 Abduction! You're suddenly on a strange, technological building. Wait... it's a space ship! How? When? That's impossible!
