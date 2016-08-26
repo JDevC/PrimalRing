@@ -9,6 +9,7 @@ import pygame
 # Own libs
 from Level6 import Level1, Level2
 import PauseScreen
+import SaveGame
 from constants6 import COLORS, ANTIALIASING, DEBUG
 ''' This is the general manager game class. It has the
     main functions and attributes which rule above all
@@ -31,21 +32,53 @@ class Game(object):
         # PAUSE elements
         self.pause = ""
         self.pauseFlag = False                                          # Well, this is obvious
+        # SAVE GAME elements
+        self.save = ""
+        self.saveFlag = False                                          # Well, this is obvious
         # Levels
         self.levels = []                                                # Contains all levels
         self.levels.append(Level1(screen, scr_size, DEBUG))             # We append all levels
         self.levels.append(Level2(screen, scr_size, DEBUG))
-        self.currentLevel = 0
+        self.currentLevel = 1                                           #
         self.level = self.levels[self.currentLevel]                     # This holds the level in which we are at first
 
     # ---------- Methods ----------------------
     # This function manages all events in game
     def event_handler(self):
-        if not self.pauseFlag:
+        # Pause screen
+        if self.pauseFlag:
             for event in pygame.event.get():                            # User did something
                 if event.type == pygame.QUIT:                           # If user clicked close
                     return True                                         # We are done so we exit this loop
+                # Incoming functionality on next versions!
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_LEFT:
+                        pass
+                    elif event.key == pygame.K_RIGHT:
+                        pass
+                    elif event.key == pygame.K_UP:
+                        pass
+                    elif event.key == pygame.K_DOWN:
+                        pass
+                    elif event.key == pygame.K_p:
+                        self.pauseFlag = False                          # Exits the pause screen
+        # Save screen
+        elif self.saveFlag:
+            for event in pygame.event.get():                            # User did something
+                if event.type == pygame.QUIT:                           # If user clicked close
+                    return True                                         # We are done so we exit this loop
+                # Incoming functionality on next versions!
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_TAB:                         # 'TAB' key
+                        # We clean all flags and the save screen object
+                        self.saveFlag = False
+                        self.level.player.saveFlag = False
+                        self.save = ""
 
+        else:
+            for event in pygame.event.get():                            # User did something
+                if event.type == pygame.QUIT:                           # If user clicked close
+                    return True                                         # We are done so we exit this loop
                 if event.type == pygame.KEYDOWN:
                     # Figure out if it was an arrow key. If it's so, adjust speed.
                     if event.key == pygame.K_LEFT:                      # <-
@@ -63,6 +96,10 @@ class Game(object):
                     if event.key == pygame.K_p:                         # 'p' key
                         self.pauseFlag = True
                         self.pause = PauseScreen.PauseScreen(self.screen, self.scr_size, self.level.player)
+                    if event.key == pygame.K_TAB:                         # 'TAB' key
+                        if self.level.player.saveFlag:
+                            self.saveFlag = True
+                            self.save = SaveGame.SaveGame(self.screen, self.scr_size, self.level.player)
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -71,31 +108,17 @@ class Game(object):
                         if self.level.player.plainLevel:
                             self.level.player.stop_y()
 
-        else:
-            for event in pygame.event.get():                            # User did something
-                if event.type == pygame.QUIT:                           # If user clicked close
-                    return True                                         # We are done so we exit this loop
-
-                # Incoming functionality on next versions!
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        pass
-                    elif event.key == pygame.K_RIGHT:
-                        pass
-                    elif event.key == pygame.K_UP:
-                        pass
-                    elif event.key == pygame.K_DOWN:
-                        pass
-                    elif event.key == pygame.K_p:
-                        self.pauseFlag = False                          # Exits the pause screen
-
         return False
 
     # This function is given to refresh all objects and check collisions
     def run_logic(self):
         # Checks if the player still lives on
         if not self.gameOver:
-            if not self.pauseFlag:
+            if self.pauseFlag:
+                pass
+            elif self.saveFlag:
+                pass
+            else:
                 # Updates all sprites and checks if the player has made a level change
                 reached = self.level.update()
                 if reached:
@@ -108,8 +131,6 @@ class Game(object):
                         self.level = self.levels[self.currentLevel]
                     else:
                         self.gameOver = True
-            else:
-                pass
 
     # This function displays all graphic resources and effects
     def display_frame(self):
@@ -127,5 +148,7 @@ class Game(object):
             # game behind the pause screen.
             if self.pauseFlag:
                 self.pause.display()
+            elif self.saveFlag:
+                self.save.display()
         # --- This is 'update' for pygame library
         pygame.display.flip()

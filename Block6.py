@@ -3,7 +3,7 @@
 # ---------------------- IMPORTS ---------------------
 from pygame import sprite, image, mixer, Surface
 from math import sqrt
-from constants6 import GRAVITY, MAX_FALL_VELOCITY, COLORS
+from constants6 import GRAVITY, MAX_FALL_VELOCITY, COLORS, FPS
 ''' A parent class for all sprites in the game screen, such as the main player,
     all kind of platforms, enemies and so on.'''
 
@@ -15,6 +15,9 @@ class Block(sprite.Sprite):
         # -- Parent constructor ---------------
         super().__init__()                      # sprite.Sprite.__init__(self)
         self.name = "Block"
+        # Animation settings
+        self.fps = FPS                          # Frame Rate
+        self.refresh = 0                        # Delay for frame animations
         self.velX = 0
         self.velY = 0
         # We create the block's surface
@@ -70,17 +73,52 @@ class Coin(Block):
     def __init__(self, color, width, height):
         super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
         self.name = "Coin"
-        self.image = image.load('images\\coin.png').convert()
+        self.image = image.load('images/coin.png').convert()
         # We set a transparent color for the image
         self.image.set_colorkey(COLORS['WHITE'])
 
 
-# Class for ground tiles
+# Class for hole tiles
 class Hole(Block):
     # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
         super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
         self.name = "Hole"
+
+
+# Class for ground floor tiles
+class SavePoint(Block):
+    # ---------- Constructor ----------------------
+    def __init__(self, color, width, height):
+        super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
+        self.name = "SavePoint"
+        # self.image = image.load('images/SP_Frames/save_point1.png').convert()
+        self.imageList = []
+        self.imageListIndex = 0
+        # self.imageList.append(image.load('images/SP_Frames/save_point1.png').convert())
+        for i in range(12):
+            self.imageList.append(image.load('images/SP_Frames/save_point'+str(i+1)+'.png').convert())
+        # We set a transparent color for the image
+        # self.image.set_colorkey(COLORS['BLACK'])
+        self.image = self.imageList[self.imageListIndex]
+        self.image.set_colorkey(COLORS['BLACK'])
+
+    # ---------- Methods --------------------------
+    # Update method
+    def update(self):
+        #
+        if self.refresh < self.fps:
+            self.refresh += 30
+        else:
+            if self.imageListIndex < len(self.imageList) - 1:
+                self.imageListIndex += 1
+            else:
+                self.imageListIndex = 0
+
+            self.image = self.imageList[self.imageListIndex]
+            self.image.set_colorkey(COLORS['BLACK'])
+            # We reset the refresh state
+            self.refresh = 0
 
 
 # Class for the player character
@@ -95,6 +133,7 @@ class Player(Block):
         # Insert here your favourite sound, and all coins will go 'tink' when you touch them!
         self.coinSound = mixer.Sound('sounds/coin.wav')
         self.maxFallVelocity = MAX_FALL_VELOCITY    # A limit to gravity acceleration
+        self.saveFlag = False                       # Enable/Disable saving feature
         self.plainLevel = False                     # Enable/Disable horizontal gravity
         self.jumping = False                        # Jumping state flag
 
@@ -105,6 +144,8 @@ class Player(Block):
         solid_boxes = solid
         # Collecting all 'weak' boxes (they'll disappear for colliding)
         weak_boxes = weak
+        # Cleaning flags
+        self.saveFlag = False
         # ------- HORIZONTAL CHECKING -------------------
         # We move the player on the X axis
         self.rect.x += self.velX
@@ -127,6 +168,9 @@ class Player(Block):
                         self.rect.x -= 2
                     elif self.rect.x < body.getRect().x:
                         self.rect.x += 2
+
+            elif body.docs() == "SavePoint":
+                self.saveFlag = True
 
         for body in weak_collide_list:
             if body.docs() == "Snow":
@@ -159,6 +203,10 @@ class Player(Block):
                         self.rect.y -= 2
                     elif self.rect.y < body.getRect().y:
                         self.rect.y += 2
+
+            elif body.docs() == "SavePoint":
+                self.saveFlag = True
+                # print("Game saved! :D")
 
         for body in weak_collide_list:
             if body.docs() == "Snow":
@@ -231,4 +279,3 @@ class Player(Block):
         x_operator = (x_2 - x_1) * (x_2 - x_1)
         y_operator = (y_2 - y_1) * (y_2 - y_1)
         return sqrt(x_operator + y_operator)
-

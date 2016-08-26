@@ -5,7 +5,7 @@
 from pygame import image, font, sprite
 from random import randrange
 # Own libs
-from Block6 import Snow, Player, Floor, Hole, Coin
+from Block6 import Snow, Player, Floor, Hole, Coin, SavePoint
 from constants6 import COLORS, ANTIALIASING, ROOT, PLAYER_SIZE, COIN_SIZE, FLOOR_SIZE
 ''' This class manages all in terms of creating level structures
     and loading graphic and audio resources. Every level created
@@ -29,8 +29,10 @@ class Level(object):
         # Sprite lists for the win!
         self.colliders = sprite.Group()             # Walls, platforms, floor, enemies, switches...
         self.temporary = sprite.Group()             # Coins, ammo, lifepoints...
-        self.bodies = sprite.Group()                # All sprites (this is for render on the screen)
+        self.player_display = sprite.Group()        #
         self.player = Player(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE)
+        self.player_display.add(self.player)
+        self.bodies = sprite.Group()                # All sprites (this is for render on the screen)
         # HUD elements
         self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
         self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
@@ -41,15 +43,16 @@ class Level(object):
 
     # ---------- Methods --------------------------
     def display(self):
-        self.bodies.add(self.player)
-        self.screen.blit(self.backgroundImg, [0, 0])
+        # self.bodies.add(self.player)
+        # self.screen.blit(self.backgroundImg, [0, 0])
         self.bodies.draw(self.screen)
+        self.player_display.draw(self.screen)
         self.screen.blit(self.coinText, [50, 50])
         self.screen.blit(self.lifeText, [50, 70])
         if self.debug:
             self.screen.blit(self.coords, [500, 70])
 
-        self.bodies.remove(self.player)
+        # self.bodies.remove(self.player)
 
     # It renders all main hud information
     def render_hud(self):
@@ -96,15 +99,12 @@ class HorizontalLevel(Level):
             self.player.update(self.colliders, self.temporary)
             self.render_hud()
             if self.debug:
-                '''self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
-                                               + str(self.player.rect.y)
-                                               + "VelX: " + str(self.player.velX)
-                                               + "; VelY: "
-                                               + str(self.player.velY), ANTIALIASING, COLORS['WHITE'])'''
                 self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
-                                               + str(self.player.rect.y)
-                                               + "; Obj: "
-                                               + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
+                                               + str(self.player.rect.y) + "VelX: " + str(self.player.velX)
+                                               + "; VelY: " + str(self.player.velY), ANTIALIASING, COLORS['WHITE'])
+                '''self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
+                                               + str(self.player.rect.y) + "; Obj: "
+                                               + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])'''
 
             return False
 
@@ -184,7 +184,7 @@ class Level2(PlainLevel):
                           "f ff    f fff  f",
                           "f f   h      f f",
                           "f ff  h        f",
-                          "f     h        f",
+                          "f     h    s   f",
                           "ffff ff        f",
                           "fP   hf       ff",
                           "fffffffffffffff "]
@@ -205,6 +205,12 @@ class Level2(PlainLevel):
                     hole.rect.y = cnt_y
                     self.colliders.add(hole)
                     self.bodies.add(hole)
+                elif column == "s":                     # 's' stands for 'SavePoint'
+                    save = SavePoint(COLORS['WHITE'], 50, 50)
+                    save.rect.x = cnt_x
+                    save.rect.y = cnt_y
+                    self.colliders.add(save)
+                    self.bodies.add(save)
                 elif column == "P":                     # 'P' stands for 'Player'
                     self.player.rect.x = cnt_x
                     self.player.rect.y = cnt_y

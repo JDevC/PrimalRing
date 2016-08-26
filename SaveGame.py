@@ -13,7 +13,7 @@ from constants6 import COLORS, PAUSE_SURFACE_ALPHA, ANTIALIASING, ROOT
 
 
 # General class
-class PauseScreen(object):
+class SaveGame(object):
     # Globals
     root = ROOT
 
@@ -25,20 +25,19 @@ class PauseScreen(object):
         self.scr_size = scr_size                    # The screen size
         self.player = player                        # A reference to the player and his statistics
         # Setting a plane, transparent background
-        self.background = Surface(scr_size)
+        self.background = Surface([self.scr_size[0], self.scr_size[1]/4])
         self.background.fill(COLORS['BLACK'])
-        self.background.set_alpha(PAUSE_SURFACE_ALPHA)
-        # Setting the text font for the pause menu
+        # self.background.set_alpha(PAUSE_SURFACE_ALPHA)
+        # Setting the text font for the save menu
         self.font = font.SysFont('Calibri', 25, True, False)
-        # Pause interface text (will include images on next versions)
-        self.pauseText = []
-        self.pauseText.append(self.font.render("PAUSE", ANTIALIASING, COLORS['WHITE']))
-        self.pauseText.append(self.font.render("Life: " + str(self.player.life)
-                                               + "/100", ANTIALIASING, COLORS['WHITE']))
-        self.pauseText.append(self.font.render("Energy: " + str(self.player.energy)
-                                               + "/100", ANTIALIASING, COLORS['WHITE']))
-        self.pauseText.append(self.font.render("Coins: " + str(self.player.coins)
-                                               + "/999", ANTIALIASING, COLORS['WHITE']))
+        # Save interface text (will include images on next versions)
+        self.saveText = []
+        self.saveText.append(self.font.render("Looking at this glittering spot fills you with det... "
+                                              , ANTIALIASING, COLORS['WHITE']))
+        self.saveText.append(self.font.render("oh, wait, we don't want being accused of plagiarism!"
+                                              , ANTIALIASING, COLORS['WHITE']))
+        self.saveText.append(self.font.render("In next versions, you'll be able to save your "
+                                              + "game. Sorry! ", ANTIALIASING, COLORS['WHITE']))
         # Debug
         if self.debug:
             pass
@@ -49,9 +48,8 @@ class PauseScreen(object):
 
     def display(self):
         self.screen.blit(self.background, [0, 0])
-        self.screen.blit(self.pauseText[0], [self.scr_size[0] * 0.45, self.scr_size[1] * 0.1])
-        self.screen.blit(self.pauseText[1], [self.scr_size[0] * 0.2, self.scr_size[1] * 0.3])
-        self.screen.blit(self.pauseText[2], [self.scr_size[0] * 0.2, self.scr_size[1] * 0.4])
-        self.screen.blit(self.pauseText[3], [self.scr_size[0] * 0.2, self.scr_size[1] * 0.5])
+        self.screen.blit(self.saveText[0], [10, 10])
+        self.screen.blit(self.saveText[1], [10, 35])
+        self.screen.blit(self.saveText[2], [10, 60])
         if self.debug:
             pass

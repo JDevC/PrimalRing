@@ -3,7 +3,7 @@
 # ---------------------- IMPORTS ---------------------
 import pygame                                   # Python libs
 import Game6                                    # Own libs
-from constants6 import SCR_HEIGHT, SCR_WIDTH, COLORS
+from constants6 import SCR_HEIGHT, SCR_WIDTH, COLORS, FPS
 """ This is the main game file, where all classes and functions are
     called from. Now it's a tiny file, but we're on developing, so
     it's more than possible that it will grow from now on. """
@@ -19,7 +19,7 @@ def main():
     # Screen attributes
     scr_size = (SCR_WIDTH, SCR_HEIGHT)		            # Setting and showing a window
     screen = pygame.display.set_mode(scr_size)          # Getting the main screen
-    pygame.display.set_caption("The Quest")		        # Setting the screen's title
+    pygame.display.set_caption("Primal Ring")		    # Setting the screen's title
     icon = pygame.image.load('images/coin.png')         # Setting the game icon
     icon.set_colorkey(COLORS['WHITE'])
     pygame.display.set_icon(icon)
@@ -38,7 +38,7 @@ def main():
         # 3rd step: Displaying all
         game.display_frame()
         # --- Limit to 60 frames per second
-        clock.tick(60)
+        clock.tick(FPS)
 
     pygame.quit()
     
