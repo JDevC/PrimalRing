@@ -28,6 +28,7 @@ Level 1:
 Level 2:
 
 - Up, Down, Left and Right keys = Moving
+- TAB (While touching the save point) = Enter/Exit save screen
 
 General: 
 
