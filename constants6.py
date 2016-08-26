@@ -2,10 +2,12 @@
 
 import sys
 from os import path
-# -------------------- CONSTANTS ---------------------
+# ///////////////////// CONSTANTS ////////////////////
 # --------------- Screen dimensions ------------------
 SCR_HEIGHT = 600                                            # 600
 SCR_WIDTH = 800                                             # 800
+# ------------ Pause Screen Attributes ---------------
+PAUSE_SURFACE_ALPHA = 127                                   # Background's alpha value
 # ----------------- Primary colors -------------------
 COLORS = {'BLACK': [0x00, 0x00, 0x00],                      # Hex for black
           'WHITE': [0xFF, 0xFF, 0xFF],                      # Hex for white
@@ -13,15 +15,15 @@ COLORS = {'BLACK': [0x00, 0x00, 0x00],                      # Hex for black
           'GREEN': [0x00, 0xFF, 0x00],                      # Hex for green
           'BLUE': [0x00, 0x00, 0xFF],                       # Hex for blue
           'ORANGE': [0xFF, 0xFF, 0x00]}                     # Hex for orange
-# ---------------------- Stats -----------------------
+# --------------------- BODIES -----------------------
 # --------------------- Player -----------------------
 PLAYER_SIZE = 40                                            # X and Y player's size
 MAX_FALL_VELOCITY = 10                                      # Player maximum fall velocity
 # ---------------------- Floor -----------------------
 FLOOR_SIZE = 50                                             # X and Y floor's size
-# ---------------------- Items -----------------------
+# ---------------------- ITEMS -----------------------
 COIN_SIZE = 30                                              # X and Y coin's size
-# --------------------- General ----------------------
+# --------------------- GENERAL ----------------------
 GRAVITY = 0.35                                              # Gravity for all bodies
 ANTIALIASING = True                                         # Smoothing text fonts
 DEBUG = True                                                # Reveals hidden statistics and more

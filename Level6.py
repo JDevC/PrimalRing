@@ -5,7 +5,6 @@
 from pygame import image, font, sprite
 from random import randrange
 # Own libs
-# We could just import the Block module, but it's more reliable as is
 from Block6 import Snow, Player, Floor, Hole, Coin
 from constants6 import COLORS, ANTIALIASING, ROOT, PLAYER_SIZE, COIN_SIZE, FLOOR_SIZE
 ''' This class manages all in terms of creating level structures
@@ -52,6 +51,11 @@ class Level(object):
 
         self.bodies.remove(self.player)
 
+    # It renders all main hud information
+    def render_hud(self):
+        self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
+        self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
+
 
 # 2D Plain level's type class
 class PlainLevel(Level):
@@ -66,8 +70,7 @@ class PlainLevel(Level):
         # Update all elements in level
         self.bodies.update()
         self.player.update(self.colliders, self.temporary)
-        self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
-        self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
+        self.render_hud()
         if self.debug:
             self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
                                            + str(self.player.rect.y) + "VelX: " + str(self.player.velX)
@@ -91,8 +94,7 @@ class HorizontalLevel(Level):
         # Checks the condition for going out the level
         if self.player.coins < 10:
             self.player.update(self.colliders, self.temporary)
-            self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
-            self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
+            self.render_hud()
             if self.debug:
                 '''self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
                                                + str(self.player.rect.y)
@@ -113,7 +115,6 @@ class HorizontalLevel(Level):
 # All levels must inherit from 'HorizontalLevel' or 'Plain Level'
 class Level1(HorizontalLevel):
     # ---------- Constructor ----------------------
-    # def __init__(self, screen, src_size, root, debug=False):
     def __init__(self, screen, scr_size, debug=False):
         # -- Parent constructor ---------------
         super().__init__(screen, scr_size, debug)
@@ -205,10 +206,8 @@ class Level2(PlainLevel):
                     self.colliders.add(hole)
                     self.bodies.add(hole)
                 elif column == "P":                     # 'P' stands for 'Player'
-                    # self.hero = Hero(RED, 50, 50)
                     self.player.rect.x = cnt_x
                     self.player.rect.y = cnt_y
-                    # self.bodies.add(self.hero)
 
                 cnt_x += 50                             # Increment X-axis for the next tile
 

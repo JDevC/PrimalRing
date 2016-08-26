@@ -88,21 +88,22 @@ class Player(Block):
     # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
         super().__init__(color, width, height)      # Block.__init__(self, color, width, height)
-        self.name = "Player"
-        self.life = 100
-        self.coins = 9
-        # Insert here your favourite sound, and all coins will 'tink' when you touch them!
-        self.coinSound = mixer.Sound('sounds\\coin.wav')
-        self.maxFallVelocity = MAX_FALL_VELOCITY
+        self.name = "Player"                        # Player's name (pretty obvious, isn't it?)
+        self.life = 100                             # Player's stamina
+        self.energy = 100                           # Player's energy for skills
+        self.coins = 0                              # Player's budget (Still bigger than mine -.- sigh... )
+        # Insert here your favourite sound, and all coins will go 'tink' when you touch them!
+        self.coinSound = mixer.Sound('sounds/coin.wav')
+        self.maxFallVelocity = MAX_FALL_VELOCITY    # A limit to gravity acceleration
         self.plainLevel = False                     # Enable/Disable horizontal gravity
-        self.jumping = False
+        self.jumping = False                        # Jumping state flag
 
     # ---------- Methods --------------------------
     # Update method
     def update(self, solid, weak):
         # Collecting all 'solid' boxes (they don't vanish for colliding)
         solid_boxes = solid
-        # Collecting all 'weak' boxes (they disappear for colliding)
+        # Collecting all 'weak' boxes (they'll disappear for colliding)
         weak_boxes = weak
         # ------- HORIZONTAL CHECKING -------------------
         # We move the player on the X axis
@@ -120,8 +121,8 @@ class Player(Block):
                     self.rect.left = body.getRect().right
 
             elif body.docs() == "Hole":
-                if self.safe_distance(self.rect.centerx, self.rect.centery,
-                                      body.getRect().centerx, body.getRect().centery) < body.rect.width:
+                if self.hole_distance(self.rect.centerx, self.rect.centery,
+                                      body.getRect().centerx, body.getRect().centery) < body.rect.width*0.75:
                     if self.rect.x > body.getRect().x:
                         self.rect.x -= 2
                     elif self.rect.x < body.getRect().x:
@@ -152,8 +153,8 @@ class Player(Block):
                     self.rect.top = body.getRect().bottom
 
             elif body.docs() == "Hole":
-                if self.safe_distance(self.rect.centerx, self.rect.centery,
-                                      body.getRect().centerx, body.getRect().centery) < body.rect.width:
+                if self.hole_distance(self.rect.centerx, self.rect.centery,
+                                      body.getRect().centerx, body.getRect().centery) < body.rect.width*0.75:
                     if self.rect.y > body.getRect().y:
                         self.rect.y -= 2
                     elif self.rect.y < body.getRect().y:
@@ -218,7 +219,7 @@ class Player(Block):
             self.velY = self.maxFallVelocity
 
     # Calculus for safe distance between the player and a hole
-    def safe_distance(self, player_center_x, player_center_y, hole_center_x, hole_center_y):
+    def hole_distance(self, player_center_x, player_center_y, hole_center_x, hole_center_y):
         # It emulates the following formula:
         #        _____________________________
         #  d = \/(x_2 - x_1)^2 + (y_2 - y_1)^2
@@ -227,7 +228,7 @@ class Player(Block):
         x_2 = hole_center_x * 1.0
         y_2 = hole_center_y * 1.0
         # Calculation time
-        x_operator = (x_2 - x_1)*(x_2 - x_1)
+        x_operator = (x_2 - x_1) * (x_2 - x_1)
         y_operator = (y_2 - y_1) * (y_2 - y_1)
         return sqrt(x_operator + y_operator)
 
