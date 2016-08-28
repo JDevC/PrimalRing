@@ -3,9 +3,6 @@
 # ---------------------- IMPORTS ---------------------
 # Python libs
 import pygame
-# import random
-# import sys
-# from os import path
 # Own libs
 from Level6 import Level1, Level2
 import PauseScreen
@@ -31,19 +28,22 @@ class Game(object):
         self.gOverText.append(self.font.render("Want to try again?", ANTIALIASING, COLORS['WHITE']))
         self.gOverText.append(self.font.render("Yes / No", ANTIALIASING, COLORS['WHITE']))
         # PAUSE elements
-        self.pause = ""
+        self.pause = None
         self.pauseFlag = False                                          # Well, this is obvious
         # SAVE GAME elements
-        self.save = ""
-        self.saveFlag = False                                          # Well, this is obvious
+        self.save = None
+        self.saveFlag = False                                           # Well, this is obvious
         # Levels
-        saved_state = load_file()
-        self.levels = {"The RING": Level2(screen, scr_size, DEBUG),
-                       "Doom Valley": Level1(screen, scr_size, DEBUG)}
+        saved_state = load_file()                                       # We try to load a game file
+        print(saved_state)
         # This holds the level in which we are at first
         if saved_state is not None:
+            self.levels = {"Doom Valley": Level1(screen, scr_size, DEBUG, saved_state),
+                           "The RING": Level2(screen, scr_size, DEBUG, saved_state)}
             self.level = self.levels[saved_state['Level']]
         else:
+            self.levels = {"Doom Valley": Level1(screen, scr_size, DEBUG),
+                           "The RING": Level2(screen, scr_size, DEBUG)}
             self.level = self.levels["Doom Valley"]
 
     # ---------- Methods ----------------------

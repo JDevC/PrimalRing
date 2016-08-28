@@ -27,5 +27,5 @@ COIN_SIZE = 30                                              # X and Y coin's siz
 FPS = 60                                                    # General FPS value
 GRAVITY = 0.35                                              # Gravity for all bodies
 ANTIALIASING = True                                         # Smoothing text fonts
-DEBUG = False                                                # Reveals hidden statistics and more
+DEBUG = False                                               # Reveals hidden statistics and more
 ROOT = path.dirname(path.realpath(sys.argv[0]))             # Root game path

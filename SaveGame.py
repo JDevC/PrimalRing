@@ -28,13 +28,15 @@ class SaveGame(object):
         # Setting the text font for the save menu
         self.font = font.SysFont('Calibri', 25, True, False)
         # Save interface text (will include images on next versions)
+        self.game_saved = False
         self.saveText = []
-        self.saveText.append(self.font.render("Looking at this glittering spot fills you with det... "
-                                              , ANTIALIASING, COLORS['WHITE']))
-        self.saveText.append(self.font.render("oh, wait, we don't want to be accused of plagiarism!"
-                                              , ANTIALIASING, COLORS['WHITE']))
-        self.saveText.append(self.font.render("Do you want to save your game? Y: Yes; N: No"
-                                              , ANTIALIASING, COLORS['WHITE']))
+        self.saveText.append(self.font.render("Looking at this glittering spot fills you with det... ",
+                                              ANTIALIASING, COLORS['WHITE']))
+        self.saveText.append(self.font.render("oh, wait, we don't want to be accused of plagiarism!",
+                                              ANTIALIASING, COLORS['WHITE']))
+        self.saveText.append(self.font.render("Do you want to save your game? Y: Yes; N: No",
+                                              ANTIALIASING, COLORS['WHITE']))
+        self.saveText.append(self.font.render("Game saved!", ANTIALIASING, COLORS['WHITE']))
         # Debug
         if self.debug:
             pass
@@ -58,7 +60,9 @@ class SaveGame(object):
                          "Life": self.level.player.life,
                          "Energy": self.level.player.energy,
                          "Coins": self.level.player.coins,
-                         "Level": self.level.ID}
+                         "Level": self.level.ID,
+                         "Position":
+                             [self.level.player.rect.x, self.level.player.rect.y]}
         file = open("saves/save_trial.sv", "wb")
         pickle.dump(player_status, file)
         file.close()

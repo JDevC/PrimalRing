@@ -92,10 +92,9 @@ class SavePoint(Block):
     def __init__(self, color, width, height):
         super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
         self.name = "SavePoint"
-        # self.image = image.load('images/SP_Frames/save_point1.png').convert()
+        # Animation image frames
         self.imageList = []
         self.imageListIndex = 0
-        # self.imageList.append(image.load('images/SP_Frames/save_point1.png').convert())
         for i in range(12):
             self.imageList.append(image.load('images/SP_Frames/save_point'+str(i+1)+'.png').convert())
         # We set a transparent color for the image
@@ -123,12 +122,21 @@ class SavePoint(Block):
 # Class for the player character
 class Player(Block):
     # ---------- Constructor ----------------------
-    def __init__(self, color, width, height):
+    def __init__(self, color, width, height, saved_states=None):
         super().__init__(color, width, height)      # Block.__init__(self, color, width, height)
-        self.name = "Player"                        # Player's name (pretty obvious, isn't it?)
-        self.life = 100                             # Player's stamina
-        self.energy = 100                           # Player's energy for skills
-        self.coins = 0                              # Player's budget (Still bigger than mine -.- sigh... )
+        # We set it's condition depending on the save file
+        if saved_states is not None:
+            self.name = saved_states['Name']
+            self.life = saved_states['Life']
+            self.energy = saved_states['Energy']
+            self.coins = saved_states['Coins']
+            self.rect.x = saved_states['Position'][0]
+            self.rect.y = saved_states['Position'][1]
+        else:
+            self.name = "Player"
+            self.life = 100
+            self.energy = 100
+            self.coins = 0
         # Insert here your favourite sound, and all coins will go 'tink' when you touch them!
         self.coinSound = mixer.Sound('sounds/coin.wav')
         self.maxFallVelocity = MAX_FALL_VELOCITY    # A limit to gravity acceleration
@@ -163,7 +171,7 @@ class Player(Block):
 
             elif body.docs() == "Hole":
                 if self.distance(self.rect.centerx, self.rect.centery,
-                                      body.getRect().centerx, body.getRect().centery) < body.rect.width*0.75:
+                                 body.getRect().centerx, body.getRect().centery) < body.rect.width*0.75:
                     if self.rect.x > body.getRect().x:
                         self.rect.x -= 2
                     elif self.rect.x < body.getRect().x:
