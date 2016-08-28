@@ -104,11 +104,10 @@ class SavePoint(Block):
         self.image.set_colorkey(COLORS['BLACK'])
 
     # ---------- Methods --------------------------
-    # Update method
+    # Update method for animation
     def update(self):
-        #
         if self.refresh < self.fps:
-            self.refresh += 30
+            self.refresh += self.fps / 2
         else:
             if self.imageListIndex < len(self.imageList) - 1:
                 self.imageListIndex += 1
@@ -145,7 +144,8 @@ class Player(Block):
         # Collecting all 'weak' boxes (they'll disappear for colliding)
         weak_boxes = weak
         # Cleaning flags
-        self.saveFlag = False
+        if self.saveFlag:
+            self.saveFlag = False
         # ------- HORIZONTAL CHECKING -------------------
         # We move the player on the X axis
         self.rect.x += self.velX
@@ -162,7 +162,7 @@ class Player(Block):
                     self.rect.left = body.getRect().right
 
             elif body.docs() == "Hole":
-                if self.hole_distance(self.rect.centerx, self.rect.centery,
+                if self.distance(self.rect.centerx, self.rect.centery,
                                       body.getRect().centerx, body.getRect().centery) < body.rect.width*0.75:
                     if self.rect.x > body.getRect().x:
                         self.rect.x -= 2
@@ -170,7 +170,9 @@ class Player(Block):
                         self.rect.x += 2
 
             elif body.docs() == "SavePoint":
-                self.saveFlag = True
+                if self.distance(self.rect.centerx, self.rect.centery,
+                                 body.getRect().centerx, body.getRect().centery) < body.rect.width / 2:
+                    self.saveFlag = True
 
         for body in weak_collide_list:
             if body.docs() == "Snow":
@@ -197,7 +199,7 @@ class Player(Block):
                     self.rect.top = body.getRect().bottom
 
             elif body.docs() == "Hole":
-                if self.hole_distance(self.rect.centerx, self.rect.centery,
+                if self.distance(self.rect.centerx, self.rect.centery,
                                       body.getRect().centerx, body.getRect().centery) < body.rect.width*0.75:
                     if self.rect.y > body.getRect().y:
                         self.rect.y -= 2
@@ -205,8 +207,9 @@ class Player(Block):
                         self.rect.y += 2
 
             elif body.docs() == "SavePoint":
-                self.saveFlag = True
-                # print("Game saved! :D")
+                if self.distance(self.rect.centerx, self.rect.centery,
+                                 body.getRect().centerx, body.getRect().centery) < body.rect.width / 2:
+                    self.saveFlag = True
 
         for body in weak_collide_list:
             if body.docs() == "Snow":
@@ -266,15 +269,15 @@ class Player(Block):
         if self.velY > self.maxFallVelocity:
             self.velY = self.maxFallVelocity
 
-    # Calculus for safe distance between the player and a hole
-    def hole_distance(self, player_center_x, player_center_y, hole_center_x, hole_center_y):
+    # Calculates a distance between central points of the player and other bodies
+    def distance(self, player_center_x, player_center_y, body_center_x, body_center_y):
         # It emulates the following formula:
         #        _____________________________
         #  d = \/(x_2 - x_1)^2 + (y_2 - y_1)^2
         x_1 = player_center_x * 1.0
         y_1 = player_center_y * 1.0
-        x_2 = hole_center_x * 1.0
-        y_2 = hole_center_y * 1.0
+        x_2 = body_center_x * 1.0
+        y_2 = body_center_y * 1.0
         # Calculation time
         x_operator = (x_2 - x_1) * (x_2 - x_1)
         y_operator = (y_2 - y_1) * (y_2 - y_1)

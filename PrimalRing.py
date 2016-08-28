@@ -19,6 +19,7 @@ def main():
     # Screen attributes
     scr_size = (SCR_WIDTH, SCR_HEIGHT)		            # Setting and showing a window
     screen = pygame.display.set_mode(scr_size)          # Getting the main screen
+    # screen = pygame.display.set_mode(scr_size, pygame.FULLSCREEN)  # Getting the main screen
     pygame.display.set_caption("Primal Ring")		    # Setting the screen's title
     icon = pygame.image.load('images/coin.png')         # Setting the game icon
     icon.set_colorkey(COLORS['WHITE'])

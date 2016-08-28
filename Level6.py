@@ -23,8 +23,9 @@ class Level(object):
         self.debug = debug                          # Flag for debugging into the game
         self.screen = screen                        # A reference for the main screen
         self.scr_size = scr_size                    # The screen size
-        self.structure = []
-        self.backgroundImg = image.load(self.root + "/images/astro.jpg").convert()
+        self.ID = ""                                # A level identifier
+        self.structure = []                         # Level structure reference
+        self.backgroundImg = None                   # Background image reference
         self.font = font.SysFont('Calibri', 25, True, False)
         # Sprite lists for the win!
         self.colliders = sprite.Group()             # Walls, platforms, floor, enemies, switches...
@@ -36,28 +37,31 @@ class Level(object):
         # HUD elements
         self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
         self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
+        self.energyText = self.font.render("Energy: " + str(self.player.energy), ANTIALIASING, COLORS['WHITE'])
         # Debug
         if self.debug:
-            self.coords = self.font.render("X: " + str(self.player.rect.x)
-                                           + "; Y: " + str(self.player.rect.y), ANTIALIASING, COLORS['WHITE'])
+            self.debText = self.font.render("X: " + str(self.player.rect.x)
+                                            + "; Y: " + str(self.player.rect.y),
+                                            ANTIALIASING, COLORS['WHITE'])
 
     # ---------- Methods --------------------------
     def display(self):
-        # self.bodies.add(self.player)
-        # self.screen.blit(self.backgroundImg, [0, 0])
+        # We check if the level has a background image and blit it to the screen
+        if self.backgroundImg is not None:
+            self.screen.blit(self.backgroundImg, [0, 0])
         self.bodies.draw(self.screen)
         self.player_display.draw(self.screen)
         self.screen.blit(self.coinText, [50, 50])
         self.screen.blit(self.lifeText, [50, 70])
+        self.screen.blit(self.energyText, [50, 90])
         if self.debug:
-            self.screen.blit(self.coords, [500, 70])
-
-        # self.bodies.remove(self.player)
+            self.screen.blit(self.debText, [500, 70])
 
     # It renders all main hud information
     def render_hud(self):
         self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
         self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
+        self.energyText = self.font.render("Energy: " + str(self.player.energy), ANTIALIASING, COLORS['WHITE'])
 
 
 # 2D Plain level's type class
@@ -75,7 +79,7 @@ class PlainLevel(Level):
         self.player.update(self.colliders, self.temporary)
         self.render_hud()
         if self.debug:
-            self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
+            self.debText = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
                                            + str(self.player.rect.y) + "VelX: " + str(self.player.velX)
                                            + "; VelY: " + str(self.player.velY), True, COLORS['WHITE'])
 
@@ -88,6 +92,7 @@ class HorizontalLevel(Level):
     def __init__(self, screen, scr_size, debug=False):
         # -- Parent constructor ---------------
         super().__init__(screen, scr_size, debug)
+        self.backgroundImg = image.load(self.root + "/images/astro.jpg").convert()
         self.player.plainLevel = False
 
     # ---------- Methods --------------------------
@@ -99,10 +104,10 @@ class HorizontalLevel(Level):
             self.player.update(self.colliders, self.temporary)
             self.render_hud()
             if self.debug:
-                self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
+                self.debText = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
                                                + str(self.player.rect.y) + "VelX: " + str(self.player.velX)
                                                + "; VelY: " + str(self.player.velY), ANTIALIASING, COLORS['WHITE'])
-                '''self.coords = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
+                '''self.debText = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
                                                + str(self.player.rect.y) + "; Obj: "
                                                + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])'''
 
@@ -118,6 +123,8 @@ class Level1(HorizontalLevel):
     def __init__(self, screen, scr_size, debug=False):
         # -- Parent constructor ---------------
         super().__init__(screen, scr_size, debug)
+        # Level data
+        self.ID = "Doom Valley"
         # Level map structure
         self.structure = ["ffffffffffffffff",
                           "f            ccf",
@@ -175,6 +182,8 @@ class Level2(PlainLevel):
     def __init__(self, screen, src_size, debug=False):
         # -- Parent constructor ---------------
         super().__init__(screen, src_size, debug)
+        # Level data
+        self.ID = "The RING"
         # -- Attributes -----------------------
         self.structure = ["fffffff ffffffff",
                           "f       f      f",

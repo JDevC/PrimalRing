@@ -22,7 +22,7 @@ class PauseScreen(object):
         # -- Attributes -----------------------
         self.debug = debug                          # Flag for debugging into the game
         self.screen = screen                        # A reference for the main screen
-        self.scr_size = scr_size                    # The screen size
+        self.scr_size = scr_size                    # The screen size (Default: 600 * 800)
         self.player = player                        # A reference to the player and his statistics
         # Setting a plane, transparent background
         self.background = Surface(scr_size)
@@ -39,6 +39,11 @@ class PauseScreen(object):
                                                + "/100", ANTIALIASING, COLORS['WHITE']))
         self.pauseText.append(self.font.render("Coins: " + str(self.player.coins)
                                                + "/999", ANTIALIASING, COLORS['WHITE']))
+        self.pauseText.append(self.font.render("- Inventory", ANTIALIASING, COLORS['WHITE']))
+        self.pauseText.append(self.font.render("- Skills", ANTIALIASING, COLORS['WHITE']))
+        self.pauseText.append(self.font.render("- Options", ANTIALIASING, COLORS['WHITE']))
+        self.pauseText.append(self.font.render("- Quit", ANTIALIASING, COLORS['WHITE']))
+
         # Debug
         if self.debug:
             pass
@@ -48,10 +53,15 @@ class PauseScreen(object):
         pass
 
     def display(self):
+        # Background attached to all the window surface
         self.screen.blit(self.background, [0, 0])
         self.screen.blit(self.pauseText[0], [self.scr_size[0] * 0.45, self.scr_size[1] * 0.1])
         self.screen.blit(self.pauseText[1], [self.scr_size[0] * 0.2, self.scr_size[1] * 0.3])
         self.screen.blit(self.pauseText[2], [self.scr_size[0] * 0.2, self.scr_size[1] * 0.4])
         self.screen.blit(self.pauseText[3], [self.scr_size[0] * 0.2, self.scr_size[1] * 0.5])
+        self.screen.blit(self.pauseText[4], [self.scr_size[0] * 0.6, self.scr_size[1] * 0.3])
+        self.screen.blit(self.pauseText[5], [self.scr_size[0] * 0.6, self.scr_size[1] * 0.4])
+        self.screen.blit(self.pauseText[6], [self.scr_size[0] * 0.6, self.scr_size[1] * 0.5])
+        self.screen.blit(self.pauseText[7], [self.scr_size[0] * 0.6, self.scr_size[1] * 0.6])
         if self.debug:
             pass

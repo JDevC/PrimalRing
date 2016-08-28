@@ -10,6 +10,7 @@ import pygame
 from Level6 import Level1, Level2
 import PauseScreen
 import SaveGame
+from SaveGame import load_file
 from constants6 import COLORS, ANTIALIASING, DEBUG
 ''' This is the general manager game class. It has the
     main functions and attributes which rule above all
@@ -36,11 +37,14 @@ class Game(object):
         self.save = ""
         self.saveFlag = False                                          # Well, this is obvious
         # Levels
-        self.levels = []                                                # Contains all levels
-        self.levels.append(Level1(screen, scr_size, DEBUG))             # We append all levels
-        self.levels.append(Level2(screen, scr_size, DEBUG))
-        self.currentLevel = 1                                           #
-        self.level = self.levels[self.currentLevel]                     # This holds the level in which we are at first
+        saved_state = load_file()
+        self.levels = {"The RING": Level2(screen, scr_size, DEBUG),
+                       "Doom Valley": Level1(screen, scr_size, DEBUG)}
+        # This holds the level in which we are at first
+        if saved_state is not None:
+            self.level = self.levels[saved_state['Level']]
+        else:
+            self.level = self.levels["Doom Valley"]
 
     # ---------- Methods ----------------------
     # This function manages all events in game
@@ -62,6 +66,9 @@ class Game(object):
                         pass
                     elif event.key == pygame.K_p:
                         self.pauseFlag = False                          # Exits the pause screen
+                    elif event.key == pygame.K_ESCAPE:
+                        return True
+
         # Save screen
         elif self.saveFlag:
             for event in pygame.event.get():                            # User did something
@@ -71,6 +78,26 @@ class Game(object):
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_TAB:                         # 'TAB' key
                         # We clean all flags and the save screen object
+                        self.saveFlag = False
+                        self.level.player.saveFlag = False
+                        self.save = ""
+                    elif event.key == pygame.K_UP:
+                        pass
+                    elif event.key == pygame.K_DOWN:
+                        pass
+                    elif event.key == pygame.K_s:                       # 's' key
+                        # This saves your game!
+                        # (Pfffiuuuu... what a relief)
+                        self.save.save_file()
+                        # Game saved
+                        # self.save.load_file()
+                        self.saveFlag = False
+                        self.level.player.saveFlag = False
+                        self.save = ""
+                        pass
+                    elif event.key == pygame.K_n:                       # 'n' key
+                        # This avoids your game for being saved!
+                        # You have a confident will, don't you?
                         self.saveFlag = False
                         self.level.player.saveFlag = False
                         self.save = ""
@@ -99,7 +126,7 @@ class Game(object):
                     if event.key == pygame.K_TAB:                         # 'TAB' key
                         if self.level.player.saveFlag:
                             self.saveFlag = True
-                            self.save = SaveGame.SaveGame(self.screen, self.scr_size, self.level.player)
+                            self.save = SaveGame.SaveGame(self.screen, self.scr_size, self.level)
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -126,11 +153,7 @@ class Game(object):
                     # This point needs a revision: our game map should consist on a central level from where we can
                     # travel into the others, but at least it's a beginning
                     # self.gameOver = True
-                    if self.currentLevel < len(self.levels):
-                        self.currentLevel += 1
-                        self.level = self.levels[self.currentLevel]
-                    else:
-                        self.gameOver = True
+                    self.level = self.levels["The RING"]
 
     # This function displays all graphic resources and effects
     def display_frame(self):
