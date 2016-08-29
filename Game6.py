@@ -4,11 +4,12 @@
 # Python libs
 import pygame
 # Own libs
+from Block6 import Player
 from Level6 import Level1, Level2
 import PauseScreen
 import SaveGame
 from SaveGame import load_file
-from constants6 import COLORS, ANTIALIASING, DEBUG
+from constants6 import COLORS, PLAYER_SIZE, ANTIALIASING, DEBUG
 ''' This is the general manager game class. It has the
     main functions and attributes which rule above all
     the rest.'''
@@ -33,18 +34,25 @@ class Game(object):
         # SAVE GAME elements
         self.save = None
         self.saveFlag = False                                           # Well, this is obvious
+        # Game loading
+        saved_state = load_file()  # We try to load a game file
+        # Player
+        self.player = Player(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, saved_state)
         # Levels
-        saved_state = load_file()                                       # We try to load a game file
-        print(saved_state)
-        # This holds the level in which we are at first
+        self.levels = {"Doom Valley": Level1(screen, scr_size, self.player, DEBUG),
+                       "The RING": Level2(screen, scr_size, self.player, DEBUG)}
         if saved_state is not None:
-            self.levels = {"Doom Valley": Level1(screen, scr_size, DEBUG, saved_state),
-                           "The RING": Level2(screen, scr_size, DEBUG, saved_state)}
-            self.level = self.levels[saved_state['Level']]
+            # You've a game saved, so you start in the level and position stored
+            self.level = self.levels[saved_state['Level']['ID']]
+            self.player.rect.x = saved_state['Level']['PositionX']
+            self.player.rect.y = saved_state['Level']['PositionY']
         else:
-            self.levels = {"Doom Valley": Level1(screen, scr_size, DEBUG),
-                           "The RING": Level2(screen, scr_size, DEBUG)}
-            self.level = self.levels["Doom Valley"]
+            # Don't have a game file? You start where everyone does (We respect and support equality)
+            self.level = self.levels['Doom Valley']
+            self.player.rect.x = self.level.levelInit[0]
+            self.player.rect.y = self.level.levelInit[1]
+
+        self.player.plainLevel = self.level.plainLevel
 
     # ---------- Methods ----------------------
     # This function manages all events in game
@@ -102,6 +110,7 @@ class Game(object):
                         self.level.player.saveFlag = False
                         self.save = ""
 
+        # Game Screen
         else:
             for event in pygame.event.get():                            # User did something
                 if event.type == pygame.QUIT:                           # If user clicked close
@@ -153,7 +162,10 @@ class Game(object):
                     # This point needs a revision: our game map should consist on a central level from where we can
                     # travel into the others, but at least it's a beginning
                     # self.gameOver = True
-                    self.level = self.levels["The RING"]
+                    self.level = self.levels['The RING']
+                    self.player.rect.x = self.level.levelInit[0]
+                    self.player.rect.y = self.level.levelInit[1]
+                    self.player.plainLevel = self.level.plainLevel
 
     # This function displays all graphic resources and effects
     def display_frame(self):

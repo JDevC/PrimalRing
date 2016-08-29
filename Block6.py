@@ -13,11 +13,11 @@ class Block(sprite.Sprite):
     # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
         # -- Parent constructor ---------------
-        super().__init__()                      # sprite.Sprite.__init__(self)
+        super().__init__()                              # sprite.Sprite.__init__(self)
         self.name = "Block"
         # Animation settings
-        self.fps = FPS                          # Frame Rate
-        self.refresh = 0                        # Delay for frame animations
+        self.fps = FPS                                  # Frame Rate
+        self.refresh = 0                                # Delay for frame animations
         self.velX = 0
         self.velY = 0
         # We create the block's surface
@@ -33,6 +33,23 @@ class Block(sprite.Sprite):
 
     def getRect(self):
         return self.rect
+
+
+# It's alive! Class for animated blocks, with some additions
+class AnimatedBlock(Block):
+    # ---------- Constructor ----------------------
+    def __init__(self, color, width, height):
+        # -- Parent constructor ---------------
+        super().__init__(color, width, height)
+        # Animation attributes
+        self.imageList = []                             # Frame container
+        self.imageListIndex = 0                         # Frame pointer on animation
+
+    # ---------- Methods --------------------------
+    # It loads all frames incoming from a specified folder
+    def set_frames(self, origin, quantity):
+        for i in range(quantity):
+            self.imageList.append(image.load('images/' + origin + str(i+1) + '.png').convert())
 
 
 class Snow(Block):
@@ -73,7 +90,7 @@ class Coin(Block):
     def __init__(self, color, width, height):
         super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
         self.name = "Coin"
-        self.image = image.load('images/coin.png').convert()
+        self.image = image.load('images/Coin_Frames/coin.png').convert()
         # We set a transparent color for the image
         self.image.set_colorkey(COLORS['WHITE'])
 
@@ -86,20 +103,16 @@ class Hole(Block):
         self.name = "Hole"
 
 
-# Class for ground floor tiles
-class SavePoint(Block):
+# Class for saving point tiles
+class SavePoint(AnimatedBlock):
     # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
         super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
         self.name = "SavePoint"
         # Animation image frames
-        self.imageList = []
-        self.imageListIndex = 0
-        for i in range(12):
-            self.imageList.append(image.load('images/SP_Frames/save_point'+str(i+1)+'.png').convert())
-        # We set a transparent color for the image
-        # self.image.set_colorkey(COLORS['BLACK'])
+        self.set_frames('SP_Frames/save_point', 12)
         self.image = self.imageList[self.imageListIndex]
+        # We set a transparent color for the image
         self.image.set_colorkey(COLORS['BLACK'])
 
     # ---------- Methods --------------------------
@@ -122,21 +135,24 @@ class SavePoint(Block):
 # Class for the player character
 class Player(Block):
     # ---------- Constructor ----------------------
-    def __init__(self, color, width, height, saved_states=None):
+    def __init__(self, color, width, height, save_file=None):
         super().__init__(color, width, height)      # Block.__init__(self, color, width, height)
-        # We set it's condition depending on the save file
-        if saved_states is not None:
-            self.name = saved_states['Name']
-            self.life = saved_states['Life']
-            self.energy = saved_states['Energy']
-            self.coins = saved_states['Coins']
-            self.rect.x = saved_states['Position'][0]
-            self.rect.y = saved_states['Position'][1]
+        # We set its conditions depending on the save file
+        if save_file is not None:
+            self.name = save_file['Name']
+            self.life = save_file['Life'][0]
+            self.maxLife = save_file['Life'][1]
+            self.energy = save_file['Energy'][0]
+            self.maxEnergy = save_file['Energy'][1]
+            self.coins = save_file['Coins'][0]
+            self.maxWallet = save_file['Coins'][1]
         else:
+            # These attributes could be higher across the game, by power-ups that increase this limits
             self.name = "Player"
-            self.life = 100
-            self.energy = 100
+            self.life = self.maxLife = 100
+            self.energy = self.maxEnergy = 100
             self.coins = 0
+            self.maxWallet = 100
         # Insert here your favourite sound, and all coins will go 'tink' when you touch them!
         self.coinSound = mixer.Sound('sounds/coin.wav')
         self.maxFallVelocity = MAX_FALL_VELOCITY    # A limit to gravity acceleration

@@ -57,12 +57,13 @@ class SaveGame(object):
     # Function for saving a game file
     def save_file(self):
         player_status = {"Name": self.level.player.name,
-                         "Life": self.level.player.life,
-                         "Energy": self.level.player.energy,
-                         "Coins": self.level.player.coins,
-                         "Level": self.level.ID,
-                         "Position":
-                             [self.level.player.rect.x, self.level.player.rect.y]}
+                         "Life": [self.level.player.life, self.level.player.maxLife],
+                         "Energy": [self.level.player.energy, self.level.player.maxEnergy],
+                         "Coins": [self.level.player.coins, self.level.player.maxWallet],
+                         "Level": {'ID': self.level.ID,
+                                   'PositionX': self.level.player.rect.x,
+                                   'PositionY': self.level.player.rect.y}
+                         }
         file = open("saves/save_trial.sv", "wb")
         pickle.dump(player_status, file)
         file.close()
@@ -75,6 +76,7 @@ def load_file():
         file = open("saves/save_trial.sv", "rb")
         obj = pickle.load(file)
         file.close()
+        print(obj)
         return obj
     except FileNotFoundError:
         # This exception can be reached if the user is playing a new game, or if anyone has messed up

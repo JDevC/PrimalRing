@@ -33,12 +33,12 @@ class PauseScreen(object):
         # Pause interface text (will include images on next versions)
         self.pauseText = []
         self.pauseText.append(self.font.render("PAUSE", ANTIALIASING, COLORS['WHITE']))
-        self.pauseText.append(self.font.render("Life: " + str(self.player.life)
-                                               + "/100", ANTIALIASING, COLORS['WHITE']))
-        self.pauseText.append(self.font.render("Energy: " + str(self.player.energy)
-                                               + "/100", ANTIALIASING, COLORS['WHITE']))
-        self.pauseText.append(self.font.render("Coins: " + str(self.player.coins)
-                                               + "/999", ANTIALIASING, COLORS['WHITE']))
+        self.pauseText.append(self.font.render("Life: " + str(self.player.life) + "/"
+                                               + str(self.player.maxLife), ANTIALIASING, COLORS['WHITE']))
+        self.pauseText.append(self.font.render("Energy: " + str(self.player.energy) + "/"
+                                               + str(self.player.maxEnergy), ANTIALIASING, COLORS['WHITE']))
+        self.pauseText.append(self.font.render("Coins: " + str(self.player.coins) + "/"
+                                               + str(self.player.maxWallet), ANTIALIASING, COLORS['WHITE']))
         self.pauseText.append(self.font.render("- Inventory", ANTIALIASING, COLORS['WHITE']))
         self.pauseText.append(self.font.render("- Skills", ANTIALIASING, COLORS['WHITE']))
         self.pauseText.append(self.font.render("- Options", ANTIALIASING, COLORS['WHITE']))

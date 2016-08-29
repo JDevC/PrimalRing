@@ -18,21 +18,22 @@ class Level(object):
     root = ROOT
 
     # ---------- Constructor ----------------------
-    def __init__(self, screen, scr_size, debug=False, save_file=None):
+    # def __init__(self, screen, scr_size, debug=False):
+    def __init__(self, screen, scr_size, player, debug=False):
         # -- Attributes -----------------------
         self.debug = debug                          # Flag for debugging into the game
         self.screen = screen                        # A reference for the main screen
-        self.scr_size = scr_size                    # The screen size
-        self.ID = ""                                # A level identifier
-        # self.save_file = save_file                  # Player's data
+        self.scrSize = scr_size                     # The screen size
+        self.ID = None                              # A level identifier
         self.structure = []                         # Level structure reference
+        self.levelInit = [0, 0]                         # Level enter point
         self.backgroundImg = None                   # Background image reference
         self.font = font.SysFont('Calibri', 25, True, False)
         # Sprite lists for the win!
         self.colliders = sprite.Group()             # Walls, platforms, floor, enemies, switches...
         self.temporary = sprite.Group()             # Coins, ammo, lifepoints...
-        self.player_display = sprite.Group()        #
-        self.player = Player(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, save_file)
+        self.player_display = sprite.Group()        # The player itself
+        self.player = player
         self.player_display.add(self.player)
         self.bodies = sprite.Group()                # All sprites (this is for render on the screen)
         # HUD elements
@@ -59,7 +60,7 @@ class Level(object):
             self.screen.blit(self.debText, [500, 70])
 
     # It fills all level gaps with elements taking a pattern
-    def fill_level(self, structure, save_file=None):
+    def fill_level(self, structure):
         cnt_y = 0  # Initial Y-axis tile grid
         for row in structure:
             cnt_x = 0  # Initial X-axis tile grid
@@ -88,10 +89,6 @@ class Level(object):
                     coin.rect.y = cnt_y + 10
                     self.temporary.add(coin)
                     self.bodies.add(coin)
-                elif column == "P":  # 'P' stands for 'Player'
-                    if save_file is None:
-                        self.player.rect.x = cnt_x
-                        self.player.rect.y = cnt_y
 
                 cnt_x += 50  # Increment X-axis for the next tile
 
@@ -107,10 +104,10 @@ class Level(object):
 # 2D Plain level's type class
 class PlainLevel(Level):
     # ---------- Constructor ----------------------
-    def __init__(self, screen, scr_size, debug=False, save_file=None):
+    def __init__(self, screen, scr_size, player, debug=False):
         # -- Parent constructor ---------------
-        super().__init__(screen, scr_size, debug, save_file)
-        self.player.plainLevel = True
+        super().__init__(screen, scr_size, player, debug)
+        self.plainLevel = True
 
     # ---------- Methods --------------------------
     def update(self):
@@ -129,11 +126,11 @@ class PlainLevel(Level):
 # 2D Horizontal level's type class
 class HorizontalLevel(Level):
     # ---------- Constructor ----------------------
-    def __init__(self, screen, scr_size, debug=False, save_file=None):
+    def __init__(self, screen, scr_size, player, debug=False):
         # -- Parent constructor ---------------
-        super().__init__(screen, scr_size, debug, save_file)
+        super().__init__(screen, scr_size, player, debug)
         self.backgroundImg = image.load(self.root + "/images/astro.jpg").convert()
-        self.player.plainLevel = False
+        self.plainLevel = False
 
     # ---------- Methods --------------------------
     def update(self):
@@ -160,56 +157,35 @@ class HorizontalLevel(Level):
 # All levels must inherit from 'HorizontalLevel' or 'Plain Level'
 class Level1(HorizontalLevel):
     # ---------- Constructor ----------------------
-    def __init__(self, screen, scr_size, debug=False, save_file=None):
+    def __init__(self, screen, scr_size, player, debug=False):
         # -- Parent constructor ---------------
-        super().__init__(screen, scr_size, debug, save_file)
+        super().__init__(screen, scr_size, player, debug)
         # Level data
         self.ID = "Doom Valley"
+        self.levelInit = (50, 300)                     # Initial player position's coordinates
         # Level map structure
         self.structure = ["ffffffffffffffff",
                           "f            ccf",
                           "f   c       c  f",
                           "f   f       f  f",
-                          "f          ff  f",
+                          "f     c    ff  f",
                           "f  f ffff fffc f",
-                          "f     c c c  f f",
-                          "f f   c c c    f",
-                          "fP f           f",
+                          "f c          f f",
+                          "f fc  c c c    f",
+                          "f  f           f",
                           "f              f",
                           "f              f",
                           "ffffffffffffffff"]
         # Populating level
-        cnt_y = 0                                       # Initial Y-axis grid
-        for row in self.structure:
-            cnt_x = 0                                   # Initial X-axis grid
-            for column in row:
-                if column == "f":                       # 'f' stands for 'Floor'
-                    floor = Floor(COLORS['BLUE'], FLOOR_SIZE, FLOOR_SIZE)
-                    floor.rect.x = cnt_x
-                    floor.rect.y = cnt_y
-                    self.colliders.add(floor)
-                    self.bodies.add(floor)
-                elif column == "P":                     # 'P' stands for 'Player'
-                    self.player.rect.x = cnt_x
-                    self.player.rect.y = cnt_y
-                elif column == "c":                     # 'c' stands for 'Coin'
-                    coin = Coin(COLORS['ORANGE'], COIN_SIZE, COIN_SIZE)
-                    coin.rect.x = cnt_x + 10
-                    coin.rect.y = cnt_y + 10
-                    self.temporary.add(coin)
-                    self.bodies.add(coin)
-
-                cnt_x += 50                             # Increment X-axis for the next tile
-
-            cnt_y += 50                                 # Increment Y-axis for the next tile
+        self.fill_level(self.structure)
 
         # Random location for snow flakes
         for i in range(50):     # 50
             # Snow instance
-            flake = Snow(COLORS['WHITE'], 2, 2, self.scr_size)
+            flake = Snow(COLORS['WHITE'], 2, 2, self.scrSize)
             # We create a random placement
-            flake.rect.x = randrange(self.scr_size[0])
-            flake.rect.y = randrange(self.scr_size[1])
+            flake.rect.x = randrange(self.scrSize[0])
+            flake.rect.y = randrange(self.scrSize[1])
             # Then we add the flake to the block lists
             flake.firstX = flake.rect.x
             self.temporary.add(flake)
@@ -219,11 +195,12 @@ class Level1(HorizontalLevel):
 # All levels must inherit from 'HorizontalLevel' or 'Plain Level'
 class Level2(PlainLevel):
     # ---------- Constructor ----------------------
-    def __init__(self, screen, src_size, debug=False, save_file=None):
+    def __init__(self, screen, src_size, player, debug=False):
         # -- Parent constructor ---------------
-        super().__init__(screen, src_size, debug, save_file)
+        super().__init__(screen, src_size, player, debug)
         # Level data
         self.ID = "The RING"
+        self.levelInit = (50, 500)  # Initial player position's coordinates
         # -- Attributes -----------------------
         self.structure = ["fffffff ffffffff",
                           "f       fc c c f",
@@ -235,7 +212,7 @@ class Level2(PlainLevel):
                           "fcff  h        f",
                           "f     h    s   f",
                           "ffff ff        f",
-                          "fP   hf       ff",
+                          "f    hf       ff",
                           "fffffffffffffff "]
         # Populating level
-        self.fill_level(self.structure, save_file)
+        self.fill_level(self.structure)
