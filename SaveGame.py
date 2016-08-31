@@ -23,7 +23,7 @@ class SaveGame(object):
         # Setting a plane, transparent background
         self.background = Surface([scr_size[0], scr_size[1]/4])
         self.bounds = [0, self.background.get_height() * 3]
-        # self.background.fill(COLORS['BLACK'])
+        # self.background.fill(COLORS['WHITE'])
         self.background.set_alpha(PAUSE_SURFACE_ALPHA)
         # Setting the text font for the save menu
         self.font = font.SysFont('Calibri', 25, True, False)
@@ -64,7 +64,7 @@ class SaveGame(object):
                                    'PositionX': self.level.player.rect.x,
                                    'PositionY': self.level.player.rect.y}
                          }
-        file = open("saves/save_trial.sv", "wb")
+        file = open(ROOT + '/saves/save_trial.sv', "wb")
         pickle.dump(player_status, file)
         file.close()
 
@@ -73,7 +73,7 @@ class SaveGame(object):
 # implementation. It works, by the way.
 def load_file():
     try:
-        file = open("saves/save_trial.sv", "rb")
+        file = open(ROOT + '/saves/save_trial.sv', "rb")
         obj = pickle.load(file)
         file.close()
         print(obj)
@@ -81,4 +81,7 @@ def load_file():
     except FileNotFoundError:
         # This exception can be reached if the user is playing a new game, or if anyone has messed up
         # with the save file and it's missing from its expected place.
+        return None
+    except pickle.UnpicklingError:
+        print("Bad format file!")
         return None

@@ -8,7 +8,6 @@ from Block6 import Player
 from Level6 import Level1, Level2
 import PauseScreen
 import SaveGame
-from SaveGame import load_file
 from constants6 import COLORS, PLAYER_SIZE, ANTIALIASING, DEBUG
 ''' This is the general manager game class. It has the
     main functions and attributes which rule above all
@@ -35,7 +34,7 @@ class Game(object):
         self.save = None
         self.saveFlag = False                                           # Well, this is obvious
         # Game loading
-        saved_state = load_file()  # We try to load a game file
+        saved_state = SaveGame.load_file()                              # We try to load a game file
         # Player
         self.player = Player(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, saved_state)
         # Levels
@@ -69,9 +68,9 @@ class Game(object):
                     elif event.key == pygame.K_RIGHT:
                         pass
                     elif event.key == pygame.K_UP:
-                        pass
+                        self.pause.go_up()
                     elif event.key == pygame.K_DOWN:
-                        pass
+                        self.pause.go_down()
                     elif event.key == pygame.K_p:
                         self.pauseFlag = False                          # Exits the pause screen
                     elif event.key == pygame.K_ESCAPE:
@@ -88,12 +87,12 @@ class Game(object):
                         # We clean all flags and the save screen object
                         self.saveFlag = False
                         self.level.player.saveFlag = False
-                        self.save = ""
+                        self.save = None
                     elif event.key == pygame.K_UP:
                         pass
                     elif event.key == pygame.K_DOWN:
                         pass
-                    elif event.key == pygame.K_s:                       # 's' key
+                    elif event.key == pygame.K_y:                       # 's' key
                         # This saves your game!
                         # (Pfffiuuuu... what a relief)
                         self.save.save_file()
@@ -101,14 +100,14 @@ class Game(object):
                         # self.save.load_file()
                         self.saveFlag = False
                         self.level.player.saveFlag = False
-                        self.save = ""
+                        self.save = None
                         pass
                     elif event.key == pygame.K_n:                       # 'n' key
                         # This avoids your game for being saved!
                         # You have a confident will, don't you?
                         self.saveFlag = False
                         self.level.player.saveFlag = False
-                        self.save = ""
+                        self.save = None
 
         # Game Screen
         else:
@@ -151,7 +150,7 @@ class Game(object):
         # Checks if the player still lives on
         if not self.gameOver:
             if self.pauseFlag:
-                pass
+                self.pause.update()
             elif self.saveFlag:
                 pass
             else:
@@ -159,8 +158,8 @@ class Game(object):
                 reached = self.level.update()
                 if reached:
                     # It swaps into another level.
-                    # This point needs a revision: our game map should consist on a central level from where we can
-                    # travel into the others, but at least it's a beginning
+                    # This point needs a revision: our game map should consist on a central level from where
+                    # we can travel into the others, but at least it's a beginning
                     # self.gameOver = True
                     self.level = self.levels['The RING']
                     self.player.rect.x = self.level.levelInit[0]

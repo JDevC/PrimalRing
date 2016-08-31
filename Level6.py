@@ -28,6 +28,12 @@ class Level(object):
         self.structure = []                         # Level structure reference
         self.levelInit = [0, 0]                         # Level enter point
         self.backgroundImg = None                   # Background image reference
+        self.hud = [image.load(self.root + "/images/Life.png").convert(),
+                    image.load(self.root + "/images/Energy.png").convert(),
+                    image.load(self.root + "/images/Coin_Frames/coin.png").convert()]
+        for x in range(len(self.hud)):
+            self.hud[x].set_colorkey(COLORS['WHITE'])
+
         self.font = font.SysFont('Calibri', 25, True, False)
         # Sprite lists for the win!
         self.colliders = sprite.Group()             # Walls, platforms, floor, enemies, switches...
@@ -37,9 +43,12 @@ class Level(object):
         self.player_display.add(self.player)
         self.bodies = sprite.Group()                # All sprites (this is for render on the screen)
         # HUD elements
-        self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
-        self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
-        self.energyText = self.font.render("Energy: " + str(self.player.energy), ANTIALIASING, COLORS['WHITE'])
+        # self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
+        # self.energyText = self.font.render("Energy: " + str(self.player.energy), ANTIALIASING, COLORS['WHITE'])
+        # self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
+        self.lifeText = self.font.render(": " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
+        self.energyText = self.font.render(": " + str(self.player.energy), ANTIALIASING, COLORS['WHITE'])
+        self.coinText = self.font.render(": " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
         # Debug
         if self.debug:
             self.debText = self.font.render("X: " + str(self.player.rect.x)
@@ -53,9 +62,16 @@ class Level(object):
             self.screen.blit(self.backgroundImg, [0, 0])
         self.bodies.draw(self.screen)
         self.player_display.draw(self.screen)
-        self.screen.blit(self.coinText, [50, 50])
-        self.screen.blit(self.lifeText, [50, 70])
-        self.screen.blit(self.energyText, [50, 90])
+        if self.hud is not None:
+            self.screen.blit(self.hud[0], [50, 50])
+            self.screen.blit(self.hud[1], [50, 80])
+            self.screen.blit(self.hud[2], [50, 110])
+        # self.screen.blit(self.lifeText, [50, 50])
+        # self.screen.blit(self.energyText, [50, 70])
+        # self.screen.blit(self.coinText, [50, 110])
+        self.screen.blit(self.lifeText, [80, 50])
+        self.screen.blit(self.energyText, [80, 80])
+        self.screen.blit(self.coinText, [80, 110])
         if self.debug:
             self.screen.blit(self.debText, [500, 70])
 
@@ -96,9 +112,12 @@ class Level(object):
 
     # It renders all main hud information
     def render_hud(self):
-        self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
-        self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
-        self.energyText = self.font.render("Energy: " + str(self.player.energy), ANTIALIASING, COLORS['WHITE'])
+        # self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
+        # self.energyText = self.font.render("Energy: " + str(self.player.energy), ANTIALIASING, COLORS['WHITE'])
+        # self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
+        self.lifeText = self.font.render(": " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
+        self.energyText = self.font.render(": " + str(self.player.energy), ANTIALIASING, COLORS['WHITE'])
+        self.coinText = self.font.render(": " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
 
 
 # 2D Plain level's type class

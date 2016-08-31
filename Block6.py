@@ -3,7 +3,7 @@
 # ---------------------- IMPORTS ---------------------
 from pygame import sprite, image, mixer, Surface
 from math import sqrt
-from constants6 import GRAVITY, MAX_FALL_VELOCITY, COLORS, FPS
+from constants6 import GRAVITY, MAX_FALL_VELOCITY, COLORS, FPS, ROOT
 ''' A parent class for all sprites in the game screen, such as the main player,
     all kind of platforms, enemies and so on.'''
 
@@ -49,7 +49,7 @@ class AnimatedBlock(Block):
     # It loads all frames incoming from a specified folder
     def set_frames(self, origin, quantity):
         for i in range(quantity):
-            self.imageList.append(image.load('images/' + origin + str(i+1) + '.png').convert())
+            self.imageList.append(image.load(ROOT + '/images/' + origin + str(i+1) + '.png').convert())
 
 
 class Snow(Block):
@@ -90,7 +90,7 @@ class Coin(Block):
     def __init__(self, color, width, height):
         super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
         self.name = "Coin"
-        self.image = image.load('images/Coin_Frames/coin.png').convert()
+        self.image = image.load(ROOT + '/images/Coin_Frames/coin.png').convert()
         # We set a transparent color for the image
         self.image.set_colorkey(COLORS['WHITE'])
 
@@ -154,7 +154,7 @@ class Player(Block):
             self.coins = 0
             self.maxWallet = 100
         # Insert here your favourite sound, and all coins will go 'tink' when you touch them!
-        self.coinSound = mixer.Sound('sounds/coin.wav')
+        self.coinSound = mixer.Sound(ROOT + '/sounds/coin.wav')
         self.maxFallVelocity = MAX_FALL_VELOCITY    # A limit to gravity acceleration
         self.saveFlag = False                       # Enable/Disable saving feature
         self.plainLevel = False                     # Enable/Disable horizontal gravity
@@ -239,7 +239,9 @@ class Player(Block):
             if body.docs() == "Snow":
                 self.life -= 1
             elif body.docs() == "Coin":
-                self.coins += 1
+                # It prevents us for taking more coins than we can get
+                if self.coins < self.maxWallet:
+                    self.coins += 1
                 self.coinSound.play()
 
         if not self.plainLevel:

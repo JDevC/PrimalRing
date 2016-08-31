@@ -30,8 +30,14 @@ Level 2:
 - Up, Down, Left and Right keys = Moving
 - TAB (While touching the save point) = Enter/Exit save screen
 
+Pause Screen:
+
+- Up and Down keys = Select different options
+- ESC = Quit game
+- p = Exit pause screen
+
 General: 
 
-- p = Enter/Exit pause screen
+- p = Enter pause screen
 
 That's all for now! I'm working on new features, stay tunned for news :D
