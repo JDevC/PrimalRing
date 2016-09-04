@@ -56,8 +56,8 @@ class TitleScreen(object):
         self.background.fill(COLORS['BLACK'])
         # Setting the text font for the pause menu (set your own)
         # self.font = pygame.font.SysFont('Calibri', 25, True, False)
-        self.font = pygame.font.Font(self.root + '/fonts/yourFont.ttf', 30)
-        self.titleFont = pygame.font.Font(self.root + '/fonts/yourFont.ttf', 100)
+        self.font = pygame.font.Font(self.root + '/fonts/AceRecords.ttf', 30)
+        self.titleFont = pygame.font.Font(self.root + '/fonts/AceRecords.ttf', 100)
         # Pause interface text (will include images on next versions)
         self.titleText = []
         for x in self.menuList:
