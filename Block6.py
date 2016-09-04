@@ -148,7 +148,7 @@ class Player(Block):
             self.maxWallet = save_file['Coins'][1]
         else:
             # These attributes could be higher across the game, by power-ups that increase this limits
-            self.name = "Player"
+            self.name = "Zanar"
             self.life = self.maxLife = 100
             self.energy = self.maxEnergy = 100
             self.coins = 0

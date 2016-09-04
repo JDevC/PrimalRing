@@ -7,9 +7,10 @@ from os import path
 SCR_HEIGHT = 600                                            # 600
 SCR_WIDTH = 800                                             # 800
 # ------------ Pause Screen Attributes ---------------
-PAUSE_SURFACE_ALPHA = 127                                   # Background's alpha value
+SURFACE_MID_ALPHA = 127                                     # Background's alpha value
 # ----------------- Primary colors -------------------
 COLORS = {'BLACK': [0x00, 0x00, 0x00],                      # Hex for black
+          'GREY': [0x77, 0x77, 0x77],                       # Hex for grey
           'WHITE': [0xFF, 0xFF, 0xFF],                      # Hex for white
           'RED': [0xFF, 0x00, 0x00],                        # Hex for red
           'GREEN': [0x00, 0xFF, 0x00],                      # Hex for green

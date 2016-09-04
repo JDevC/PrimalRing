@@ -4,7 +4,7 @@
 # Python libs
 from pygame import Surface, font
 # Own libs
-from constants6 import COLORS, PAUSE_SURFACE_ALPHA, ANTIALIASING, ROOT
+from constants6 import COLORS, SURFACE_MID_ALPHA, ANTIALIASING, ROOT
 ''' This class will display our status and let us check, select and
     use items, save our progress, checking our tasks and more things
     I haven't thought yet. It exist a minimal chance of including this
@@ -41,7 +41,7 @@ class PauseScreen(object):
         # Setting a plane, transparent background
         self.background = Surface(self.scrSize)
         self.background.fill(COLORS['BLACK'])
-        self.background.set_alpha(PAUSE_SURFACE_ALPHA)
+        self.background.set_alpha(SURFACE_MID_ALPHA)
         # Setting the text font for the pause menu
         self.font = font.SysFont('Calibri', 25, True, False)
         # Pause interface text (will include images on next versions)

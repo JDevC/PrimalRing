@@ -16,11 +16,11 @@ from constants6 import COLORS, PLAYER_SIZE, ANTIALIASING, DEBUG
 
 class Game(object):
     # ---------- Constructor ----------------------
-    def __init__(self, screen, scr_size):
+    def __init__(self, screen, scr_size, saved_state_name=None):
         # Main game attributes
         self.gameOver = False                                           # Endgame (also a truly brutal Megadeth album)
         self.screen = screen
-        self.scr_size = scr_size
+        self.scrSize = scr_size
         self.font = pygame.font.SysFont('Calibri', 25, True, False)
         # GAME OVER text
         self.gOverText = []
@@ -34,17 +34,19 @@ class Game(object):
         self.save = None
         self.saveFlag = False                                           # Well, this is obvious
         # Game loading
-        saved_state = SaveGame.load_file()                              # We try to load a game file
+        savedState = None
+        if saved_state_name is not None:
+            savedState = SaveGame.load_file(saved_state_name)           # We try to load a game file
         # Player
-        self.player = Player(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, saved_state)
+        self.player = Player(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, savedState)
         # Levels
         self.levels = {"Doom Valley": Level1(screen, scr_size, self.player, DEBUG),
                        "The RING": Level2(screen, scr_size, self.player, DEBUG)}
-        if saved_state is not None:
+        if savedState is not None:
             # You've a game saved, so you start in the level and position stored
-            self.level = self.levels[saved_state['Level']['ID']]
-            self.player.rect.x = saved_state['Level']['PositionX']
-            self.player.rect.y = saved_state['Level']['PositionY']
+            self.level = self.levels[savedState['Level']['ID']]
+            self.player.rect.x = savedState['Level']['PositionX']
+            self.player.rect.y = savedState['Level']['PositionY']
         else:
             # Don't have a game file? You start where everyone does (We respect and support equality)
             self.level = self.levels['Doom Valley']
@@ -75,7 +77,6 @@ class Game(object):
                         self.pauseFlag = False                          # Exits the pause screen
                     elif event.key == pygame.K_ESCAPE:
                         return True
-
         # Save screen
         elif self.saveFlag:
             for event in pygame.event.get():                            # User did something
@@ -108,7 +109,6 @@ class Game(object):
                         self.saveFlag = False
                         self.level.player.saveFlag = False
                         self.save = None
-
         # Game Screen
         else:
             for event in pygame.event.get():                            # User did something
@@ -130,11 +130,11 @@ class Game(object):
                             self.level.player.go_down()
                     if event.key == pygame.K_p:                         # 'p' key
                         self.pauseFlag = True
-                        self.pause = PauseScreen.PauseScreen(self.screen, self.scr_size, self.level.player)
+                        self.pause = PauseScreen.PauseScreen(self.screen, self.scrSize, self.level.player)
                     if event.key == pygame.K_TAB:                         # 'TAB' key
                         if self.level.player.saveFlag:
                             self.saveFlag = True
-                            self.save = SaveGame.SaveGame(self.screen, self.scr_size, self.level)
+                            self.save = SaveGame.SaveGame(self.screen, self.scrSize, self.level)
 
                 if event.type == pygame.KEYUP:
                     if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
@@ -171,9 +171,9 @@ class Game(object):
         self.screen.fill(COLORS['BLACK'])
         # Checks if the player still lives on
         if self.gameOver:
-            self.screen.blit(self.gOverText[0], [(self.scr_size[0]/2) - 45, self.scr_size[1]/2 - 50])
-            self.screen.blit(self.gOverText[1], [(self.scr_size[0]/2) - 70, self.scr_size[1]/2 - 25])
-            self.screen.blit(self.gOverText[2], [(self.scr_size[0]/2) - 50, self.scr_size[1]/2 + 50])
+            self.screen.blit(self.gOverText[0], [(self.scrSize[0]/2) - 45, self.scrSize[1]/2 - 50])
+            self.screen.blit(self.gOverText[1], [(self.scrSize[0]/2) - 70, self.scrSize[1]/2 - 25])
+            self.screen.blit(self.gOverText[2], [(self.scrSize[0]/2) - 50, self.scrSize[1]/2 + 50])
         else:
             self.level.display()
             # This implementation allows us to cover our game screen with the pause screen,
@@ -186,3 +186,6 @@ class Game(object):
                 self.save.display()
         # --- This is 'update' for pygame library
         pygame.display.flip()
+
+    def __str__(self):
+        return "Game"

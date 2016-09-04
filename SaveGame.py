@@ -4,8 +4,9 @@
 # Python libs
 from pygame import Surface, font
 import pickle
+from os import walk
 # Own libs
-from constants6 import COLORS, PAUSE_SURFACE_ALPHA, ANTIALIASING, ROOT
+from constants6 import COLORS, SURFACE_MID_ALPHA, ANTIALIASING, ROOT
 
 
 # General class
@@ -24,7 +25,7 @@ class SaveGame(object):
         self.background = Surface([scr_size[0], scr_size[1]/4])
         self.bounds = [0, self.background.get_height() * 3]
         # self.background.fill(COLORS['WHITE'])
-        self.background.set_alpha(PAUSE_SURFACE_ALPHA)
+        self.background.set_alpha(SURFACE_MID_ALPHA)
         # Setting the text font for the save menu
         self.font = font.SysFont('Calibri', 25, True, False)
         # Save interface text (will include images on next versions)
@@ -64,19 +65,21 @@ class SaveGame(object):
                                    'PositionX': self.level.player.rect.x,
                                    'PositionY': self.level.player.rect.y}
                          }
-        file = open(ROOT + '/saves/save_trial.sv', "wb")
+        # file = open(ROOT + '/saves/save_trial.sv', "wb")
+        file = open(ROOT + '/saves/' + self.level.player.name + '.sv', "wb")
         pickle.dump(player_status, file)
         file.close()
 
 
 # Function for loading a game file. This needs a revision, I'm not sure about this
 # implementation. It works, by the way.
-def load_file():
+def load_file(name):
     try:
-        file = open(ROOT + '/saves/save_trial.sv', "rb")
+        # file = open(ROOT + '/saves/save_trial.sv', "rb")
+        file = open(ROOT + '/saves/' + name + '.sv', "rb")
         obj = pickle.load(file)
         file.close()
-        print(obj)
+        # print(obj)
         return obj
     except FileNotFoundError:
         # This exception can be reached if the user is playing a new game, or if anyone has messed up
@@ -84,4 +87,22 @@ def load_file():
         return None
     except pickle.UnpicklingError:
         print("Bad format file!")
+        return None
+
+
+# This returns a list of saved games
+def load_files():
+    try:
+        files = []
+        for save in walk(ROOT + '/saves'):
+            for s in save[2]:
+                files.append(s)
+
+        if len(files) > 0:
+            return files
+        else:
+            return None
+    except FileNotFoundError:
+        # This exception can be reached if anyone has messed up with the save folder and it's
+        # lost in cyberspace. And you can't do NOTHING for saving it, you monster
         return None

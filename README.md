@@ -1,4 +1,4 @@
-# Primal Ring
+# PRIMAL RING
 An odd 2D space-platform adventure!
 
 Abduction! You're suddenly on a strange, technological building. Wait... it's a space ship! How? When? That's impossible!
@@ -21,6 +21,11 @@ Go, face the duty! Stay alive!
 
 # Controls
 
+Title Screen:
+
+- Up and Down keys = Highlight different options
+- ENTER = Select option
+
 Level 1:
 
 - Up, Left and Right keys = Moving and jumping
@@ -41,3 +46,16 @@ General:
 - p = Enter pause screen
 
 That's all for now! I'm working on new features, stay tunned for news :D
+Moreover, I'll consider to make a wiki, in order to build a better-structured
+and comprehensive documentation ^-^
+
+----------------------------------------------------------------------------------------------------------------------
+
+# Greetings
+
+I want to thank all people and enterprises involved in this development.
+Without all of them, Primal Ring would have been impossible:
+
+- Monster Energy: About 10 pints consumed
+- Coke: About 13 pints consumed
+- Nestea: About 7 pints consumed

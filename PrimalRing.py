@@ -4,6 +4,7 @@
 import pygame                                                       # Python libs
 import Game6                                                        # Own libs
 from Splash import Splash
+from Title import TitleScreen
 from constants6 import SCR_HEIGHT, SCR_WIDTH, COLORS, FPS, ROOT
 """ This is the main game file, where all classes and functions are
     called from. Now it's a tiny file, but we're on developing, so
@@ -18,30 +19,48 @@ def main():
     pygame.mixer.pre_init(44100, 16, 2, 4096)
     # -------------------- Variables ---------------------
     # Screen attributes
-    scr_size = (SCR_WIDTH, SCR_HEIGHT)		                         # Setting and showing a window
-    screen = pygame.display.set_mode(scr_size)                       # Getting the main screen
-    # screen = pygame.display.set_mode(scr_size, pygame.FULLSCREEN)  # Getting the main screen
-    pygame.display.set_caption("Primal Ring")		                 # Setting the screen's title
-    icon = pygame.image.load(ROOT + '/images/Coin_Frames/coin.png')  # Setting the game icon
+    scr_size = (SCR_WIDTH, SCR_HEIGHT)		                            # Setting and showing a window
+    screen = pygame.display.set_mode(scr_size)                          # Getting the main screen
+    # screen = pygame.display.set_mode(scr_size, pygame.FULLSCREEN)     # Getting the main screen
+    pygame.display.set_caption("Primal Ring")		                    # Setting the screen's title
+    icon = pygame.image.load(ROOT + '/images/Coin_Frames/coin.png')     # Setting the game icon
     icon.set_colorkey(COLORS['WHITE'])
     pygame.display.set_icon(icon)
-    pygame.mouse.set_visible(False)			                         # We hide the mouse pointer
-    # SPLASH Screen
-    splash = Splash(screen, scr_size)
+    pygame.mouse.set_visible(False)			                            # We hide the mouse pointer
     # Misc
-    done = False					                                 # Loop until the user clicks the close button.
-    clock = pygame.time.Clock()			                             # Used to manage how fast the screen updates
-    # We create a Game instance
-    game = Game6.Game(screen, scr_size)
-    splash.action()
+    done = False					                                    # Loop until the user clicks the close button.
+    clock = pygame.time.Clock()			                                # Used to manage how fast the screen updates
+    # Scene array
+    scene = [Splash(screen, scr_size),                                  # Splash scene instance
+             TitleScreen(screen, scr_size)]                             # Title scene instance
+    current_scene = scene[0]
     # ---------------- MAIN PROGRAM LOOP -----------------
     while not done:
         # 1st step: Handling events
-        done = game.event_handler()
+        switch = current_scene.event_handler()
         # 2nd step: Running game logic
-        game.run_logic()
+        current_scene.run_logic()
         # 3rd step: Displaying all
-        game.display_frame()
+        current_scene.display_frame()
+        # 4th step: Evaluating scene switching
+        if switch:
+            if current_scene.__str__() == 'Splash':
+                current_scene = scene[0] = scene[1]                     # We 'switch' to the title scene
+                scene.pop(1)                                            # This is for cleaning memory purpose
+            elif current_scene.__str__() == 'Title':
+                if current_scene.flags['NewGame']:
+                    # We 'switch' to the game scene in a new game
+                    scene.append(Game6.Game(screen, scr_size, "Name"))
+                    current_scene = scene[1]
+                elif current_scene.flags['LoadGame'][0]:
+                    # We 'switch' to the game scene though a loaded game
+                    scene.append(Game6.Game(screen, scr_size, "Player"))
+                    current_scene = scene[1]
+                elif current_scene.flags['Quit']:
+                    # We exit the game
+                    done = True
+            else:
+                done = True
         # --- Limit to 60 frames per second
         clock.tick(FPS)
 
