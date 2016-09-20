@@ -5,7 +5,7 @@
 from pygame import image, font, sprite
 from random import randrange
 # Own libs
-from Block6 import Snow, Player, Floor, Hole, Coin, SavePoint
+from Block6 import Snow, Floor, Hole, Coin, SavePoint
 from constants6 import COLORS, ANTIALIASING, ROOT, PLAYER_SIZE, COIN_SIZE, FLOOR_SIZE
 ''' This class manages all in terms of creating level structures
     and loading graphic and audio resources. Every level created
@@ -26,7 +26,7 @@ class Level(object):
         self.scrSize = scr_size                     # The screen size
         self.ID = None                              # A level identifier
         self.structure = []                         # Level structure reference
-        self.levelInit = [0, 0]                         # Level enter point
+        self.levelInit = [0, 0]                     # Level enter point
         self.backgroundImg = None                   # Background image reference
         self.hud = [image.load(self.root + "/images/Life.png").convert(),
                     image.load(self.root + "/images/Energy.png").convert(),
@@ -136,8 +136,8 @@ class PlainLevel(Level):
         self.render_hud()
         if self.debug:
             self.debText = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
-                                           + str(self.player.rect.y) + "VelX: " + str(self.player.velX)
-                                           + "; VelY: " + str(self.player.velY), True, COLORS['WHITE'])
+                                            + str(self.player.rect.y) + "VelX: " + str(self.player.velX)
+                                            + "; VelY: " + str(self.player.velY), True, COLORS['WHITE'])
 
         return False
 

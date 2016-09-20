@@ -19,6 +19,7 @@ class Game(object):
     def __init__(self, screen, scr_size, saved_state_name=None):
         # Main game attributes
         self.gameOver = False                                           # Endgame (also a truly brutal Megadeth album)
+        self.quit_all = False
         self.screen = screen
         self.scrSize = scr_size
         self.font = pygame.font.SysFont('Calibri', 25, True, False)
@@ -62,7 +63,7 @@ class Game(object):
         if self.pauseFlag:
             for event in pygame.event.get():                            # User did something
                 if event.type == pygame.QUIT:                           # If user clicked close
-                    return True                                         # We are done so we exit this loop
+                    return self.quit_game()                             # We are done so we exit this loop
                 # Incoming functionality on next versions!
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_LEFT:
@@ -75,13 +76,20 @@ class Game(object):
                         self.pause.go_down()
                     elif event.key == pygame.K_p:
                         self.pauseFlag = False                          # Exits the pause screen
-                    elif event.key == pygame.K_ESCAPE:
-                        return True
+                    elif event.key == pygame.K_RETURN:
+                        if self.pause.menuList[self.pause.currentMenu]['Name'] == '- Inventory':
+                            print("Accessing inventory... soon!")
+                        elif self.pause.menuList[self.pause.currentMenu]['Name'] == '- Skills':
+                            print("Accessing skill board... soon!")
+                        elif self.pause.menuList[self.pause.currentMenu]['Name'] == '- Options':
+                            print("Accessing options... soon!")
+                        elif self.pause.menuList[self.pause.currentMenu]['Name'] == '- Quit':
+                            return True
         # Save screen
         elif self.saveFlag:
             for event in pygame.event.get():                            # User did something
                 if event.type == pygame.QUIT:                           # If user clicked close
-                    return True                                         # We are done so we exit this loop
+                    return self.quit_game()                             # We are done so we exit this loop
                 # Incoming functionality on next versions!
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_TAB:                         # 'TAB' key
@@ -113,7 +121,7 @@ class Game(object):
         else:
             for event in pygame.event.get():                            # User did something
                 if event.type == pygame.QUIT:                           # If user clicked close
-                    return True                                         # We are done so we exit this loop
+                    return self.quit_game()                             # We are done so we exit this loop
                 if event.type == pygame.KEYDOWN:
                     # Figure out if it was an arrow key. If it's so, adjust speed.
                     if event.key == pygame.K_LEFT:                      # <-
@@ -186,6 +194,11 @@ class Game(object):
                 self.save.display()
         # --- This is 'update' for pygame library
         pygame.display.flip()
+
+    # Quick game exit
+    def quit_game(self):
+        self.quit_all = True
+        return True
 
     def __str__(self):
         return "Game"

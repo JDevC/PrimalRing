@@ -2,7 +2,7 @@
 
 # ---------------------- IMPORTS ---------------------
 # Python libs
-from pygame import Surface, font
+from pygame import Surface, font, mixer
 # Own libs
 from constants6 import COLORS, SURFACE_MID_ALPHA, ANTIALIASING, ROOT
 ''' This class will display our status and let us check, select and
@@ -35,6 +35,8 @@ class PauseScreen(object):
                           'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.5]},
                          {'Name': '- Quit',
                           'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.6]}]
+        # Sounds
+        self.selectSound = mixer.Sound(ROOT + '/sounds/select.wav')
         self.currentMenu = 0
         # Player
         self.player = player                        # A reference to the player and his statistics
@@ -87,13 +89,16 @@ class PauseScreen(object):
             pass
 
     def go_down(self):
+        self.selectSound.play()
         if self.currentMenu == len(self.menuList) - 1:
             self.currentMenu = 0
         else:
             self.currentMenu += 1
 
     def go_up(self):
+        self.selectSound.play()
         if self.currentMenu == 0:
             self.currentMenu = len(self.menuList) - 1
         else:
             self.currentMenu -= 1
+

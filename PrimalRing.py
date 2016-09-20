@@ -12,6 +12,16 @@ from constants6 import SCR_HEIGHT, SCR_WIDTH, COLORS, FPS, ROOT
 
 
 # ------------------- FUNCTIONS ----------------------
+def reset_flags(scene):
+    if scene.flags['NewGame']:
+        scene.flags['NewGame'] = False
+    elif scene.flags['LoadGame'][0]:
+        scene.flags['LoadGame'][0] = False
+
+    scene.initGame = False
+    scene.reset_opacity()
+
+
 # MAIN FUNCTION (Here is where all actions run)
 def main():
     # Initializing library
@@ -44,21 +54,26 @@ def main():
         current_scene.display_frame()
         # 4th step: Evaluating scene switching
         if switch:
-            if current_scene.__str__() == 'Splash':
+            if current_scene.__str__() == 'Splash' and current_scene.endSplash:
                 current_scene = scene[0] = scene[1]                     # We 'switch' to the title scene
-                scene.pop(1)                                            # This is for cleaning memory purpose
+                del scene[1]                                            # This is for cleaning memory purpose
             elif current_scene.__str__() == 'Title':
                 if current_scene.flags['NewGame']:
+                    reset_flags(current_scene)
                     # We 'switch' to the game scene in a new game
                     scene.append(Game6.Game(screen, scr_size, "Name"))
                     current_scene = scene[1]
                 elif current_scene.flags['LoadGame'][0]:
+                    reset_flags(current_scene)
                     # We 'switch' to the game scene though a loaded game
                     scene.append(Game6.Game(screen, scr_size, "Player"))
                     current_scene = scene[1]
                 elif current_scene.flags['Quit']:
                     # We exit the game
                     done = True
+            elif current_scene.__str__() == 'Game' and not current_scene.quit_all:
+                current_scene = scene[0]
+                del scene[1]                                            # This is for cleaning memory purpose
             else:
                 done = True
         # --- Limit to 60 frames per second

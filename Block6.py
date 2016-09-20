@@ -31,7 +31,7 @@ class Block(sprite.Sprite):
     def docs(self):
         return self.name
 
-    def getRect(self):
+    def get_rect(self):
         return self.rect
 
 
@@ -180,22 +180,22 @@ class Player(Block):
             if body.docs() == "Floor":
                 # Moving to the right
                 if self.velX > 0:
-                    self.rect.right = body.getRect().left
+                    self.rect.right = body.get_rect().left
                 # Moving to the left
                 elif self.velX < 0:
-                    self.rect.left = body.getRect().right
+                    self.rect.left = body.get_rect().right
 
             elif body.docs() == "Hole":
                 if self.distance(self.rect.centerx, self.rect.centery,
-                                 body.getRect().centerx, body.getRect().centery) < body.rect.width*0.75:
-                    if self.rect.x > body.getRect().x:
+                                 body.get_rect().centerx, body.get_rect().centery) < body.rect.width*0.75:
+                    if self.rect.x > body.get_rect().x:
                         self.rect.x -= 2
-                    elif self.rect.x < body.getRect().x:
+                    elif self.rect.x < body.get_rect().x:
                         self.rect.x += 2
 
             elif body.docs() == "SavePoint":
                 if self.distance(self.rect.centerx, self.rect.centery,
-                                 body.getRect().centerx, body.getRect().centery) < body.rect.width / 2:
+                                 body.get_rect().centerx, body.get_rect().centery) < body.rect.width / 2:
                     self.saveFlag = True
 
         for body in weak_collide_list:
@@ -216,23 +216,23 @@ class Player(Block):
                 # Wall under the player
                 if self.velY > 0:
                     self.stop_fall()
-                    self.rect.bottom = body.getRect().top
+                    self.rect.bottom = body.get_rect().top
                 # Wall upon the player
                 elif self.velY < 0:
                     self.stop_y()
-                    self.rect.top = body.getRect().bottom
+                    self.rect.top = body.get_rect().bottom
 
             elif body.docs() == "Hole":
                 if self.distance(self.rect.centerx, self.rect.centery,
-                                      body.getRect().centerx, body.getRect().centery) < body.rect.width*0.75:
-                    if self.rect.y > body.getRect().y:
+                                      body.get_rect().centerx, body.get_rect().centery) < body.rect.width*0.75:
+                    if self.rect.y > body.get_rect().y:
                         self.rect.y -= 2
-                    elif self.rect.y < body.getRect().y:
+                    elif self.rect.y < body.get_rect().y:
                         self.rect.y += 2
 
             elif body.docs() == "SavePoint":
                 if self.distance(self.rect.centerx, self.rect.centery,
-                                 body.getRect().centerx, body.getRect().centery) < body.rect.width / 2:
+                                 body.get_rect().centerx, body.get_rect().centery) < body.rect.width / 2:
                     self.saveFlag = True
 
         for body in weak_collide_list:

@@ -23,6 +23,8 @@ class TitleScreen(object):
         self.screen = screen                                # A reference for the main screen
         self.scrSize = scr_size                             # The screen size (Default: 600 * 800)
         self.savedFiles = load_files()                      # A list of saved games (or None)
+        self.selectSound = pygame.mixer.Sound(ROOT + '/sounds/select.wav')
+        self.acceptSound = pygame.mixer.Sound(ROOT + '/sounds/accept.ogg')
         # New Game/Load Game fading surface
         self.cover = pygame.Surface(self.scrSize)
         self.cover.fill(COLORS['BLACK'])
@@ -99,7 +101,7 @@ class TitleScreen(object):
                     self.flags['LoadGame'][0] = False
             # Options menu
             elif self.flags['Options']:             # WIP
-                print("Now you are in Options")
+                print("Accessing options... soon!")
                 self.flags['Options'] = False
             # Title menu
             else:
@@ -109,6 +111,7 @@ class TitleScreen(object):
                     elif e.key == pygame.K_DOWN:
                         self.go_down()
                     elif e.key == pygame.K_RETURN:
+                        self.acceptSound.play()
                         if self.menuList[self.currentMenu]['Name'] == 'New Game':
                             self.flags['NewGame'] = True
                         elif self.menuList[self.currentMenu]['Name'] == 'Load Game':
@@ -151,6 +154,7 @@ class TitleScreen(object):
         pygame.display.flip()
 
     def go_down(self):
+        self.selectSound.play()
         if self.currentMenu == len(self.menuList) - 1:
             self.currentMenu = 0
         else:
@@ -159,12 +163,17 @@ class TitleScreen(object):
                 self.currentMenu += 1
 
     def go_up(self):
+        self.selectSound.play()
         if self.currentMenu == 0:
             self.currentMenu = len(self.menuList) - 1
         else:
             self.currentMenu -= 1
             if self.menuList[self.currentMenu]['Name'] == 'Load Game' and not self.flags['LoadGame'][1]:
                 self.currentMenu -= 1
+
+    def reset_opacity(self):
+        self.opacity = 0
+        self.cover.set_alpha(self.opacity)
 
     def __str__(self):
         return "Title"
@@ -187,3 +196,19 @@ class NewGame(object):
         self.nGameText.append(self.font.render("What's your name, little fella?",
                                                ANTIALIASING, COLORS['WHITE']))
 
+
+class Options(object):
+    # ---------- Constructor ----------------------
+    def __init__(self, screen, scr_size, font, debug=False):
+        # -- Attributes -----------------------
+        self.debug = debug  # Flag for debugging into the game
+        self.screen = screen  # A reference for the main screen
+        self.scrSize = scr_size
+        # Setting a plane, transparent background
+        self.background = pygame.Surface(self.scrSize)
+        self.background.fill(COLORS['BLACK'])
+        # Setting the text font for the new game menu
+        self.font = font
+        # Options interface text (will include images on next versions)
+        self.optText = []
+        self.optText.append(self.font.render("What's your name, little fella?", ANTIALIASING, COLORS['WHITE']))

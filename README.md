@@ -24,7 +24,11 @@ Go, face the duty! Stay alive!
 Title Screen:
 
 - Up and Down keys = Highlight different options
-- ENTER = Select option
+- ENTER = Select option:
+  - New Game = Start game from the beginning
+  - Load Game = Start game from a previous possition (only one for now)
+  - Options = Configure your game (WIP)
+  - Quit = Exit from the game
 
 Level 1:
 
@@ -38,7 +42,11 @@ Level 2:
 Pause Screen:
 
 - Up and Down keys = Select different options
-- ESC = Quit game
+- ENTER = Select option:
+  - Inventory = Check and equip items from your bag (WIP)
+  - Skills = Check and select your skills for the adventure (WIP)
+  - Options = Configure your game (WIP)
+  - Quit = Exit from the game
 - p = Exit pause screen
 
 General: 
@@ -50,12 +58,21 @@ Moreover, I'll consider to make a wiki, in order to build a better-structured
 and comprehensive documentation ^-^
 
 ----------------------------------------------------------------------------------------------------------------------
+# Resources
+
+I've included a text file in which I've detailed my font and sound external
+resources for the game. Although I'm not including those external files into
+the repository (those what I include are created on my own), I want to guide
+others in order to allow them add effects easily.
+
+----------------------------------------------------------------------------------------------------------------------
 
 # Greetings
 
 I want to thank all people and enterprises involved in this development.
 Without all of them, Primal Ring would have been impossible:
 
-- Monster Energy: About 10 pints consumed
-- Coke: About 13 pints consumed
-- Nestea: About 7 pints consumed
+- Monster Energy: About 11 pints consumed
+- Coke: About 13.5 pints consumed
+- Nestea: About 20 pints consumed
+- Nesquik: About 60 pints consumed

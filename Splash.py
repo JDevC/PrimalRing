@@ -18,6 +18,7 @@ class Splash(object):
         self.opacity = 255                                      # Opacity for fade in and fade out effects (254)
         # Animation flags: Each animation has a couple of boolean flags which control the fade effects
         # between displayed images.
+        self.endSplash = False
         self.animations = {'First': [True, False], 'Second': [False, False]}
         self.ticker = 0                                         # Delay counter for shown images
         # Setting our studio splash background
@@ -91,6 +92,7 @@ class Splash(object):
                 self.inc_opacity()
             else:
                 # Second Fade-out complete: Time to enter the game!
+                self.endSplash = True
                 self.animations['Second'][1] = True
 
     def display_frame(self):
