@@ -211,4 +211,9 @@ class Options(object):
         self.font = font
         # Options interface text (will include images on next versions)
         self.optText = []
-        self.optText.append(self.font.render("What's your name, little fella?", ANTIALIASING, COLORS['WHITE']))
+        self.optText.append(self.font.render("FullScreen: ", ANTIALIASING, COLORS['WHITE']))
+        self.optText.append(self.font.render("Music Volume: ", ANTIALIASING, COLORS['WHITE']))
+        self.optText.append(self.font.render("Effects Volume: ", ANTIALIASING, COLORS['WHITE']))
+        self.optText.append(self.font.render("Gallery ", ANTIALIASING, COLORS['WHITE']))
+        self.optText.append(self.font.render("Credits ", ANTIALIASING, COLORS['WHITE']))
+
