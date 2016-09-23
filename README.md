@@ -22,25 +22,28 @@ Go, face the duty! Stay alive!
 # Controls
 
 Title Screen:
-
 - Up and Down keys = Highlight different options
 - ENTER = Select option:
   - New Game = Start game from the beginning
   - Load Game = Start game from a previous possition (only one for now)
   - Options = Configure your game (WIP)
   - Quit = Exit from the game
+  
+Title Screen (Options):
+- Up and Down keys = Highlight different options
+- Right and Left keys (On volume controls) = Turns the volume high or low
+- ENTER = Select option:
+  - FullScreen = Toggles between FullScreen and Normal view mode
+  - Back to Main Menu = Self-explanatory, I guess
 
 Level 1:
-
 - Up, Left and Right keys = Moving and jumping
 
 Level 2:
-
 - Up, Down, Left and Right keys = Moving
 - TAB (While touching the save point) = Enter/Exit save screen
 
 Pause Screen:
-
 - Up and Down keys = Select different options
 - ENTER = Select option:
   - Inventory = Check and equip items from your bag (WIP)
@@ -49,8 +52,7 @@ Pause Screen:
   - Quit = Exit from the game
 - p = Exit pause screen
 
-General: 
-
+General:
 - p = Enter pause screen
 
 That's all for now! I'm working on new features, stay tunned for news :D
