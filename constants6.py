@@ -6,16 +6,13 @@ from os import path
 # --------------- Screen dimensions ------------------
 SCR_HEIGHT = 600                                            # 600
 SCR_WIDTH = 800                                             # 800
+# ------------ Title Screen Attributes ---------------
+# Option Attributes
+VOLUME_BAR = [300, 5]                                       # X and Y Volume bar's dimensions
+KNOB = [10, 30]                                             # X and Y Scrollable control's dimensions
+TICKER = {'Canvas': 15, 'Fill': 12}                         # Tick box dimensions
 # ------------ Pause Screen Attributes ---------------
 SURFACE_MID_ALPHA = 127                                     # Background's alpha value
-# ----------------- Primary colors -------------------
-COLORS = {'BLACK': [0x00, 0x00, 0x00],                      # Hex for black
-          'GREY': [0x77, 0x77, 0x77],                       # Hex for grey
-          'WHITE': [0xFF, 0xFF, 0xFF],                      # Hex for white
-          'RED': [0xFF, 0x00, 0x00],                        # Hex for red
-          'GREEN': [0x00, 0xFF, 0x00],                      # Hex for green
-          'BLUE': [0x00, 0x00, 0xFF],                       # Hex for blue
-          'ORANGE': [0xFF, 0xFF, 0x00]}                     # Hex for orange
 # --------------------- BODIES -----------------------
 # --------------------- Player -----------------------
 PLAYER_SIZE = 40                                            # X and Y player's size
@@ -25,6 +22,14 @@ FLOOR_SIZE = 50                                             # X and Y floor's si
 # ---------------------- ITEMS -----------------------
 COIN_SIZE = 30                                              # X and Y coin's size
 # --------------------- GENERAL ----------------------
+# ----------------- Primary colors -------------------
+COLORS = {'BLACK': [0x00, 0x00, 0x00],                      # Hex for black
+          'GREY': [0x77, 0x77, 0x77],                       # Hex for grey
+          'WHITE': [0xFF, 0xFF, 0xFF],                      # Hex for white
+          'RED': [0xFF, 0x00, 0x00],                        # Hex for red
+          'GREEN': [0x00, 0xFF, 0x00],                      # Hex for green
+          'BLUE': [0x00, 0x00, 0xFF],                       # Hex for blue
+          'ORANGE': [0xFF, 0xFF, 0x00]}                     # Hex for orange
 FPS = 60                                                    # General FPS value
 GRAVITY = 0.35                                              # Gravity for all bodies
 ANTIALIASING = True                                         # Smoothing text fonts

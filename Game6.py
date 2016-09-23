@@ -77,6 +77,7 @@ class Game(object):
                     elif event.key == pygame.K_p:
                         self.pauseFlag = False                          # Exits the pause screen
                     elif event.key == pygame.K_RETURN:
+                        self.pause.acceptSound.play()
                         if self.pause.menuList[self.pause.currentMenu]['Name'] == '- Inventory':
                             print("Accessing inventory... soon!")
                         elif self.pause.menuList[self.pause.currentMenu]['Name'] == '- Skills':

@@ -37,6 +37,7 @@ class PauseScreen(object):
                           'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.6]}]
         # Sounds
         self.selectSound = mixer.Sound(ROOT + '/sounds/select.wav')
+        self.acceptSound = mixer.Sound(ROOT + '/sounds/accept.ogg')
         self.currentMenu = 0
         # Player
         self.player = player                        # A reference to the player and his statistics

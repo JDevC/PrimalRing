@@ -16,7 +16,7 @@ class SaveGame(object):
 
     # ---------- Constructor ----------------------
     def __init__(self, screen, scr_size, level, debug=False):
-        # -- Attributes -----------------------
+        # ------ Attributes -----------------------
         self.debug = debug                                      # Flag for debugging into the game
         self.screen = screen                                    # A reference for the main screen
         # self.scr_size = scr_size                              # The screen size (not needed 'as is' for now)
@@ -63,17 +63,31 @@ class SaveGame(object):
                          "Coins": [self.level.player.coins, self.level.player.maxWallet],
                          "Level": {'ID': self.level.ID,
                                    'PositionX': self.level.player.rect.x,
-                                   'PositionY': self.level.player.rect.y}
-                         }
-        # file = open(ROOT + '/saves/save_trial.sv', "wb")
-        file = open(ROOT + '/saves/' + self.level.player.name + '.sv', "wb")
-        pickle.dump(player_status, file)
-        file.close()
+                                   'PositionY': self.level.player.rect.y}}
+        file = None
+        try:
+            # file = open(ROOT + '/saves/save_trial.sv', "wb")
+            file = open(ROOT + '/saves/' + self.level.player.name + '.sv', "wb")
+            pickle.dump(player_status, file)
+            file.close()
+        except FileNotFoundError as e:
+            print("It seems there's a conflict with the saving directory: " + str(e.args))
+        except OSError:
+            # We reach this if it's been some kind of issue while opening the file (maybe it has some restrictions,
+            # or a wild byte has broken into the filesystem and it's plundering). In any case, you can't open the
+            # file.
+            return None
+        except pickle.PicklingError as e:
+            print("The game couldn't be saved: " + str(e.args))
+        finally:
+            if file is not None:
+                file.close()
 
 
 # Function for loading a game file. This needs a revision, I'm not sure about this
 # implementation. It works, by the way.
 def load_file(name):
+    file = None
     try:
         # file = open(ROOT + '/saves/save_trial.sv', "rb")
         file = open(ROOT + '/saves/' + name + '.sv', "rb")
@@ -85,9 +99,19 @@ def load_file(name):
         # This exception can be reached if the user is playing a new game, or if anyone has messed up
         # with the save file and it's missing from its expected place.
         return None
+    except OSError:
+        # We reach this if it's been some kind of issue while opening the file (maybe it has some restrictions,
+        # or a wild byte has broken into the filesystem and it's plundering). In any case, you can't open the
+        # file.
+        return None
     except pickle.UnpicklingError:
         print("Bad format file!")
-        return None
+        return
+    finally:
+        print("asdf")
+        if file is not None:
+            # It prevents the file to stay opened in any case.
+            file.close()
 
 
 # This returns a list of saved games
