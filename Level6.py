@@ -6,14 +6,14 @@ from pygame import image, font, sprite
 from random import randrange
 # Own libs
 from Block6 import Snow, Floor, Hole, Coin, SavePoint
-from constants6 import COLORS, ANTIALIASING, ROOT, PLAYER_SIZE, COIN_SIZE, FLOOR_SIZE
+from constants6 import COLORS, ANTIALIASING, ROOT, COIN_SIZE, FLOOR_SIZE
 ''' This class manages all in terms of creating level structures
     and loading graphic and audio resources. Every level created
     has inheritance from this Level class.'''
 
 
 # General class
-class Level(object):
+class _Level(object):
     # Globals
     root = ROOT
 
@@ -25,8 +25,9 @@ class Level(object):
         self.screen = screen                        # A reference for the main screen
         self.scrSize = scr_size                     # The screen size
         self.ID = None                              # A level identifier
-        self.structure = []                         # Level structure reference
+        self.structure = []                         # Level structure map
         self.levelInit = [0, 0]                     # Level enter point
+        self.reference = []                         # Level fixed references for scroll
         self.backgroundImg = None                   # Background image reference
         self.hud = [image.load(self.root + "/images/Life.png").convert(),
                     image.load(self.root + "/images/Energy.png").convert(),
@@ -82,19 +83,34 @@ class Level(object):
             cnt_x = 0  # Initial X-axis tile grid
             for column in row:
                 if column == "f":  # 'f' stands for 'Floor'
-                    floor = Floor(COLORS['BLUE'], 50, 50)
+                    floor = Floor(COLORS['BLUE'], FLOOR_SIZE, FLOOR_SIZE)
                     floor.rect.x = cnt_x
                     floor.rect.y = cnt_y
                     self.colliders.add(floor)
                     self.bodies.add(floor)
+                    # We append the level corners
+                    if cnt_y == 0 and cnt_x == 0:
+                        print("Ref 1")
+                        self.reference.append(floor)
+                    elif cnt_y == 0 and cnt_x == (len(structure[0]) - 1) * FLOOR_SIZE:
+                        print("Ref 2")
+                        self.reference.append(floor)
+                    elif cnt_y == (len(structure) - 1) * FLOOR_SIZE and cnt_x == 0:
+                        print("Ref 3")
+                        self.reference.append(floor)
+                    elif cnt_y == (len(structure) - 1) * FLOOR_SIZE and cnt_x == (len(structure[0]) - 1) * FLOOR_SIZE:
+                        print("Ref 4")
+                        self.reference.append(floor)
+                    else:
+                        pass
                 elif column == "h":  # 'h' stands for 'Hole'
-                    hole = Hole(COLORS['BLACK'], 50, 50)
+                    hole = Hole(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE)
                     hole.rect.x = cnt_x
                     hole.rect.y = cnt_y
                     self.colliders.add(hole)
                     self.bodies.add(hole)
                 elif column == "s":  # 's' stands for 'SavePoint'
-                    save = SavePoint(COLORS['WHITE'], 50, 50)
+                    save = SavePoint(COLORS['WHITE'], FLOOR_SIZE, FLOOR_SIZE)
                     save.rect.x = cnt_x
                     save.rect.y = cnt_y
                     self.colliders.add(save)
@@ -121,7 +137,7 @@ class Level(object):
 
 
 # 2D Plain level's type class
-class PlainLevel(Level):
+class _PlainLevel(_Level):
     # ---------- Constructor ----------------------
     def __init__(self, screen, scr_size, player, debug=False):
         # -- Parent constructor ---------------
@@ -143,7 +159,7 @@ class PlainLevel(Level):
 
 
 # 2D Horizontal level's type class
-class HorizontalLevel(Level):
+class _HorizontalLevel(_Level):
     # ---------- Constructor ----------------------
     def __init__(self, screen, scr_size, player, debug=False):
         # -- Parent constructor ---------------
@@ -158,11 +174,30 @@ class HorizontalLevel(Level):
         # Checks the condition for going out the level
         if self.player.coins < 10:
             self.player.update(self.colliders, self.temporary)
+            # Scrolls in X axis
+            # The player is going on the left of the screen (going to left)
+            if self.player.get_rect().x < self.scrSize[0] / 2:
+                # The player is far from the beginning of the level
+                if self.player.get_rect().x - self.reference[0].get_rect().x > self.scrSize[0] / 2:
+                    diff = self.scrSize[0] / 2 - self.player.get_rect().x
+                    self.player.rect.x = self.scrSize[0] / 2
+                    for body in self.bodies:
+                        body.rect.x += diff
+            # The player is located near to the end of the screen (going to the right)
+            elif self.player.get_rect().x > self.scrSize[0] / 2:
+                # The player is far from the beginning of the level
+                # if self.level_bounds["X"][1] - self.player.get_rect().x > self.scrSize[0] / 2:
+                if self.reference[1].get_rect().x + FLOOR_SIZE - self.player.get_rect().x > self.scrSize[0] / 2:
+                    diff = self.player.get_rect().x - self.scrSize[0] / 2
+                    self.player.rect.x = self.scrSize[0] / 2
+                    for body in self.bodies:
+                        body.rect.x -= diff
+
             self.render_hud()
             if self.debug:
                 self.debText = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
-                                               + str(self.player.rect.y) + "VelX: " + str(self.player.velX)
-                                               + "; VelY: " + str(self.player.velY), ANTIALIASING, COLORS['WHITE'])
+                                                + str(self.player.rect.y) + "VelX: " + str(self.player.velX)
+                                                + "; VelY: " + str(self.player.velY), ANTIALIASING, COLORS['WHITE'])
                 '''self.debText = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
                                                + str(self.player.rect.y) + "; Obj: "
                                                + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])'''
@@ -174,7 +209,7 @@ class HorizontalLevel(Level):
 
 
 # All levels must inherit from 'HorizontalLevel' or 'Plain Level'
-class Level1(HorizontalLevel):
+class Level1(_HorizontalLevel):
     # ---------- Constructor ----------------------
     def __init__(self, screen, scr_size, player, debug=False):
         # -- Parent constructor ---------------
@@ -183,18 +218,18 @@ class Level1(HorizontalLevel):
         self.ID = "Doom Valley"
         self.levelInit = (50, 300)                     # Initial player position's coordinates
         # Level map structure
-        self.structure = ["ffffffffffffffff",
-                          "f            ccf",
-                          "f   c       c  f",
-                          "f   f       f  f",
-                          "f     c    ff  f",
-                          "f  f ffff fffc f",
-                          "f c          f f",
-                          "f fc  c c c    f",
-                          "f  f           f",
-                          "f              f",
-                          "f              f",
-                          "ffffffffffffffff"]
+        self.structure = ["ffffffffffffffffffffffffffffffff",
+                          "f            c                 f",
+                          "f   c          ffff            f",
+                          "f   f       f  f         c     f",
+                          "f     c    ff  f     fff ffff  f",
+                          "f  f ffff fff       f       f  f",
+                          "f c          f            f f  f",
+                          "f fc                c     f    f",
+                          "f  f              fff     f    f",
+                          "f               f         f    f",
+                          "f                       c fc c f",
+                          "ffffffffffffffffffffffffffffffff"]
         # Populating level
         self.fill_level(self.structure)
 
@@ -212,7 +247,7 @@ class Level1(HorizontalLevel):
 
 
 # All levels must inherit from 'HorizontalLevel' or 'Plain Level'
-class Level2(PlainLevel):
+class Level2(_PlainLevel):
     # ---------- Constructor ----------------------
     def __init__(self, screen, src_size, player, debug=False):
         # -- Parent constructor ---------------
