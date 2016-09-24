@@ -88,21 +88,11 @@ class _Level(object):
                     floor.rect.y = cnt_y
                     self.colliders.add(floor)
                     self.bodies.add(floor)
-                    # We append the level corners
+                    # We append the opposite level corners
                     if cnt_y == 0 and cnt_x == 0:
-                        print("Ref 1")
-                        self.reference.append(floor)
-                    elif cnt_y == 0 and cnt_x == (len(structure[0]) - 1) * FLOOR_SIZE:
-                        print("Ref 2")
-                        self.reference.append(floor)
-                    elif cnt_y == (len(structure) - 1) * FLOOR_SIZE and cnt_x == 0:
-                        print("Ref 3")
                         self.reference.append(floor)
                     elif cnt_y == (len(structure) - 1) * FLOOR_SIZE and cnt_x == (len(structure[0]) - 1) * FLOOR_SIZE:
-                        print("Ref 4")
                         self.reference.append(floor)
-                    else:
-                        pass
                 elif column == "h":  # 'h' stands for 'Hole'
                     hole = Hole(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE)
                     hole.rect.x = cnt_x
@@ -186,12 +176,28 @@ class _HorizontalLevel(_Level):
             # The player is located near to the end of the screen (going to the right)
             elif self.player.get_rect().x > self.scrSize[0] / 2:
                 # The player is far from the beginning of the level
-                # if self.level_bounds["X"][1] - self.player.get_rect().x > self.scrSize[0] / 2:
                 if self.reference[1].get_rect().x + FLOOR_SIZE - self.player.get_rect().x > self.scrSize[0] / 2:
                     diff = self.player.get_rect().x - self.scrSize[0] / 2
                     self.player.rect.x = self.scrSize[0] / 2
                     for body in self.bodies:
                         body.rect.x -= diff
+            # Scrolls in Y axis
+            # The player is going down
+            if self.player.get_rect().y < self.scrSize[1] / 2:
+                # The player is far from the beginning of the level
+                if self.player.get_rect().y - self.reference[0].get_rect().y > self.scrSize[1] / 2:
+                    diff = self.scrSize[1] / 2 - self.player.get_rect().y
+                    self.player.rect.y = self.scrSize[1] / 2
+                    for body in self.bodies:
+                        body.rect.y += diff
+            # The player is located near to the end of the screen (going to the right)
+            elif self.player.get_rect().y > self.scrSize[1] / 2:
+                # The player is far from the beginning of the level
+                if self.reference[1].get_rect().y + FLOOR_SIZE - self.player.get_rect().y > self.scrSize[1] / 2:
+                    diff = self.player.get_rect().y - self.scrSize[1] / 2
+                    self.player.rect.y = self.scrSize[1] / 2
+                    for body in self.bodies:
+                        body.rect.y -= diff
 
             self.render_hud()
             if self.debug:
@@ -219,15 +225,24 @@ class Level1(_HorizontalLevel):
         self.levelInit = (50, 300)                     # Initial player position's coordinates
         # Level map structure
         self.structure = ["ffffffffffffffffffffffffffffffff",
-                          "f            c                 f",
-                          "f   c          ffff            f",
-                          "f   f       f  f         c     f",
+                          "fc                            cf",
+                          "ff  fffffffffffffffffff  c  ffff",
+                          "f                      f   f   f",
+                          "f  f                    fff    f",
+                          "f   ff                         f",
+                          "f    f                         f",
+                          "f    ffff   fff                f",
+                          "f              f               f",
+                          "f               f              f",
+                          "f                              f",
+                          "f              ffff            f",
+                          "f   f       f  f               f",
                           "f     c    ff  f     fff ffff  f",
                           "f  f ffff fff       f       f  f",
                           "f c          f            f f  f",
                           "f fc                c     f    f",
                           "f  f              fff     f    f",
-                          "f               f         f    f",
+                          "f               f              f",
                           "f                       c fc c f",
                           "ffffffffffffffffffffffffffffffff"]
         # Populating level
