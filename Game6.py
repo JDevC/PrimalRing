@@ -137,7 +137,7 @@ class Game(object):
                     if event.key == pygame.K_DOWN:
                         if self.level.player.plainLevel:
                             self.level.player.go_down()
-                    if event.key == pygame.K_p:                         # 'p' key
+                    if event.key == pygame.K_p:                           # 'p' key
                         self.pauseFlag = True
                         self.pause = PauseScreen.PauseScreen(self.screen, self.scrSize, self.level.player)
                     if event.key == pygame.K_TAB:                         # 'TAB' key
@@ -164,20 +164,22 @@ class Game(object):
                 pass
             else:
                 # Updates all sprites and checks if the player has made a level change
-                reached = self.level.update()
-                if reached:
+                update = self.level.update()
+                if update:
                     # It swaps into another level.
                     # This point needs a revision: our game map should consist on a central level from where
                     # we can travel into the others, but at least it's a beginning
-                    # self.gameOver = True
-                    self.level = self.levels['The RING']
-                    self.player.rect.x = self.level.levelInit[0]
-                    self.player.rect.y = self.level.levelInit[1]
-                    self.player.plainLevel = self.level.plainLevel
+                    if self.level.player.isDead:
+                        self.gameOver = True
+                    else:
+                        self.level = self.levels['The RING']
+                        self.player.rect.x = self.level.levelInit[0]
+                        self.player.rect.y = self.level.levelInit[1]
+                        self.player.plainLevel = self.level.plainLevel
 
     # This function displays all graphic resources and effects
     def display_frame(self):
-        self.screen.fill(COLORS['BLACK'])
+        self.screen.fill(COLORS['GREY'])                   # BLACK
         # Checks if the player still lives on
         if self.gameOver:
             self.screen.blit(self.gOverText[0], [(self.scrSize[0]/2) - 45, self.scrSize[1]/2 - 50])
@@ -200,6 +202,3 @@ class Game(object):
     def quit_game(self):
         self.quit_all = True
         return True
-
-    def __str__(self):
-        return "Game"

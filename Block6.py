@@ -9,7 +9,7 @@ from constants6 import GRAVITY, MAX_FALL_VELOCITY, COLORS, FPS, ROOT
 
 
 # General Block sprite class
-class Block(sprite.Sprite):
+class _Block(sprite.Sprite):
     # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
         # -- Parent constructor ---------------
@@ -28,34 +28,78 @@ class Block(sprite.Sprite):
         self.rect = self.image.get_rect()
 
     # ---------- Methods --------------------------
-    def docs(self):
-        return self.name
-
     def get_rect(self):
         return self.rect
 
 
 # It's alive! Class for animated blocks, with some additions
-class AnimatedBlock(Block):
+class _AnimatedBlock(_Block):
     # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
         # -- Parent constructor ---------------
         super().__init__(color, width, height)
         # Animation attributes
-        self.imageList = []                             # Frame container
-        self.imageListIndex = 0                         # Frame pointer on animation
+        self.imageList = []                             # Tile container
+        self.imageListIndex = 0                         # Tile pointer on animation
 
     # ---------- Methods --------------------------
-    # It loads all frames incoming from a specified folder
+    # It loads all tiles incoming from a specified folder
     def set_frames(self, origin, quantity):
         for i in range(quantity):
             self.imageList.append(image.load(ROOT + '/images/' + origin + str(i+1) + '.png').convert())
 
 
-class Snow(Block):
+# Evil army! This class is for all enemy objects (It will extend from _AnimatedBlock in a future; Still lacks tiles)
+class _Enemy(_Block):
+    # ---------- Constructor ----------------------
+    def __init__(self, color, width, height):
+        super().__init__(color, width, height)
+        self.life = 0                           # Enemy's life count
+        self.isDead = False                     # Enemy's state
+        self.firstX = 0
+
+
+#
+class Platform(_Block):
+    # ---------- Constructor ----------------------
+    def __init__(self, color, width, height, init_coords, axis='X'):
+        super().__init__(color, width, height)
+        self.name = "Platform"
+        self.initCoords = init_coords
+        self.velX = self.velY = 1
+        self.maxRun = 50                             # Moving limit
+        self.axis = axis
+
+    # ------------ Methods ------------------------
+    def update(self):
+        # if self.refresh < self.fps:
+        #     self.refresh += self.fps
+        # else:
+        # The current position it's still into the limits
+        if self.maxRun >= abs(self.rect.x - self.initCoords[0]) \
+                and self.maxRun >= abs(self.rect.y - self.initCoords[1]):
+            # It's moving in the X or Y axis?
+            if self.axis == 'X':
+                self.rect.x += self.velX
+            elif self.axis == 'Y':
+                self.rect.y += self.velY
+        elif self.maxRun < abs(self.rect.x - self.initCoords[0]):
+            # We convert the velocity value to its opposite
+            self.velX *= -1
+            self.rect.x += self.velX
+        elif self.maxRun < abs(self.rect.y - self.initCoords[1]):
+            # We convert the velocity value to its opposite
+            self.velY *= -1
+            self.rect.y += self.velY
+
+        # We reset the refresh rating
+        # self.refresh = 0
+
+
+class Snow(_Block):
     # ---------- Constructor ----------------------
     def __init__(self, color, width, height, screen_size):
-        super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
+        super().__init__(color, width, height)
         self.name = "Snow"
         self.screen_size = screen_size
         self.firstX = 0
@@ -77,7 +121,7 @@ class Snow(Block):
 
 
 # Class for ground floor tiles
-class Floor(Block):
+class Floor(_Block):
     # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
         super().__init__(color, width, height)      # Block.__init__(self, color, width, height)
@@ -85,7 +129,7 @@ class Floor(Block):
 
 
 # Class for coins
-class Coin(Block):
+class Coin(_Block):
     # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
         super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
@@ -96,7 +140,7 @@ class Coin(Block):
 
 
 # Class for hole tiles
-class Hole(Block):
+class Hole(_Block):
     # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
         super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
@@ -104,7 +148,7 @@ class Hole(Block):
 
 
 # Class for saving point tiles
-class SavePoint(AnimatedBlock):
+class SavePoint(_AnimatedBlock):
     # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
         super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
@@ -118,22 +162,23 @@ class SavePoint(AnimatedBlock):
     # ---------- Methods --------------------------
     # Update method for animation
     def update(self):
+        # We configure the refresh rating here
         if self.refresh < self.fps:
             self.refresh += self.fps / 2
         else:
+            # We switch the current tile to next in a concrete sequence
             if self.imageListIndex < len(self.imageList) - 1:
                 self.imageListIndex += 1
             else:
                 self.imageListIndex = 0
-
             self.image = self.imageList[self.imageListIndex]
             self.image.set_colorkey(COLORS['BLACK'])
             # We reset the refresh state
             self.refresh = 0
 
 
-# Class for the player character
-class Player(Block):
+# Class for the player character (It will extend from _AnimatedBlock in a future; Still lacks tiles)
+class Player(_Block):
     # ---------- Constructor ----------------------
     def __init__(self, color, width, height, save_file=None):
         super().__init__(color, width, height)      # Block.__init__(self, color, width, height)
@@ -151,7 +196,7 @@ class Player(Block):
             self.name = "Player"
             self.life = self.maxLife = 100
             self.energy = self.maxEnergy = 100
-            self.coins = 0
+            self.coins = 5
             self.maxWallet = 100
         # Insert here your favourite sound, and all coins will go 'tink' when you touch them!
         self.coinSound = mixer.Sound(ROOT + '/sounds/coin.wav')
@@ -159,6 +204,7 @@ class Player(Block):
         self.saveFlag = False                       # Enable/Disable saving feature
         self.plainLevel = False                     # Enable/Disable horizontal gravity
         self.jumping = False                        # Jumping state flag
+        self.isDead = False                         # Living state flag
 
     # ---------- Methods --------------------------
     # Update method
@@ -177,32 +223,34 @@ class Player(Block):
         solid_collide_list = sprite.spritecollide(self, solid_boxes, False)
         weak_collide_list = sprite.spritecollide(self, weak_boxes, True)
         for body in solid_collide_list:
-            if body.docs() == "Floor":
+            if isinstance(body, Floor) or isinstance(body, Platform):
                 # Moving to the right
                 if self.velX > 0:
                     self.rect.right = body.get_rect().left
                 # Moving to the left
                 elif self.velX < 0:
                     self.rect.left = body.get_rect().right
-
-            elif body.docs() == "Hole":
+            elif isinstance(body, Hole):
                 if self.distance(self.rect.centerx, self.rect.centery,
                                  body.get_rect().centerx, body.get_rect().centery) < body.rect.width*0.75:
                     if self.rect.x > body.get_rect().x:
                         self.rect.x -= 2
                     elif self.rect.x < body.get_rect().x:
                         self.rect.x += 2
-
-            elif body.docs() == "SavePoint":
+            elif isinstance(body, SavePoint):
                 if self.distance(self.rect.centerx, self.rect.centery,
                                  body.get_rect().centerx, body.get_rect().centery) < body.rect.width / 2:
                     self.saveFlag = True
 
         for body in weak_collide_list:
-            if body.docs() == "Snow":
+            if isinstance(body, Snow):
                 self.life -= 1
-            elif body.docs() == "Coin":
-                self.coins += 1
+                if self.life <= 0:
+                    self.isDead = True
+            elif isinstance(body, Coin):
+                # It prevents us for taking more coins than we can get
+                if self.coins < self.maxWallet:
+                    self.coins += 1
                 self.coinSound.play()
 
         # ------- VERTICAL CHECKING -------------------
@@ -212,7 +260,7 @@ class Player(Block):
         solid_collide_list = sprite.spritecollide(self, solid_boxes, False)
         weak_collide_list = sprite.spritecollide(self, weak_boxes, True)
         for body in solid_collide_list:
-            if body.docs() == "Floor":
+            if isinstance(body, Floor) or isinstance(body, Platform):
                 # Wall under the player
                 if self.velY > 0:
                     self.stop_fall()
@@ -222,7 +270,7 @@ class Player(Block):
                     self.stop_y()
                     self.rect.top = body.get_rect().bottom
 
-            elif body.docs() == "Hole":
+            elif isinstance(body, Hole):
                 if self.distance(self.rect.centerx, self.rect.centery,
                                       body.get_rect().centerx, body.get_rect().centery) < body.rect.width*0.75:
                     if self.rect.y > body.get_rect().y:
@@ -230,15 +278,18 @@ class Player(Block):
                     elif self.rect.y < body.get_rect().y:
                         self.rect.y += 2
 
-            elif body.docs() == "SavePoint":
+            elif isinstance(body, SavePoint):
                 if self.distance(self.rect.centerx, self.rect.centery,
                                  body.get_rect().centerx, body.get_rect().centery) < body.rect.width / 2:
                     self.saveFlag = True
 
         for body in weak_collide_list:
-            if body.docs() == "Snow":
+            if isinstance(body, Snow):
                 self.life -= 1
-            elif body.docs() == "Coin":
+                if self.life <= 0:
+                    self.isDead = True
+                    return True
+            elif isinstance(body, Coin):
                 # It prevents us for taking more coins than we can get
                 if self.coins < self.maxWallet:
                     self.coins += 1

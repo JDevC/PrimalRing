@@ -10,7 +10,7 @@ SCR_WIDTH = 800                                             # 800
 # Option Attributes
 VOLUME_BAR = [300, 5]                                       # X and Y Volume bar's dimensions
 KNOB = [10, 30]                                             # X and Y Scrollable control's dimensions
-TICKER = {'Canvas': 15, 'Fill': 12}                         # Tick box dimensions
+TICKER = {'Canvas': 16, 'Fill': 12}                         # Tick box dimensions
 # ------------ Pause Screen Attributes ---------------
 SURFACE_MID_ALPHA = 127                                     # Background's alpha value
 # --------------------- BODIES -----------------------

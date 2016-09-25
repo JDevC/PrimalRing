@@ -5,7 +5,7 @@
 from pygame import image, font, sprite
 from random import randrange
 # Own libs
-from Block6 import Snow, Floor, Hole, Coin, SavePoint
+from Block6 import Snow, Floor, Hole, Coin, SavePoint, Platform
 from constants6 import COLORS, ANTIALIASING, ROOT, COIN_SIZE, FLOOR_SIZE
 ''' This class manages all in terms of creating level structures
     and loading graphic and audio resources. Every level created
@@ -111,10 +111,94 @@ class _Level(object):
                     coin.rect.y = cnt_y + 10
                     self.temporary.add(coin)
                     self.bodies.add(coin)
+                elif column == "p":  # 'p' stands for 'Platform'
+                    platform = Platform(COLORS['GREEN'], FLOOR_SIZE, FLOOR_SIZE, [cnt_x, cnt_y], 'Y')
+                    platform.rect.x = cnt_x
+                    platform.rect.y = cnt_y
+                    self.colliders.add(platform)
+                    self.bodies.add(platform)
 
                 cnt_x += 50  # Increment X-axis for the next tile
 
             cnt_y += 50  # Increment Y-axis for the next tile
+
+    # It manages the level scrolling
+    def scroll(self):
+        # Scrolls in X axis
+        # The player's coordinates are out of scope (Level enter)
+        if self.player.get_rect().x < 0:
+            diff = self.scrSize[0] / 2 - self.player.get_rect().x
+            self.player.rect.x = self.scrSize[0] / 2
+            for body in self.bodies:
+                body.rect.x += diff
+                if isinstance(body, Platform):
+                    body.initCoords[0] += diff
+        # The player's coordinates are out of scope (Level enter)
+        elif self.player.get_rect().x > self.scrSize[0]:
+            # diff = self.player.get_rect().x - self.scrSize[0] / 2
+            # self.player.rect.x = self.scrSize[0] / 2
+            diff = self.reference[1].rect.x + FLOOR_SIZE - self.scrSize[0]
+            self.player.rect.x -= diff
+            for body in self.bodies:
+                body.rect.x -= diff
+                if isinstance(body, Platform):
+                    body.initCoords[0] -= diff
+        # The player is going on the left of the screen (going to left)
+        if self.player.get_rect().x < self.scrSize[0] / 2:
+            # The player is far from the beginning of the level
+            if self.player.get_rect().x - self.reference[0].get_rect().x > self.scrSize[0] / 2:
+                diff = self.scrSize[0] / 2 - self.player.get_rect().x
+                self.player.rect.x = self.scrSize[0] / 2
+                for body in self.bodies:
+                    body.rect.x += diff
+                    if isinstance(body, Platform):
+                        body.initCoords[0] += diff
+        # The player is located near to the end of the screen (going to the right)
+        elif self.player.get_rect().x > self.scrSize[0] / 2:
+            # The player is far from the beginning of the level
+            if self.reference[1].get_rect().x + FLOOR_SIZE - self.player.get_rect().x > self.scrSize[0] / 2:
+                diff = self.player.get_rect().x - self.scrSize[0] / 2
+                self.player.rect.x = self.scrSize[0] / 2
+                for body in self.bodies:
+                    body.rect.x -= diff
+                    if isinstance(body, Platform):
+                        body.initCoords[0] -= diff
+        # Scrolls in Y axis
+        # The player's coordinates are out of scope (Level enter)
+        if self.player.get_rect().y < 0:
+            diff = self.scrSize[1] / 2 - self.player.get_rect().y
+            self.player.rect.y = self.scrSize[1] / 2
+            for body in self.bodies:
+                body.rect.y += diff
+                if isinstance(body, Platform):
+                    body.initCoords[1] += diff
+        elif self.player.get_rect().y > self.scrSize[1]:
+            diff = self.reference[1].rect.y + FLOOR_SIZE - self.scrSize[1]
+            self.player.rect.y -= diff
+            for body in self.bodies:
+                body.rect.y -= diff
+                if isinstance(body, Platform):
+                    body.initCoords[1] -= diff
+        # The player is going down
+        if self.player.get_rect().y < self.scrSize[1] / 2:
+            # The player is far from the beginning of the level
+            if self.player.get_rect().y - self.reference[0].get_rect().y > self.scrSize[1] / 2:
+                diff = self.scrSize[1] / 2 - self.player.get_rect().y
+                self.player.rect.y = self.scrSize[1] / 2
+                for body in self.bodies:
+                    body.rect.y += diff
+                    if isinstance(body, Platform):
+                        body.initCoords[1] += diff
+        # The player is located near to the end of the screen (going to the right)
+        elif self.player.get_rect().y > self.scrSize[1] / 2:
+            # The player is far from the beginning of the level
+            if self.reference[1].get_rect().y + FLOOR_SIZE - self.player.get_rect().y > self.scrSize[1] / 2:
+                diff = self.player.get_rect().y - self.scrSize[1] / 2
+                self.player.rect.y = self.scrSize[1] / 2
+                for body in self.bodies:
+                    body.rect.y -= diff
+                    if isinstance(body, Platform):
+                        body.initCoords[1] -= diff
 
     # It renders all main hud information
     def render_hud(self):
@@ -139,6 +223,7 @@ class _PlainLevel(_Level):
         # Update all elements in level
         self.bodies.update()
         self.player.update(self.colliders, self.temporary)
+        self.scroll()
         self.render_hud()
         if self.debug:
             self.debText = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
@@ -162,43 +247,11 @@ class _HorizontalLevel(_Level):
         # Update all elements in level
         self.bodies.update()
         # Checks the condition for going out the level
-        if self.player.coins < 10:
+        if self.player.isDead:
+            return True
+        elif self.player.coins < 10:
             self.player.update(self.colliders, self.temporary)
-            # Scrolls in X axis
-            # The player is going on the left of the screen (going to left)
-            if self.player.get_rect().x < self.scrSize[0] / 2:
-                # The player is far from the beginning of the level
-                if self.player.get_rect().x - self.reference[0].get_rect().x > self.scrSize[0] / 2:
-                    diff = self.scrSize[0] / 2 - self.player.get_rect().x
-                    self.player.rect.x = self.scrSize[0] / 2
-                    for body in self.bodies:
-                        body.rect.x += diff
-            # The player is located near to the end of the screen (going to the right)
-            elif self.player.get_rect().x > self.scrSize[0] / 2:
-                # The player is far from the beginning of the level
-                if self.reference[1].get_rect().x + FLOOR_SIZE - self.player.get_rect().x > self.scrSize[0] / 2:
-                    diff = self.player.get_rect().x - self.scrSize[0] / 2
-                    self.player.rect.x = self.scrSize[0] / 2
-                    for body in self.bodies:
-                        body.rect.x -= diff
-            # Scrolls in Y axis
-            # The player is going down
-            if self.player.get_rect().y < self.scrSize[1] / 2:
-                # The player is far from the beginning of the level
-                if self.player.get_rect().y - self.reference[0].get_rect().y > self.scrSize[1] / 2:
-                    diff = self.scrSize[1] / 2 - self.player.get_rect().y
-                    self.player.rect.y = self.scrSize[1] / 2
-                    for body in self.bodies:
-                        body.rect.y += diff
-            # The player is located near to the end of the screen (going to the right)
-            elif self.player.get_rect().y > self.scrSize[1] / 2:
-                # The player is far from the beginning of the level
-                if self.reference[1].get_rect().y + FLOOR_SIZE - self.player.get_rect().y > self.scrSize[1] / 2:
-                    diff = self.player.get_rect().y - self.scrSize[1] / 2
-                    self.player.rect.y = self.scrSize[1] / 2
-                    for body in self.bodies:
-                        body.rect.y -= diff
-
+            self.scroll()
             self.render_hud()
             if self.debug:
                 self.debText = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
@@ -222,7 +275,7 @@ class Level1(_HorizontalLevel):
         super().__init__(screen, scr_size, player, debug)
         # Level data
         self.ID = "Doom Valley"
-        self.levelInit = (50, 300)                     # Initial player position's coordinates
+        self.levelInit = (50, 900)                     # Initial player position's coordinates (50, 900)
         # Level map structure
         self.structure = ["ffffffffffffffffffffffffffffffff",
                           "fc                            cf",
@@ -230,12 +283,12 @@ class Level1(_HorizontalLevel):
                           "f                      f   f   f",
                           "f  f                    fff    f",
                           "f   ff                         f",
-                          "f    f                         f",
+                          "f    f        f                f",
                           "f    ffff   fff                f",
-                          "f              f               f",
-                          "f               f              f",
                           "f                              f",
-                          "f              ffff            f",
+                          "f               p          f c f",
+                          "f                          fffff",
+                          "f              ffff     p      f",
                           "f   f       f  f               f",
                           "f     c    ff  f     fff ffff  f",
                           "f  f ffff fff       f       f  f",
@@ -243,7 +296,7 @@ class Level1(_HorizontalLevel):
                           "f fc                c     f    f",
                           "f  f              fff     f    f",
                           "f               f              f",
-                          "f                       c fc c f",
+                          "f                       c f  c f",
                           "ffffffffffffffffffffffffffffffff"]
         # Populating level
         self.fill_level(self.structure)
@@ -253,8 +306,10 @@ class Level1(_HorizontalLevel):
             # Snow instance
             flake = Snow(COLORS['WHITE'], 2, 2, self.scrSize)
             # We create a random placement
-            flake.rect.x = randrange(self.scrSize[0])
-            flake.rect.y = randrange(self.scrSize[1])
+            # flake.rect.x = randrange(self.scrSize[0])
+            flake.rect.x = randrange(len(self.structure[0]) * 50)
+            # flake.rect.y = randrange(self.scrSize[1])
+            flake.rect.y = randrange(len(self.structure) * 50)
             # Then we add the flake to the block lists
             flake.firstX = flake.rect.x
             self.temporary.add(flake)
@@ -269,19 +324,28 @@ class Level2(_PlainLevel):
         super().__init__(screen, src_size, player, debug)
         # Level data
         self.ID = "The RING"
-        self.levelInit = (50, 500)  # Initial player position's coordinates
+        self.levelInit = (150, 850)  # Initial player position's coordinates (50, 500)
         # -- Attributes -----------------------
-        self.structure = ["fffffff ffffffff",
-                          "f       fc c c f",
-                          "f fffff fc c c f",
-                          "fcfhf h     f  f",
-                          "fcf        ff  f",
-                          "fcff    f fff  f",
-                          "fcf   h  c   f f",
-                          "fcff  h        f",
-                          "f     h    s   f",
-                          "ffff ff        f",
-                          "f    hf       ff",
-                          "fffffffffffffff "]
+        self.structure = ["ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
+                          "fffffff  ffff ff               ffhhchhchhchhchhff c        cffff",
+                          "ff  fff  fff  ff               ffhhchhchhchhchhffcff        cfff",
+                          "ff c cf  fc   ff                               ff f          cff",
+                          "ff  hhf  fhh                                                  cf",
+                          "ff  fff  fff                   ff                              f",
+                          "ff  fff  fff  ff               ff              ff f          f f",
+                          "f             ff              ffff             ffcfff      fffcf",
+                          "fffffff  fffffff             ffffff            ff c          c f",
+                          "f       fc    ffffffff  fffffffffffffff  ffffffffffffff  fffffff",
+                          "f fffff fc    ffffffff  fffffffffffffff  ffffffffffffff  fffffff",
+                          "fcfhf h     f ff             ffffff            ff              f",
+                          "fcf        ff ff              ffff             ff fff      fff f",
+                          "fcff    f fff ff               ff              ff f    s     f f",
+                          "fcf   h  c                     ff                              f",
+                          "fcff  h                                                        f",
+                          "ff    h    s  ff                               ff f           ff",
+                          "fff   f       ff               ffhhchhchhchhchhff ff         fff",
+                          "ffff  f       ff               ffhhchhchhchhchhff           ffff",
+                          "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"]
+        # 64 x 20
         # Populating level
         self.fill_level(self.structure)

@@ -354,7 +354,7 @@ class OptionsScreen(object):
         self.screen.blit(self.fullscreen_tickbox,
                          [self.optionList[0]['Position'][0] + 200, self.optionList[0]['Position'][1] + 8])
         self.screen.blit(self.fullscreen_tick,
-                         [self.optionList[0]['Position'][0] + 201, self.optionList[0]['Position'][1] + 9])
+                         [self.optionList[0]['Position'][0] + 202, self.optionList[0]['Position'][1] + 10])
         # Volume interface
         self.screen.blit(self.volumeBar,
                          [self.optionList[1]['Position'][0] + 200, self.optionList[1]['Position'][1] + 15])

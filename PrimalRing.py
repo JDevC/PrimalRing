@@ -2,7 +2,7 @@
 
 # ---------------------- IMPORTS ---------------------
 import pygame                                                       # Python libs
-import Game6                                                        # Own libs
+from Game6 import Game                                              # Own libs
 from Splash import Splash
 from Title import TitleScreen
 from constants6 import SCR_HEIGHT, SCR_WIDTH, COLORS, FPS, ROOT
@@ -54,24 +54,24 @@ def main():
         current_scene.display_frame()
         # 4th step: Evaluating scene switching
         if switch:
-            if current_scene.__str__() == 'Splash' and current_scene.endSplash:
+            if isinstance(current_scene, Splash) and current_scene.endSplash:
                 current_scene = scene[0] = scene[1]                     # We 'switch' to the title scene
                 del scene[1]                                            # This is for cleaning memory purpose
-            elif current_scene.__str__() == 'Title':
+            elif isinstance(current_scene, TitleScreen):
                 if current_scene.flags['NewGame']:
                     reset_flags(current_scene)
                     # We 'switch' to the game scene in a new game
-                    scene.append(Game6.Game(screen, scr_size, "Name"))
+                    scene.append(Game(screen, scr_size, "Name"))
                     current_scene = scene[1]
                 elif current_scene.flags['LoadGame'][0]:
                     reset_flags(current_scene)
                     # We 'switch' to the game scene though a loaded game
-                    scene.append(Game6.Game(screen, scr_size, "Player"))
+                    scene.append(Game(screen, scr_size, "Player"))
                     current_scene = scene[1]
                 elif current_scene.flags['Quit']:
                     # We exit the game
                     done = True
-            elif current_scene.__str__() == 'Game' and not current_scene.quit_all:
+            elif isinstance(current_scene, Game) and not current_scene.quit_all:
                 current_scene = scene[0]
                 del scene[1]                                            # This is for cleaning memory purpose
             else:

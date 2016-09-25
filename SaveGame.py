@@ -62,11 +62,10 @@ class SaveGame(object):
                          "Energy": [self.level.player.energy, self.level.player.maxEnergy],
                          "Coins": [self.level.player.coins, self.level.player.maxWallet],
                          "Level": {'ID': self.level.ID,
-                                   'PositionX': self.level.player.rect.x,
-                                   'PositionY': self.level.player.rect.y}}
+                                   'PositionX': self.level.player.rect.x + abs(self.level.reference[0].rect.x),
+                                   'PositionY': self.level.player.rect.y + abs(self.level.reference[0].rect.y)}}
         file = None
         try:
-            # file = open(ROOT + '/saves/save_trial.sv', "wb")
             file = open(ROOT + '/saves/' + self.level.player.name + '.sv', "wb")
             pickle.dump(player_status, file)
             file.close()

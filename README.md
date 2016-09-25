@@ -74,7 +74,13 @@ others in order to allow them add effects easily.
 I want to thank all people and enterprises involved in this development.
 Without all of them, Primal Ring would have been impossible:
 
+Brews:
 - Monster Energy: About 11 pints consumed
 - Coke: About 13.5 pints consumed
 - Nestea: About 20 pints consumed
 - Nesquik: About 60 pints consumed
+
+Music:
+- Soulitude: For being such an inspirational music band (honestly, I've
+             fixed almost every bug into the game by listening at you,
+             guys)
