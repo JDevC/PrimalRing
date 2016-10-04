@@ -6,10 +6,11 @@ from os import path
 # --------------- Screen dimensions ------------------
 SCR_HEIGHT = 600                                            # 600
 SCR_WIDTH = 800                                             # 800
+FULL_SCREEN = False                                         # Full Screen flag
 # ------------ Title Screen Attributes ---------------
 # Option Attributes
-VOLUME_BAR = [300, 5]                                       # X and Y Volume bar's dimensions
-KNOB = [10, 30]                                             # X and Y Scrollable control's dimensions
+VOLUME_BAR = (300, 5)                                       # X and Y Volume bar's dimensions
+SLIDER = (10, 30)                                           # X and Y slider control's dimensions
 TICKER = {'Canvas': 16, 'Fill': 12}                         # Tick box dimensions
 # ------------ Pause Screen Attributes ---------------
 SURFACE_MID_ALPHA = 127                                     # Background's alpha value

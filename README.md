@@ -19,21 +19,24 @@ Go, face the duty! Stay alive!
 
 ----------------------------------------------------------------------------------------------------------------------
 
-# Controls
+## CONTROLS
 
 Title Screen:
 - Up and Down keys = Highlight different options
 - ENTER = Select option:
   - New Game = Start game from the beginning
   - Load Game = Start game from a previous possition (only one for now)
-  - Options = Configure your game (WIP)
+  - Options = Configure your game
   - Quit = Exit from the game
   
 Title Screen (Options):
 - Up and Down keys = Highlight different options
-- Right and Left keys (On volume controls) = Turns the volume high or low
+- Right and Left keys (On volume controls) = Turns the volume high or low (WIP)
 - ENTER = Select option:
-  - FullScreen = Toggles between FullScreen and Normal view mode
+  - FullScreen = Toggles between FullScreen and Normal view mode (WIP)
+  - Gallery: Art game gallery (WIP)
+  - Credits: Who made it?! I am, of course, but in case somebody else
+    make a collaboration, come here to see all of them. (WIP)
   - Back to Main Menu = Self-explanatory, I guess
 
 Level 1:
@@ -60,7 +63,7 @@ Moreover, I'll consider to make a wiki, in order to build a better-structured
 and comprehensive documentation ^-^
 
 ----------------------------------------------------------------------------------------------------------------------
-# Resources
+## RESOURCES
 
 I've included a text file in which I've detailed my font and sound external
 resources for the game. Although I'm not including those external files into
@@ -69,13 +72,13 @@ others in order to allow them add effects easily.
 
 ----------------------------------------------------------------------------------------------------------------------
 
-# Greetings
+## GREETINGS
 
 I want to thank all people and enterprises involved in this development.
 Without all of them, Primal Ring would have been impossible:
 
 Brews:
-- Monster Energy: About 11 pints consumed
+- Monster Energy: About 14 pints consumed
 - Coke: About 13.5 pints consumed
 - Nestea: About 20 pints consumed
 - Nesquik: About 60 pints consumed

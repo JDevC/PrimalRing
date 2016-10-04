@@ -3,6 +3,10 @@
 import pygame
 # Own libs
 from constants6 import ROOT, COLORS, FPS
+'''
+This class holds the initial splash window, in which I put my fictional game dev studio
+and some partners and tools involved into this development.
+'''
 
 
 class Splash(object):
@@ -35,6 +39,8 @@ class Splash(object):
             if e.type == pygame.QUIT:
                 return True                         # This enable the X-window exit button
             if e.type == pygame.KEYDOWN:
+                # This is given to accelerate the splash animations. Still don't know if let it
+                # 'as is' for release version, or deleting it
                 if e.key == pygame.K_SPACE:
                     if self.animations['First'][0]:
                         self.cover.fill(COLORS['WHITE'])
@@ -110,6 +116,3 @@ class Splash(object):
     def dec_opacity(self):
         self.opacity -= 2
         self.cover.set_alpha(self.opacity)
-
-    def __str__(self):
-        return "Splash"

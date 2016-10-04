@@ -35,19 +35,19 @@ class Game(object):
         self.save = None
         self.saveFlag = False                                           # Well, this is obvious
         # Game loading
-        savedState = None
+        saved_state = None
         if saved_state_name is not None:
-            savedState = SaveGame.load_file(saved_state_name)           # We try to load a game file
+            saved_state = SaveGame.load_file(saved_state_name)           # We try to load a game file
         # Player
-        self.player = Player(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, savedState)
+        self.player = Player(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, saved_state)
         # Levels
         self.levels = {"Doom Valley": Level1(screen, scr_size, self.player, DEBUG),
                        "The RING": Level2(screen, scr_size, self.player, DEBUG)}
-        if savedState is not None:
+        if saved_state is not None:
             # You've a game saved, so you start in the level and position stored
-            self.level = self.levels[savedState['Level']['ID']]
-            self.player.rect.x = savedState['Level']['PositionX']
-            self.player.rect.y = savedState['Level']['PositionY']
+            self.level = self.levels[saved_state['Level']['ID']]
+            self.player.rect.x = saved_state['Level']['PositionX']
+            self.player.rect.y = saved_state['Level']['PositionY']
         else:
             # Don't have a game file? You start where everyone does (We respect and support equality)
             self.level = self.levels['Doom Valley']
@@ -55,6 +55,9 @@ class Game(object):
             self.player.rect.y = self.level.levelInit[1]
 
         self.player.plainLevel = self.level.plainLevel
+        # We activate the music in the current level
+        self.level.set_theme()
+        pygame.mixer.music.play(-1)
 
     # ---------- Methods ----------------------
     # This function manages all events in game
@@ -75,6 +78,8 @@ class Game(object):
                     elif event.key == pygame.K_DOWN:
                         self.pause.go_down()
                     elif event.key == pygame.K_p:
+                        # We resume the music streaming
+                        pygame.mixer.music.unpause()
                         self.pauseFlag = False                          # Exits the pause screen
                     elif event.key == pygame.K_RETURN:
                         self.pause.acceptSound.play()
@@ -138,6 +143,8 @@ class Game(object):
                         if self.level.player.plainLevel:
                             self.level.player.go_down()
                     if event.key == pygame.K_p:                           # 'p' key
+                        # We pause the music streaming
+                        pygame.mixer.music.pause()
                         self.pauseFlag = True
                         self.pause = PauseScreen.PauseScreen(self.screen, self.scrSize, self.level.player)
                     if event.key == pygame.K_TAB:                         # 'TAB' key
@@ -172,10 +179,14 @@ class Game(object):
                     if self.level.player.isDead:
                         self.gameOver = True
                     else:
+                        pygame.mixer.music.stop()
                         self.level = self.levels['The RING']
                         self.player.rect.x = self.level.levelInit[0]
                         self.player.rect.y = self.level.levelInit[1]
                         self.player.plainLevel = self.level.plainLevel
+                        # We activate the music in the current level
+                        self.level.set_theme()
+                        pygame.mixer.music.play(-1)
 
     # This function displays all graphic resources and effects
     def display_frame(self):
@@ -198,7 +209,17 @@ class Game(object):
         # --- This is 'update' for pygame library
         pygame.display.flip()
 
+    # Set music theme in this scene
+    def set_theme(self):
+        self.level.set_theme()
+        # pygame.mixer.music.load(self.music_dict['Main Theme'])
+        # We start later because we aren't displaying splash screen again
+        pygame.mixer.music.play(-1, 13)
+
     # Quick game exit
     def quit_game(self):
+        # We kill the music stream
+        pygame.mixer.music.stop()
+        pygame.mixer.quit()
         self.quit_all = True
         return True

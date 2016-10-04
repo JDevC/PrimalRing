@@ -132,7 +132,7 @@ class Floor(_Block):
 class Coin(_Block):
     # ---------- Constructor ----------------------
     def __init__(self, color, width, height):
-        super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
+        super().__init__(color, width, height)
         self.name = "Coin"
         self.image = image.load(ROOT + '/images/Coin_Frames/coin.png').convert()
         # We set a transparent color for the image
@@ -142,9 +142,11 @@ class Coin(_Block):
 # Class for hole tiles
 class Hole(_Block):
     # ---------- Constructor ----------------------
-    def __init__(self, color, width, height):
-        super().__init__(color, width, height)  # Block.__init__(self, color, width, height)
+    def __init__(self, color, width, height, img=None):
+        super().__init__(color, width, height)
         self.name = "Hole"
+        if img is not None:
+            self.image = image.load(ROOT + '/images/plain_hole/' + img + '.png').convert()
 
 
 # Class for saving point tiles

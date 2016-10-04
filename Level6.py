@@ -2,7 +2,7 @@
 
 # ---------------------- IMPORTS ---------------------
 # Python libs
-from pygame import image, font, sprite
+from pygame import image, font, sprite, mixer
 from random import randrange
 # Own libs
 from Block6 import Snow, Floor, Hole, Coin, SavePoint, Platform
@@ -43,6 +43,8 @@ class _Level(object):
         self.player = player
         self.player_display.add(self.player)
         self.bodies = sprite.Group()                # All sprites (this is for render on the screen)
+        # Music
+        self.music_theme = None
         # HUD elements
         # self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
         # self.energyText = self.font.render("Energy: " + str(self.player.energy), ANTIALIASING, COLORS['WHITE'])
@@ -79,8 +81,10 @@ class _Level(object):
     # It fills all level gaps with elements taking a pattern
     def fill_level(self, structure):
         cnt_y = 0  # Initial Y-axis tile grid
+        temp_row = 0
         for row in structure:
             cnt_x = 0  # Initial X-axis tile grid
+            temp_col = 0
             for column in row:
                 if column == "f":  # 'f' stands for 'Floor'
                     floor = Floor(COLORS['BLUE'], FLOOR_SIZE, FLOOR_SIZE)
@@ -94,7 +98,12 @@ class _Level(object):
                     elif cnt_y == (len(structure) - 1) * FLOOR_SIZE and cnt_x == (len(structure[0]) - 1) * FLOOR_SIZE:
                         self.reference.append(floor)
                 elif column == "h":  # 'h' stands for 'Hole'
-                    hole = Hole(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE)
+                    if structure[temp_row-1][temp_col] == ' ' or structure[temp_row-1][temp_col] == 'c':
+                        hole = Hole(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE, "hole_metal")
+                    elif structure[temp_row - 1][temp_col] == 'f':
+                        hole = Hole(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE, "hole_floor")
+                    else:
+                        hole = Hole(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE)
                     hole.rect.x = cnt_x
                     hole.rect.y = cnt_y
                     self.colliders.add(hole)
@@ -119,8 +128,10 @@ class _Level(object):
                     self.bodies.add(platform)
 
                 cnt_x += 50  # Increment X-axis for the next tile
+                temp_col += 1
 
             cnt_y += 50  # Increment Y-axis for the next tile
+            temp_row += 1
 
     # It manages the level scrolling
     def scroll(self):
@@ -199,6 +210,11 @@ class _Level(object):
                     body.rect.y -= diff
                     if isinstance(body, Platform):
                         body.initCoords[1] -= diff
+
+    # Set music theme in this scene
+    def set_theme(self):
+        if self.music_theme is not None:
+            mixer.music.load(self.music_theme)
 
     # It renders all main hud information
     def render_hud(self):
@@ -315,6 +331,8 @@ class Level1(_HorizontalLevel):
             self.temporary.add(flake)
             self.bodies.add(flake)
 
+        self.music_theme = ROOT + '/music/doom_valley.ogg'
+
 
 # All levels must inherit from 'HorizontalLevel' or 'Plain Level'
 class Level2(_PlainLevel):
@@ -328,24 +346,26 @@ class Level2(_PlainLevel):
         # -- Attributes -----------------------
         self.structure = ["ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff",
                           "fffffff  ffff ff               ffhhchhchhchhchhff c        cffff",
-                          "ff  fff  fff  ff               ffhhchhchhchhchhffcff        cfff",
-                          "ff c cf  fc   ff                               ff f          cff",
+                          "ff  fff  fff  ff               ffhhchhchhchhchhffcfff       cfff",
+                          "ff c cf  fc   ff                               ff fhh        cff",
                           "ff  hhf  fhh                                                  cf",
-                          "ff  fff  fff                   ff                              f",
-                          "ff  fff  fff  ff               ff              ff f          f f",
-                          "f             ff              ffff             ffcfff      fffcf",
-                          "fffffff  fffffff             ffffff            ff c          c f",
+                          "ff  fff  fff                   ffhhhhhh                        f",
+                          "ff  fff  fff  ff            hhhffhhhhhh  hhhhhhff fhh      hhf f",
+                          "f             ff            hhffffhhhhh  hhhhhhffcfff      fffcf",
+                          "fffffff  fffffff            hffffffhhhh  hhhhhhff c          c f",
                           "f       fc    ffffffff  fffffffffffffff  ffffffffffffff  fffffff",
                           "f fffff fc    ffffffff  fffffffffffffff  ffffffffffffff  fffffff",
-                          "fcfhf h     f ff             ffffff            ff              f",
-                          "fcf        ff ff              ffff             ff fff      fff f",
-                          "fcff    f fff ff               ff              ff f    s     f f",
-                          "fcf   h  c                     ff                              f",
-                          "fcff  h                                                        f",
-                          "ff    h    s  ff                               ff f           ff",
-                          "fff   f       ff               ffhhchhchhchhchhff ff         fff",
-                          "ffff  f       ff               ffhhchhchhchhchhff           ffff",
+                          "fcfhf h     f ff            hffffffhhhh  hhhhhhff              f",
+                          "fcf        ff ff            hhffffhhhhh  hhhhhhff fff      fff f",
+                          "fcff    f fff ff            hhhffhhhhhh  hhhhhhff fhh  s   hhf f",
+                          "fcf   h  c                     ffhhhhhh                        f",
+                          "fcff  h                                                    hhhhf",
+                          "ff    h    s  ff                               ff fhh      hhhff",
+                          "fff   f       ff               ffhhchhchhchhchhff fff      hhfff",
+                          "ffff  f       ff               ffhhchhchhchhchhff          hffff",
                           "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"]
         # 64 x 20
         # Populating level
         self.fill_level(self.structure)
+        self.structure.clear()
+        self.music_theme = ROOT + '/music/the_ring.ogg'

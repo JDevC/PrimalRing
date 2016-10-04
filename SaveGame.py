@@ -4,6 +4,7 @@
 # Python libs
 from pygame import Surface, font
 import pickle
+import json
 from os import walk
 # Own libs
 from constants6 import COLORS, SURFACE_MID_ALPHA, ANTIALIASING, ROOT
@@ -107,7 +108,6 @@ def load_file(name):
         print("Bad format file!")
         return
     finally:
-        print("asdf")
         if file is not None:
             # It prevents the file to stay opened in any case.
             file.close()
@@ -128,4 +128,46 @@ def load_files():
     except FileNotFoundError:
         # This exception can be reached if anyone has messed up with the save folder and it's
         # lost in cyberspace. And you can't do NOTHING for saving it, you monster
+        return None
+
+
+# This function loads a group of game configuration parameters
+def load_config():
+    file = None
+    try:
+        with open(ROOT + '/config.json') as data_file:
+            file = json.load(data_file)
+
+        return file                                             # file["options"]
+        # return None
+    except FileNotFoundError:
+        # This exception can be reached if the user is playing a new game, or if anyone has messed up
+        # with the save file and it's missing from its expected place.
+        return None
+    except OSError:
+        # We reach this if it's been some kind of issue while opening the file (maybe it has some restrictions,
+        # or a wild byte has broken into the filesystem and it's plundering). In any case, you can't open the
+        # file.
+        return None
+
+
+# This function saves all config changes into the config file
+def save_changes(full_screen, music_vol, fx_vol):
+    try:
+        with open(ROOT + '/config.json', "w") as file:
+            json.dump({
+                "fullscreen": full_screen,
+                "music_volume": music_vol,
+                "fx_volume": fx_vol}, file)
+
+    except FileNotFoundError:
+        # This exception can be reached if the user is playing a new game, or if anyone has messed up
+        # with the save file and it's missing from its expected place.
+        print("File not found!")
+        return None
+    except OSError:
+        # We reach this if it's been some kind of issue while opening the file (maybe it has some restrictions,
+        # or a wild byte has broken into the filesystem and it's plundering). In any case, you can't open the
+        # file.
+        print("SO error!")
         return None
