@@ -3,38 +3,50 @@
 import pygame
 # Own libs
 from constants6 import ROOT, COLORS, FPS
-'''
-This class holds the initial splash window, in which I put my fictional game dev studio
-and some partners and tools involved into this development.
-'''
 
 
-class Splash(object):
-    # Globals
-    root = ROOT
-    fps = FPS
-
-    # ---------- Constructor ----------------------
+class Splash:
     def __init__(self, screen, scr_size, debug=False):
+        """
+        This class holds the initial splash window, in which I put my fictional game dev studio
+        and some partners and tools involved into this development.
+
+        :param screen: A reference for the main screen
+        :param scr_size:
+        :param debug: Flag for debugging into the game
+        """
+        # -- Source folders -------------------
+        music_dir = f'{ROOT}/resources/music/'
+        img_dir = f'{ROOT}/resources/images/'
         # -- Attributes -----------------------
-        self.debug = debug                                      # Flag for debugging into the game
-        self.screen = screen                                    # A reference for the main screen
-        self.opacity = 255                                      # Opacity for fade in and fade out effects (254)
+        self.debug = debug
+        self.screen = screen
+        self.fps = FPS
+        # Opacity for fade in and fade out effects (254)
+        self.opacity = 255
         # Animation flags: Each animation has a couple of boolean flags which control the fade effects
         # between displayed images.
         self.endSplash = False
         self.animations = {'First': [True, False], 'Second': [False, False]}
-        self.ticker = 0                                         # Delay counter for shown images
+        # Delay counter for shown images
+        self.ticker = 0
         # Setting our studio splash background
-        self.background = pygame.image.load(self.root + '/images/Karmical.png').convert()
+        self.background = pygame.image.load(f'{img_dir}Karmical.png').convert()
+        self.partners_bg = f'{img_dir}Partners.png'
         # Let's create another surface, which will go on the previous
         self.cover = pygame.Surface(scr_size)
         self.cover.set_alpha(self.opacity)
+        # We set and play the main theme
+        self.musicTheme = f'{music_dir}strike_the_earth.ogg'
+        pygame.mixer.music.load(self.musicTheme)
+        pygame.mixer.music.play(-1)
 
     def event_handler(self):
-        # This could seem nonsense, but the fact is the game goes into a wtf-crash-non-responding
-        # state if we don't provide an event-handling process at this point. If you think there's a better
-        # way to fix this, please let me know and you'll become my hero
+        """
+        It handles all events thrown while the splash sequence is running
+
+        :return: True if the player hits the X-window exit button OR the splash sequence is finished; False otherwise
+        """
         for e in pygame.event.get():
             if e.type == pygame.QUIT:
                 return True                         # This enable the X-window exit button
@@ -52,50 +64,52 @@ class Splash(object):
 
         return self.animations['Second'][1]
 
-    # It updates the splash screen at the main control flow
     def run_logic(self):
+        """
+        It updates the splash screen at the main control flow
+        """
         # First animation's sequence
         if self.animations['First'][0]:
             if self.opacity >= 0:
                 # Fades from black
-                self.dec_opacity()
+                self._dec_opacity()
             else:
                 # First Fade-in complete
                 if self.ticker < self.fps:
                     # It 'delays' a few seconds
                     self.ticker += self.fps / 120
                 else:
-                    self.ticker = 0                             # Restarts the ticker
+                    self.ticker = 0                             # Ticker restarts
                     self.cover.fill(COLORS['WHITE'])            # Sets the next fade-out to white
                     self.animations['First'][0] = False
                     self.animations['First'][1] = True
         elif self.animations['First'][1]:
             if self.opacity <= 255:
                 # Fades to white
-                self.inc_opacity()
+                self._inc_opacity()
             else:
                 # First Fade-out complete: It loads the next image
-                self.background = pygame.image.load(self.root + '/images/Partners.png').convert()
+                self.background = pygame.image.load(self.partners_bg).convert()
                 self.animations['First'][1] = False
                 self.animations['Second'][0] = True
         # Second animation's sequence
         elif self.animations['Second'][0]:
             if self.opacity >= 0:
                 # Fades from white
-                self.dec_opacity()
+                self._dec_opacity()
             else:
                 # Second Fade-in complete
                 if self.ticker < self.fps:
                     # It 'delays' a few seconds
                     self.ticker += self.fps / 120
                 else:
-                    self.ticker = 0                             # Restarts the ticker
-                    self.cover.fill(COLORS['BLACK'])  # Sets the next fade-out to white
+                    self.ticker = 0                             # Ticker restarts
+                    self.cover.fill(COLORS['BLACK'])            # Sets the next fade-out to white
                     self.animations['Second'][0] = False
         else:
             if self.opacity <= 255:
                 # Fades to white
-                self.inc_opacity()
+                self._inc_opacity()
             else:
                 # Second Fade-out complete: Time to enter the game!
                 self.endSplash = True
@@ -109,10 +123,10 @@ class Splash(object):
 
         pygame.display.flip()
 
-    def inc_opacity(self):
+    def _inc_opacity(self):
         self.opacity += 2
         self.cover.set_alpha(self.opacity)
 
-    def dec_opacity(self):
+    def _dec_opacity(self):
         self.opacity -= 2
         self.cover.set_alpha(self.opacity)

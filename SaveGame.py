@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # ---------------------- IMPORTS ---------------------
 # Python libs
@@ -11,11 +11,7 @@ from constants6 import COLORS, SURFACE_MID_ALPHA, ANTIALIASING, ROOT
 
 
 # General class
-class SaveGame(object):
-    # Globals
-    root = ROOT
-
-    # ---------- Constructor ----------------------
+class SaveGame:
     def __init__(self, screen, scr_size, level, debug=False):
         # ------ Attributes -----------------------
         self.debug = debug                                      # Flag for debugging into the game
@@ -65,39 +61,38 @@ class SaveGame(object):
                          "Level": {'ID': self.level.ID,
                                    'PositionX': self.level.player.rect.x + abs(self.level.reference[0].rect.x),
                                    'PositionY': self.level.player.rect.y + abs(self.level.reference[0].rect.y)}}
-        file = None
+
         try:
-            file = open(ROOT + '/saves/' + self.level.player.name + '.sv', "wb")
-            pickle.dump(player_status, file)
-            file.close()
+            with open(f'{ROOT}/saves/{self.level.player.name}.sv', "wb") as game_file:
+                pickle.dump(player_status, game_file)
         except FileNotFoundError as e:
-            print("It seems there's a conflict with the saving directory: " + str(e.args))
+            print(f"It seems there's a conflict with the saving directory: {e.args}")
         except OSError:
             # We reach this if it's been some kind of issue while opening the file (maybe it has some restrictions,
             # or a wild byte has broken into the filesystem and it's plundering). In any case, you can't open the
             # file.
             return None
         except pickle.PicklingError as e:
-            print("The game couldn't be saved: " + str(e.args))
-        finally:
-            if file is not None:
-                file.close()
+            print(f"The game couldn't be saved: {e.args}")
 
 
-# Function for loading a game file. This needs a revision, I'm not sure about this
-# implementation. It works, by the way.
 def load_file(name):
-    file = None
+    """
+    Function for loading a game file. This needs a revision, I'm not sure about this implementation.
+    It works, by the way.
+
+    :param name: The game file's name
+    :return: Your requested game data if succeed; None otherwise
+    """
     try:
-        # file = open(ROOT + '/saves/save_trial.sv', "rb")
-        file = open(ROOT + '/saves/' + name + '.sv', "rb")
-        obj = pickle.load(file)
-        file.close()
-        # print(obj)
-        return obj
-    except FileNotFoundError:
+        with open(f'{ROOT}/saves/{name}.sv', "rb") as game_file:
+            game_data = pickle.load(game_file)
+
+        return game_data
+    except FileNotFoundError as e:
         # This exception can be reached if the user is playing a new game, or if anyone has messed up
         # with the save file and it's missing from its expected place.
+        print(f"Game couldn't be loaded: {e.args}")
         return None
     except OSError:
         # We reach this if it's been some kind of issue while opening the file (maybe it has some restrictions,
@@ -106,18 +101,17 @@ def load_file(name):
         return None
     except pickle.UnpicklingError:
         print("Bad format file!")
-        return
-    finally:
-        if file is not None:
-            # It prevents the file to stay opened in any case.
-            file.close()
+        return None
 
 
-# This returns a list of saved games
 def load_files():
+    """
+
+    :return: Game files list
+    """
     try:
         files = []
-        for save in walk(ROOT + '/saves'):
+        for save in walk(f'{ROOT}/saves'):
             for s in save[2]:
                 files.append(s)
 
@@ -131,15 +125,16 @@ def load_files():
         return None
 
 
-# This function loads a group of game configuration parameters
 def load_config():
-    file = None
+    """ This function loads a group of game configuration parameters
+    :return: Game configuration parameters' list if succeeds; otherwise, None
+    """
     try:
-        with open(ROOT + '/config.json') as data_file:
+        file = None
+        with open(f'{ROOT}/config.json') as data_file:
             file = json.load(data_file)
 
         return file                                             # file["options"]
-        # return None
     except FileNotFoundError:
         # This exception can be reached if the user is playing a new game, or if anyone has messed up
         # with the save file and it's missing from its expected place.
@@ -151,23 +146,26 @@ def load_config():
         return None
 
 
-# This function saves all config changes into the config file
 def save_changes(full_screen, music_vol, fx_vol):
+    """ This function saves all config changes into the config file
+
+    :param full_screen:
+    :param music_vol:
+    :param fx_vol:
+    :return:
+    """
     try:
-        with open(ROOT + '/config.json', "w") as file:
-            json.dump({
-                "fullscreen": full_screen,
-                "music_volume": music_vol,
-                "fx_volume": fx_vol}, file)
+        with open(f'{ROOT}/config.json', "w") as file:
+            json.dump({"full_screen": full_screen,
+                       "music_volume": music_vol,
+                       "fx_volume": fx_vol}, file)
 
     except FileNotFoundError:
         # This exception can be reached if the user is playing a new game, or if anyone has messed up
         # with the save file and it's missing from its expected place.
         print("File not found!")
-        return None
     except OSError:
         # We reach this if it's been some kind of issue while opening the file (maybe it has some restrictions,
         # or a wild byte has broken into the filesystem and it's plundering). In any case, you can't open the
         # file.
         print("SO error!")
-        return None

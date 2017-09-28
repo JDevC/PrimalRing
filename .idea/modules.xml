@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$USER_HOME$/Desktop/PrimalRing/.idea/PrimalRing.iml" filepath="$USER_HOME$/Desktop/PrimalRing/.idea/PrimalRing.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/PrimalRing.iml" filepath="$PROJECT_DIR$/.idea/PrimalRing.iml" />
     </modules>
   </component>
 </project>

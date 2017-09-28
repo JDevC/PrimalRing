@@ -1,37 +1,39 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
+
+from random import randrange
 
 # ---------------------- IMPORTS ---------------------
 # Python libs
 from pygame import image, font, sprite, mixer
-from random import randrange
 # Own libs
-from Block6 import Snow, Floor, Hole, Coin, SavePoint, Platform
+from models.Block6 import Snow, Floor, Hole, Coin, SavePoint, Platform, Lava
 from constants6 import COLORS, ANTIALIASING, ROOT, COIN_SIZE, FLOOR_SIZE
-''' This class manages all in terms of creating level structures
-    and loading graphic and audio resources. Every level created
-    has inheritance from this Level class.'''
 
 
-# General class
-class _Level(object):
-    # Globals
-    root = ROOT
-
-    # ---------- Constructor ----------------------
-    # def __init__(self, screen, scr_size, debug=False):
+class _Level:
     def __init__(self, screen, scr_size, player, debug=False):
+        """ This class manages all in terms of creating level structures
+            and loading graphic and audio resources. Every level created
+            has inheritance from this Level class.
+        :param screen: A reference for the main screen
+        :param scr_size: The screen size
+        :param player:
+        :param debug: Flag for debugging into the game
+        """
+        # -- Source folders -------------------
+        img_dir = f'{ROOT}/resources/images/'
         # -- Attributes -----------------------
-        self.debug = debug                          # Flag for debugging into the game
-        self.screen = screen                        # A reference for the main screen
-        self.scrSize = scr_size                     # The screen size
+        self.debug = debug
+        self.screen = screen
+        self.scrSize = scr_size
         self.ID = None                              # A level identifier
         self.structure = []                         # Level structure map
         self.levelInit = [0, 0]                     # Level enter point
         self.reference = []                         # Level fixed references for scroll
         self.backgroundImg = None                   # Background image reference
-        self.hud = [image.load(self.root + "/images/Life.png").convert(),
-                    image.load(self.root + "/images/Energy.png").convert(),
-                    image.load(self.root + "/images/Coin_Frames/coin.png").convert()]
+        self.hud = [image.load(f'{img_dir}Life.png').convert(),
+                    image.load(f'{img_dir}Energy.png').convert(),
+                    image.load(f'{img_dir}Coin_Frames/coin.png').convert()]
         for x in range(len(self.hud)):
             self.hud[x].set_colorkey(COLORS['WHITE'])
 
@@ -44,18 +46,14 @@ class _Level(object):
         self.player_display.add(self.player)
         self.bodies = sprite.Group()                # All sprites (this is for render on the screen)
         # Music
-        self.music_theme = None
+        self.musicTheme = None
         # HUD elements
-        # self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
-        # self.energyText = self.font.render("Energy: " + str(self.player.energy), ANTIALIASING, COLORS['WHITE'])
-        # self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
-        self.lifeText = self.font.render(": " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
-        self.energyText = self.font.render(": " + str(self.player.energy), ANTIALIASING, COLORS['WHITE'])
-        self.coinText = self.font.render(": " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
+        self.lifeText = self.font.render(f': {self.player.life}', ANTIALIASING, COLORS['WHITE'])
+        self.energyText = self.font.render(f': {self.player.energy}', ANTIALIASING, COLORS['WHITE'])
+        self.coinText = self.font.render(f': {self.player.coins}', ANTIALIASING, COLORS['WHITE'])
         # Debug
         if self.debug:
-            self.debText = self.font.render("X: " + str(self.player.rect.x)
-                                            + "; Y: " + str(self.player.rect.y),
+            self.debText = self.font.render(f'X: {self.player.rect.x}; Y: {self.player.rect.y}',
                                             ANTIALIASING, COLORS['WHITE'])
 
     # ---------- Methods --------------------------
@@ -63,23 +61,28 @@ class _Level(object):
         # We check if the level has a background image and blit it to the screen
         if self.backgroundImg is not None:
             self.screen.blit(self.backgroundImg, [0, 0])
+
         self.bodies.draw(self.screen)
         self.player_display.draw(self.screen)
+
         if self.hud is not None:
             self.screen.blit(self.hud[0], [50, 50])
             self.screen.blit(self.hud[1], [50, 80])
             self.screen.blit(self.hud[2], [50, 110])
-        # self.screen.blit(self.lifeText, [50, 50])
-        # self.screen.blit(self.energyText, [50, 70])
-        # self.screen.blit(self.coinText, [50, 110])
+
         self.screen.blit(self.lifeText, [80, 50])
         self.screen.blit(self.energyText, [80, 80])
         self.screen.blit(self.coinText, [80, 110])
-        if self.debug:
-            self.screen.blit(self.debText, [500, 70])
 
-    # It fills all level gaps with elements taking a pattern
+        if self.debug:
+            self.screen.blit(self.debText, [50, 560])
+
     def fill_level(self, structure):
+        """
+        It fills all level gaps with elements taking a pattern
+
+        :param structure: A string list which contains all elements available in a level (WIP)
+        """
         cnt_y = 0  # Initial Y-axis tile grid
         temp_row = 0
         for row in structure:
@@ -126,6 +129,12 @@ class _Level(object):
                     platform.rect.y = cnt_y
                     self.colliders.add(platform)
                     self.bodies.add(platform)
+                elif column == "l":
+                    lava = Lava(COLORS['RED'], FLOOR_SIZE, FLOOR_SIZE)
+                    lava.rect.x = cnt_x
+                    lava.rect.y = cnt_y
+                    self.colliders.add(lava)
+                    self.bodies.add(lava)
 
                 cnt_x += 50  # Increment X-axis for the next tile
                 temp_col += 1
@@ -133,8 +142,10 @@ class _Level(object):
             cnt_y += 50  # Increment Y-axis for the next tile
             temp_row += 1
 
-    # It manages the level scrolling
     def scroll(self):
+        """
+        It manages the level scrolling
+        """
         # Scrolls in X axis
         # The player's coordinates are out of scope (Level enter)
         if self.player.get_rect().x < 0:
@@ -143,7 +154,7 @@ class _Level(object):
             for body in self.bodies:
                 body.rect.x += diff
                 if isinstance(body, Platform):
-                    body.initCoords[0] += diff
+                    body.initPoint[0] += diff
         # The player's coordinates are out of scope (Level enter)
         elif self.player.get_rect().x > self.scrSize[0]:
             # diff = self.player.get_rect().x - self.scrSize[0] / 2
@@ -153,7 +164,7 @@ class _Level(object):
             for body in self.bodies:
                 body.rect.x -= diff
                 if isinstance(body, Platform):
-                    body.initCoords[0] -= diff
+                    body.initPoint[0] -= diff
         # The player is going on the left of the screen (going to left)
         if self.player.get_rect().x < self.scrSize[0] / 2:
             # The player is far from the beginning of the level
@@ -163,7 +174,7 @@ class _Level(object):
                 for body in self.bodies:
                     body.rect.x += diff
                     if isinstance(body, Platform):
-                        body.initCoords[0] += diff
+                        body.initPoint[0] += diff
         # The player is located near to the end of the screen (going to the right)
         elif self.player.get_rect().x > self.scrSize[0] / 2:
             # The player is far from the beginning of the level
@@ -173,7 +184,7 @@ class _Level(object):
                 for body in self.bodies:
                     body.rect.x -= diff
                     if isinstance(body, Platform):
-                        body.initCoords[0] -= diff
+                        body.initPoint[0] -= diff
         # Scrolls in Y axis
         # The player's coordinates are out of scope (Level enter)
         if self.player.get_rect().y < 0:
@@ -182,14 +193,14 @@ class _Level(object):
             for body in self.bodies:
                 body.rect.y += diff
                 if isinstance(body, Platform):
-                    body.initCoords[1] += diff
+                    body.initPoint[1] += diff
         elif self.player.get_rect().y > self.scrSize[1]:
             diff = self.reference[1].rect.y + FLOOR_SIZE - self.scrSize[1]
             self.player.rect.y -= diff
             for body in self.bodies:
                 body.rect.y -= diff
                 if isinstance(body, Platform):
-                    body.initCoords[1] -= diff
+                    body.initPoint[1] -= diff
         # The player is going down
         if self.player.get_rect().y < self.scrSize[1] / 2:
             # The player is far from the beginning of the level
@@ -199,7 +210,7 @@ class _Level(object):
                 for body in self.bodies:
                     body.rect.y += diff
                     if isinstance(body, Platform):
-                        body.initCoords[1] += diff
+                        body.initPoint[1] += diff
         # The player is located near to the end of the screen (going to the right)
         elif self.player.get_rect().y > self.scrSize[1] / 2:
             # The player is far from the beginning of the level
@@ -209,28 +220,34 @@ class _Level(object):
                 for body in self.bodies:
                     body.rect.y -= diff
                     if isinstance(body, Platform):
-                        body.initCoords[1] -= diff
+                        body.initPoint[1] -= diff
 
-    # Set music theme in this scene
     def set_theme(self):
-        if self.music_theme is not None:
-            mixer.music.load(self.music_theme)
+        """
+        Set a music theme in this scene
+        """
+        if self.musicTheme is not None:
+            mixer.music.load(self.musicTheme)
 
-    # It renders all main hud information
     def render_hud(self):
-        # self.lifeText = self.font.render("Life: " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
-        # self.energyText = self.font.render("Energy: " + str(self.player.energy), ANTIALIASING, COLORS['WHITE'])
-        # self.coinText = self.font.render("Coins: " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
+        """
+        It renders all main hud information
+        """
         self.lifeText = self.font.render(": " + str(self.player.life), ANTIALIASING, COLORS['WHITE'])
         self.energyText = self.font.render(": " + str(self.player.energy), ANTIALIASING, COLORS['WHITE'])
         self.coinText = self.font.render(": " + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])
 
 
-# 2D Plain level's type class
 class _PlainLevel(_Level):
-    # ---------- Constructor ----------------------
     def __init__(self, screen, scr_size, player, debug=False):
-        # -- Parent constructor ---------------
+        """
+        2D Plain level's type class
+
+        :param screen:
+        :param scr_size:
+        :param player:
+        :param debug:
+        """
         super().__init__(screen, scr_size, player, debug)
         self.plainLevel = True
 
@@ -242,20 +259,25 @@ class _PlainLevel(_Level):
         self.scroll()
         self.render_hud()
         if self.debug:
-            self.debText = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
-                                            + str(self.player.rect.y) + "VelX: " + str(self.player.velX)
-                                            + "; VelY: " + str(self.player.velY), True, COLORS['WHITE'])
+            self.debText = self.font.render(f'X: {self.player.rect.x}; Y: {self.player.rect.y}; '
+                                            + f'VelX: {self.player.velX}; VelY: {self.player.velY}',
+                                            ANTIALIASING, COLORS['WHITE'])
 
         return False
 
 
-# 2D Horizontal level's type class
 class _HorizontalLevel(_Level):
-    # ---------- Constructor ----------------------
     def __init__(self, screen, scr_size, player, debug=False):
-        # -- Parent constructor ---------------
+        """
+        2D Horizontal level's type class
+
+        :param screen:
+        :param scr_size:
+        :param player:
+        :param debug:
+        """
         super().__init__(screen, scr_size, player, debug)
-        self.backgroundImg = image.load(self.root + "/images/astro.jpg").convert()
+        self.backgroundImg = image.load(f'{ROOT}/resources/images/astro.jpg').convert()
         self.plainLevel = False
 
     # ---------- Methods --------------------------
@@ -270,12 +292,9 @@ class _HorizontalLevel(_Level):
             self.scroll()
             self.render_hud()
             if self.debug:
-                self.debText = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
-                                                + str(self.player.rect.y) + "VelX: " + str(self.player.velX)
-                                                + "; VelY: " + str(self.player.velY), ANTIALIASING, COLORS['WHITE'])
-                '''self.debText = self.font.render("X: " + str(self.player.rect.x) + "; Y: "
-                                               + str(self.player.rect.y) + "; Obj: "
-                                               + str(self.player.coins), ANTIALIASING, COLORS['WHITE'])'''
+                self.debText = self.font.render(f'X: {self.player.rect.x}; Y: {self.player.rect.y}; '
+                                                + f'VelX: {self.player.velX}; VelY: {self.player.velY}',
+                                                ANTIALIASING, COLORS['WHITE'])
 
             return False
 
@@ -296,7 +315,7 @@ class Level1(_HorizontalLevel):
         self.structure = ["ffffffffffffffffffffffffffffffff",
                           "fc                            cf",
                           "ff  fffffffffffffffffff  c  ffff",
-                          "f                      f   f   f",
+                          "f                      flflf   f",
                           "f  f                    fff    f",
                           "f   ff                         f",
                           "f    f        f                f",
@@ -313,7 +332,7 @@ class Level1(_HorizontalLevel):
                           "f  f              fff     f    f",
                           "f               f              f",
                           "f                       c f  c f",
-                          "ffffffffffffffffffffffffffffffff"]
+                          "ffffffffllllfffffffffffffffllflf"]
         # Populating level
         self.fill_level(self.structure)
 
@@ -331,14 +350,12 @@ class Level1(_HorizontalLevel):
             self.temporary.add(flake)
             self.bodies.add(flake)
 
-        self.music_theme = ROOT + '/music/doom_valley.ogg'
+        self.musicTheme = f'{ROOT}/resources/music/doom_valley.ogg'
 
 
 # All levels must inherit from 'HorizontalLevel' or 'Plain Level'
 class Level2(_PlainLevel):
-    # ---------- Constructor ----------------------
     def __init__(self, screen, src_size, player, debug=False):
-        # -- Parent constructor ---------------
         super().__init__(screen, src_size, player, debug)
         # Level data
         self.ID = "The RING"
@@ -368,4 +385,4 @@ class Level2(_PlainLevel):
         # Populating level
         self.fill_level(self.structure)
         self.structure.clear()
-        self.music_theme = ROOT + '/music/the_ring.ogg'
+        self.musicTheme = f'{ROOT}/resources/music/the_ring.ogg'

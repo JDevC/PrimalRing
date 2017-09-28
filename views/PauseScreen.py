@@ -1,46 +1,47 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # ---------------------- IMPORTS ---------------------
 # Python libs
 from pygame import Surface, font, mixer
 # Own libs
 from constants6 import COLORS, SURFACE_MID_ALPHA, ANTIALIASING, ROOT
-''' This class will display our status and let us check, select and
-    use items, save our progress, checking our tasks and more things
-    I haven't thought yet. It exist a minimal chance of including this
-    class on the Level file, so beware of it if you dare to contribute
-    to this proyect development!'''
 
 
-# General class
-class PauseScreen(object):
-    # Globals
-    root = ROOT
-
-    # ---------- Constructor ----------------------
+class PauseScreen:
     def __init__(self, screen, scr_size, player, debug=False):
+        """
+        This class will display our status and let us check, select and
+        use items, save our progress, checking our tasks and more things
+        I haven't thought yet. There's a minimal chance of including this
+        class on the Level file, so beware of it if you dare to contribute
+        to this project development!
+
+        :param screen: A reference for the main screen
+        :param scr_size: The screen size (Default: 600 * 800)
+        :param player: A reference to the player and his statistics
+        :param debug: Flag for debugging into the game
+        """
+        # -- Sources folders ------------------
+        sound_dir = f'{ROOT}/resources/sounds/'
         # -- Attributes -----------------------
-        self.debug = debug                          # Flag for debugging into the game
-        self.screen = screen                        # A reference for the main screen
-        self.scrSize = scr_size                     # The screen size (Default: 600 * 800)
+        self.debug = debug
+        self.screen = screen
+        self.scrSize = scr_size
         # Cursor elements
         self.cursorSurface = Surface((170, 25))     # Pause Screen' highlight cursor
         self.cursorSurface.fill(COLORS['GREEN'])
         self.cursorSurface.set_alpha(128)
-        self.menuList = [{'Name': '- Inventory',
-                          'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.3]},
-                         {'Name': '- Skills',
-                          'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.4]},
-                         {'Name': '- Options',
-                          'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.5]},
-                         {'Name': '- Quit',
-                          'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.6]}]
+        self.menuList = [
+            {'Name': '- Inventory', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.3]},
+            {'Name': '- Skills', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.4]},
+            {'Name': '- Options', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.5]},
+            {'Name': '- Quit', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.6]}]
         # Sounds
-        self.selectSound = mixer.Sound(ROOT + '/sounds/select.wav')
-        self.acceptSound = mixer.Sound(ROOT + '/sounds/accept.ogg')
+        self.selectSound = mixer.Sound(f'{sound_dir}select.ogg')
+        self.acceptSound = mixer.Sound(f'{sound_dir}accept.ogg')
         self.currentMenu = 0
         # Player
-        self.player = player                        # A reference to the player and his statistics
+        self.player = player
         # Setting a plane, transparent background
         self.background = Surface(self.scrSize)
         self.background.fill(COLORS['BLACK'])
@@ -48,14 +49,12 @@ class PauseScreen(object):
         # Setting the text font for the pause menu
         self.font = font.SysFont('Calibri', 25, True, False)
         # Pause interface text (will include images on next versions)
-        self.pauseText = []
-        self.pauseText.append(self.font.render("PAUSE", ANTIALIASING, COLORS['WHITE']))
-        self.pauseText.append(self.font.render("Life: " + str(self.player.life) + "/"
-                                               + str(self.player.maxLife), ANTIALIASING, COLORS['WHITE']))
-        self.pauseText.append(self.font.render("Energy: " + str(self.player.energy) + "/"
-                                               + str(self.player.maxEnergy), ANTIALIASING, COLORS['WHITE']))
-        self.pauseText.append(self.font.render("Coins: " + str(self.player.coins) + "/"
-                                               + str(self.player.maxWallet), ANTIALIASING, COLORS['WHITE']))
+        self.pauseText = [
+            self.font.render("PAUSE", ANTIALIASING, COLORS['WHITE']),
+            self.font.render(f'Life: {self.player.life}/{self.player.maxLife}', ANTIALIASING, COLORS['WHITE']),
+            self.font.render(f'Energy: {self.player.energy}/{self.player.maxEnergy}', ANTIALIASING, COLORS['WHITE']),
+            self.font.render(f'Coins: {self.player.coins}/{self.player.maxWallet}', ANTIALIASING, COLORS['WHITE'])]
+
         for x in self.menuList:
             self.pauseText.append(self.font.render(x['Name'], ANTIALIASING, COLORS['WHITE']))
 

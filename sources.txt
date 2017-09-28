@@ -1,5 +1,7 @@
 Sound effects:
 - http://www.soundjay.com/
 - https://www.freesound.org/
+FX-Making:
+- http://labbed.net/software/labchirp/
 Fonts:
 - http://www.1001freefonts.com/

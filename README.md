@@ -9,7 +9,7 @@ being in this station for the task.", they said. They're truly kind people.
 
 ----------------------------------------------------------------------------------------------------------------------
 
-In this adventure, you'll have the duty of travel across the Primal Solar System looking for strange, poweful mineral shards
+In this adventure, you'll have the duty of travel across the Primal Solar System looking for strange, powerful mineral shards
 required by your captors. Beware! These planets are wild and unknown, but no one asserts they are deserted...
 
 Besides, can you trust on your misterious captors? They've never shown themselves, so you didn't even know if they are humans

@@ -1,22 +1,26 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 # ---------------------- IMPORTS ---------------------
 # Python libs
 import pygame
 # Own libs
-from Block6 import Player
-from Level6 import Level1, Level2
-import PauseScreen
 import SaveGame
+from models.Block6 import Player
+from models.Level6 import Level1, Level2
 from constants6 import COLORS, PLAYER_SIZE, ANTIALIASING, DEBUG
-''' This is the general manager game class. It has the
-    main functions and attributes which rule above all
-    the rest.'''
+from views import PauseScreen
 
 
-class Game(object):
-    # ---------- Constructor ----------------------
+class Game:
     def __init__(self, screen, scr_size, saved_state_name=None):
+        """ This is the general manager game class. It has the
+            main functions and attributes which rule above all
+            the rest.
+
+        :param screen:
+        :param scr_size:
+        :param saved_state_name:
+        """
         # Main game attributes
         self.gameOver = False                                           # Endgame (also a truly brutal Megadeth album)
         self.quit_all = False
@@ -60,8 +64,11 @@ class Game(object):
         pygame.mixer.music.play(-1)
 
     # ---------- Methods ----------------------
-    # This function manages all events in game
     def event_handler(self):
+        """
+        Manages all events in game
+        :return: True if the player wants to exit the game; False otherwise
+        """
         # Pause screen
         if self.pauseFlag:
             for event in pygame.event.get():                            # User did something
@@ -161,8 +168,10 @@ class Game(object):
 
         return False
 
-    # This function is given to refresh all objects and check collisions
     def run_logic(self):
+        """
+        This refresh all in-game objects and check collisions
+        """
         # Checks if the player still lives on
         if not self.gameOver:
             if self.pauseFlag:
