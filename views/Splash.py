@@ -2,25 +2,24 @@
 # Python libs
 import pygame
 # Own libs
-from constants6 import ROOT, COLORS, FPS
+from constants import ROOT, COLORS, FPS
 
 
 class Splash:
-    def __init__(self, screen, scr_size, debug=False):
-        """
-        This class holds the initial splash window, in which I put my fictional game dev studio
+    def __init__(self, screen, scr_size, sound_manager, debug=False):
+        """ This class holds the initial splash window, in which I put my fictional game dev studio
         and some partners and tools involved into this development.
 
         :param screen: A reference for the main screen
         :param scr_size:
+        :param sound_manager:
         :param debug: Flag for debugging into the game
         """
         # -- Source folders -------------------
-        music_dir = f'{ROOT}/resources/music/'
         img_dir = f'{ROOT}/resources/images/'
         # -- Attributes -----------------------
-        self.debug = debug
         self.screen = screen
+        self.debug = debug
         self.fps = FPS
         # Opacity for fade in and fade out effects (254)
         self.opacity = 255
@@ -37,13 +36,10 @@ class Splash:
         self.cover = pygame.Surface(scr_size)
         self.cover.set_alpha(self.opacity)
         # We set and play the main theme
-        self.musicTheme = f'{music_dir}strike_the_earth.ogg'
-        pygame.mixer.music.load(self.musicTheme)
-        pygame.mixer.music.play(-1)
+        sound_manager.play_music('Main Theme')
 
     def event_handler(self):
-        """
-        It handles all events thrown while the splash sequence is running
+        """ It handles all events thrown while the splash sequence is running
 
         :return: True if the player hits the X-window exit button OR the splash sequence is finished; False otherwise
         """
@@ -65,9 +61,7 @@ class Splash:
         return self.animations['Second'][1]
 
     def run_logic(self):
-        """
-        It updates the splash screen at the main control flow
-        """
+        """ It updates the splash screen at the main control flow """
         # First animation's sequence
         if self.animations['First'][0]:
             if self.opacity >= 0:

@@ -22,6 +22,7 @@ MAX_FALL_VELOCITY = 10                                      # Player maximum fal
 FLOOR_SIZE = 50                                             # X and Y floor's size
 # ---------------------- ITEMS -----------------------
 COIN_SIZE = 30                                              # X and Y coin's size
+LIFE_POWER_UP_SIZE = 40                                     # X and Y life power-up's size
 # --------------------- GENERAL ----------------------
 # ----------------- Primary colors -------------------
 COLORS = {'BLACK': [0x00, 0x00, 0x00],                      # Hex for black

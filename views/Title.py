@@ -4,52 +4,56 @@
 # Python libs
 import pygame
 # Own libs
-from constants6 import COLORS, SURFACE_MID_ALPHA, ANTIALIASING, ROOT, VOLUME_BAR, SLIDER, TICKER, FULL_SCREEN
-from SaveGame import load_files, load_config, save_changes
+from constants import COLORS, SURFACE_MID_ALPHA, ANTIALIASING, ROOT, VOLUME_BAR, SLIDER, TICKER, FULL_SCREEN
+from SaveGame import SaveGame
 
 
 class _Screen:
-    def __init__(self, screen, scr_size, debug=False):
-        self.debug = debug
+    def __init__(self, screen, scr_size, sound_manager, debug=False):
+        """ Parent class for game screens
+
+        :param screen: A reference for the main screen
+        :param scr_size: The screen size (Default: 600 * 800)
+        :param sound_manager:
+        :param debug: Flag for debugging into the game
+        """
         self.screen = screen
         self.scrSize = scr_size
-        # Setting a plane, transparent background
+        self.soundMan = sound_manager
+        self.debug = debug
+        # Setting a plane black background
         self.background = pygame.Surface(self.scrSize)
         self.background.fill(COLORS['BLACK'])
 
 
 class TitleScreen(_Screen):
-    def __init__(self, screen, scr_size, config, debug=False):
-        """ This class will display the title screen, showing a background animation
-                and playing the main theme while we navigate though the main menu. That's
-                the initial idea, of course.
+    def __init__(self, screen, scr_size, sound_manager, config, debug=False):
+        """ This class will display the title screen, showing a background animation and playing the main theme
+        while we navigate though the main menu. That's the initial idea, of course.
 
         :param screen: A reference for the main screen
         :param scr_size: The screen size (Default: 600 * 800)
+        :param sound_manager:
         :param config: General game configuration settings
         :param debug: Flag for debugging into the game
         """
-        super().__init__(screen, scr_size, debug)
-        # -- Source folders -------------------
-        sound_dir = f'{ROOT}/resources/sounds/'
+        super().__init__(screen, scr_size, sound_manager, debug)
+        # ----------------------------- Source folders -----------------------------
         img_dir = f'{ROOT}/resources/images/'
-        music_dir = f'{ROOT}/resources/music/'
         fonts_dir = f'{ROOT}/resources/fonts/'
-        # -- Attributes -----------------------
-        self.savedFiles = load_files()                      # A list of saved games (or None)
-        self.soundDict = {'Select': pygame.mixer.Sound(f'{sound_dir}select.ogg'),
-                          'Accept': pygame.mixer.Sound(f'{sound_dir}accept.ogg'),
-                          'Cancel': pygame.mixer.Sound(f'{sound_dir}cancel.ogg')}
-        self.musicTheme = f'{music_dir}strike_the_earth.ogg'
+        # /////////////////////////////// ATTRIBUTES ///////////////////////////////
         self.config = config
-        # New Game elements
-        self.newGame = None                                 # New Game object reference
+        # Saved games list (or None)
+        self.savedFiles = SaveGame.load_files()
+        self.musicTheme = 'Main Theme'
+        # ---------------------------- New Game elements ---------------------------
+        self.newGame = None                                 # New Game screen reference
         self.newGameFlag = False                            # New Game event handling flag
-        # Load Game elements
-        self.loadGame = None                                # Load Game object reference
+        # --------------------------- Load Game elements ---------------------------
+        self.loadGame = None                                # Load Game screen reference
         self.loadGameFlag = False                           # Load Game event handling flag
-        # Options elements
-        self.options = None                                 # Options object reference
+        # ---------------------------- Options elements ----------------------------
+        self.options = None                                 # Options screen reference
         self.optionsFlag = False                            # Options event handling flag
         # New Game/Load Game fading surface
         self.cover = pygame.Surface(self.scrSize)
@@ -58,14 +62,15 @@ class TitleScreen(_Screen):
         self.opacity = 0
         # This flag commands the main class to pass from title scene to game scene when it's true
         self.initGame = False
-        # Cursor elements
-        self.cursorSurface = pygame.image.load(f'{img_dir}Cursor.png').convert()
-        self.cursorSurface.set_colorkey(COLORS['WHITE'])
+        # Menu
         self.menuList = [{'Name': 'New Game', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.5]},
                          {'Name': 'Load Game', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.57]},
                          {'Name': 'Options', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.64]},
                          {'Name': 'Quit', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.71]}]
         self.currentMenu = 0
+        # Cursor elements
+        self.cursorSurface = pygame.image.load(f"{img_dir}Cursor.png").convert()
+        self.cursorSurface.set_colorkey(COLORS['WHITE'])
         # Setting initial cursor's position
         self.cursor = self.cursorSurface.get_rect()
         self.cursorDespl = self.cursor.x = self.menuList[0]['Position'][0] - 35
@@ -80,17 +85,13 @@ class TitleScreen(_Screen):
         # Setting the text font for the pause menu (set your own)
         self.font = pygame.font.Font(f'{fonts_dir}AceRecords.ttf', 30)
         self.titleFont = pygame.font.Font(f'{fonts_dir}AceRecords.ttf', 100)
-
         # Title interface text
-        self.titleText = []
-        for x in self.menuList:
-            if x['Name'] == 'Load Game' and not self.flags['LoadGame'][1]:
-                self.titleText.append(self.font.render(x['Name'], ANTIALIASING, COLORS['GREY']))
-            else:
-                self.titleText.append(self.font.render(x['Name'], ANTIALIASING, COLORS['WHITE']))
+        self.titleText = [self.font.render(x['Name'], ANTIALIASING, COLORS['WHITE']) for x in self.menuList]
+        if not self.flags['LoadGame'][1]:
+            self.titleText[1] = self.font.render(self.menuList[1]['Name'], ANTIALIASING, COLORS['GREY'])
 
         self.titleText.append(self.titleFont.render("Primal Ring", ANTIALIASING, COLORS['WHITE']))
-        # Debug
+
         if self.debug:
             pass
 
@@ -100,60 +101,30 @@ class TitleScreen(_Screen):
         if self.newGameFlag:
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
-                    self.flags['Quit'] = True           # This enable the X-window exit button
-                    return True
+                    return self.quit_game()
         # Load Game Screen's events
         elif self.loadGameFlag:
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
-                    self.flags['Quit'] = True           # This enable the X-window exit button
-                    return True
+                    return self.quit_game()
         # Options Screen's events
         elif self.optionsFlag:
-            for e in pygame.event.get():
-                if e.type == pygame.QUIT:
-                    self.flags['Quit'] = True           # This enable the X-window exit button
-                    return True
-
-                if e.type == pygame.KEYDOWN:
-                    if e.key == pygame.K_UP:
-                        self.options.go_up()
-                    elif e.key == pygame.K_DOWN:
-                        self.options.go_down()
-                    if e.key == pygame.K_RIGHT:
-                        self.options.sliderFlags[0] = True
-                    elif e.key == pygame.K_LEFT:
-                        self.options.sliderFlags[1] = True
-                    elif e.key == pygame.K_ESCAPE:
-                        self.options.soundDict['Cancel'].play()
-                        self.optionsFlag = False
-                    elif e.key == pygame.K_RETURN:
-                        if self.options.optionList[self.options.currentMenu]['Name'] == 'Back to Main Menu':
-                            self.options.soundDict['Accept'].play()
-                            self.options.save_config()
-                            self.config = load_config()
-                            self.optionsFlag = False
-                        elif self.options.optionList[self.options.currentMenu]['Name'] == 'FullScreen':
-                            if self.options.fullScreenFlag:
-                                self.options.full_screen_off()
-                            else:
-                                self.options.full_screen_on()
-                elif e.type == pygame.KEYUP:
-                    if e.key == pygame.K_RIGHT:
-                        self.options.sliderFlags[0] = False
-                    elif e.key == pygame.K_LEFT:
-                        self.options.sliderFlags[1] = False
+            if self.options.event_handler():
+                if self.options.quit_all:
+                    return self.quit_game()
+                else:
+                    self.config = SaveGame.load_config()
+                    self.options = None
+                    self.optionsFlag = False
         # Title Screen's events
         else:
             for e in pygame.event.get():
                 if e.type == pygame.QUIT:
-                    self.flags['Quit'] = True           # This enable the X-window exit button
-                    return True
+                    return self.quit_game()
                 # New Game menu
                 if self.flags['NewGame']:               # WIP
-                    # print("Now you are in New Game")
-                    """ Some stuff will happen here, asking for a name and creating a game file
-                        for it."""
+                    ''' Some stuff will happen here, asking for a name and creating a game file
+                        for it.'''
                     if not self.initGame:
                         self.initGame = True
                         # Fading out music (milliseconds)
@@ -162,8 +133,8 @@ class TitleScreen(_Screen):
                 elif self.flags['LoadGame'][0]:         # WIP
                     # We enable to access the load screen if we have any saved files
                     if self.flags['LoadGame'][1]:
-                        """ Some stuff will happen here, asking for a name and
-                            loading all stuff in order to continue."""
+                        ''' Some stuff will happen here, asking for a name and
+                            loading all stuff in order to continue.'''
                         if not self.initGame:
                             self.initGame = True
                             # Fading out music (milliseconds)
@@ -171,20 +142,19 @@ class TitleScreen(_Screen):
                     else:
                         self.flags['LoadGame'][0] = False
                 # Options menu
-                elif self.flags['Options']:             # WIP
-                    self.options = OptionsScreen(self.screen, self.scrSize, self.font, self.soundDict, self.config)
+                elif self.flags['Options']:
+                    self.options = OptionsScreen(self.screen, self.scrSize, self.soundMan, self.config, self.font)
                     self.optionsFlag = True
                     self.flags['Options'] = False
                 # Title menu
                 else:
                     if e.type == pygame.KEYDOWN:
                         if e.key == pygame.K_UP:
-                            self.go_up()
+                            self.cursor_up()
                         elif e.key == pygame.K_DOWN:
-                            self.go_down()
+                            self.cursor_down()
                         elif e.key == pygame.K_RETURN:
-                            # self.acceptSound.play()
-                            self.soundDict['Accept'].play()
+                            self.soundMan.play_fx('Accept')
                             if self.menuList[self.currentMenu]['Name'] == 'New Game':
                                 self.flags['NewGame'] = True
                             elif self.menuList[self.currentMenu]['Name'] == 'Load Game':
@@ -192,8 +162,7 @@ class TitleScreen(_Screen):
                             elif self.menuList[self.currentMenu]['Name'] == 'Options':
                                 self.flags['Options'] = True
                             else:
-                                self.flags['Quit'] = True
-                                return True
+                                return self.quit_game()
         # This is for New Game/Load Game fade out effects
         if self.opacity >= 255:
             return True
@@ -236,9 +205,8 @@ class TitleScreen(_Screen):
 
         pygame.display.flip()
 
-    def go_down(self):
-        # self.selectSound.play()
-        self.soundDict['Select'].play()
+    def cursor_down(self):
+        self.soundMan.play_fx('Select')
         if self.currentMenu == len(self.menuList) - 1:
             self.currentMenu = 0
         else:
@@ -246,9 +214,8 @@ class TitleScreen(_Screen):
             if self.menuList[self.currentMenu]['Name'] == 'Load Game' and not self.flags['LoadGame'][1]:
                 self.currentMenu += 1
 
-    def go_up(self):
-        # self.selectSound.play()
-        self.soundDict['Select'].play()
+    def cursor_up(self):
+        self.soundMan.play_fx('Select')
         if self.currentMenu == 0:
             self.currentMenu = len(self.menuList) - 1
         else:
@@ -257,8 +224,7 @@ class TitleScreen(_Screen):
                 self.currentMenu -= 1
 
     def _wiggle(self, cursor_x):
-        """
-        Cursor simple "live" effect
+        """ Cursor simple "live" effect
 
         :param cursor_x:
         :return: Cursor's new position
@@ -274,16 +240,23 @@ class TitleScreen(_Screen):
         self.opacity = 0
         self.cover.set_alpha(self.opacity)
 
-    # Set music theme in this scene
     def set_theme(self):
-        pygame.mixer.music.load(self.musicTheme)
+        """ Sets music theme in this scene """
         # We start later because we aren't displaying splash screen again
-        pygame.mixer.music.play(-1, 13)
+        if self.musicTheme is not None:
+            self.soundMan.play_music(self.musicTheme, 13)
+
+    def quit_game(self):
+        """ Quick game exit """
+        # We kill the music stream
+        self.soundMan.panic()
+        self.flags['Quit'] = True
+        return True
 
 
 class NewGameScreen(_Screen):
-    def __init__(self, screen, scr_size, font, debug=False):
-        super().__init__(screen, scr_size, debug)
+    def __init__(self, screen, scr_size, sound_manager, font, debug=False):
+        super().__init__(screen, scr_size, sound_manager, debug)
         # Setting the text font for the new game menu
         self.font = font
         # New Game interface text (will include images on next versions)
@@ -291,35 +264,24 @@ class NewGameScreen(_Screen):
 
 
 class OptionsScreen(_Screen):
-    def __init__(self, screen, scr_size, font, sounds, config, debug=False):
-        super().__init__(screen, scr_size, debug)
+    def __init__(self, screen, scr_size, sound_manager, config, font, debug=False):
+        super().__init__(screen, scr_size, sound_manager, debug)
         # Setting the text font for the new game menu
         self.font = font
-
-        self.soundDict = sounds                        # A sound index for fx effects
-        self.config = config                            # A predefined (or previous) configuration set
+        # Options interface text (will include images on next versions)
+        self.optionList = [
+            {'Name': 'FullScreen', 'Position': [self.scrSize[0] * 0.2, self.scrSize[1] * 0.2]},
+            {'Name': 'Music Volume', 'Position': [self.scrSize[0] * 0.2, self.scrSize[1] * 0.27]},
+            {'Name': 'Effects Volume', 'Position': [self.scrSize[0] * 0.2, self.scrSize[1] * 0.34]},
+            {'Name': 'Gallery', 'Position': [self.scrSize[0] * 0.2, self.scrSize[1] * 0.41]},
+            {'Name': 'Credits', 'Position': [self.scrSize[0] * 0.2, self.scrSize[1] * 0.48]},
+            {'Name': 'Back to Main Menu', 'Position': [self.scrSize[0] * 0.2, self.scrSize[1] * 0.55]}]
+        self.currentMenu = 0
+        self.optText = [self.font.render(option['Name'], ANTIALIASING, COLORS['WHITE']) for option in self.optionList]
         # Cursor
-        self.cursorSurface = pygame.Surface((170, 25))  # Pause Screen' highlight cursor
+        self.cursorSurface = pygame.Surface((170, 25))
         self.cursorSurface.fill(COLORS['GREEN'])
         self.cursorSurface.set_alpha(SURFACE_MID_ALPHA)
-        self.optionList = [{'Name': 'FullScreen',
-                            'Position': [self.scrSize[0] * 0.2, self.scrSize[1] * 0.2]},
-                           {'Name': 'Music Volume',
-                            'Position': [self.scrSize[0] * 0.2, self.scrSize[1] * 0.27]},
-                           {'Name': 'Effects Volume',
-                            'Position': [self.scrSize[0] * 0.2, self.scrSize[1] * 0.34]},
-                           {'Name': 'Gallery',
-                            'Position': [self.scrSize[0] * 0.2, self.scrSize[1] * 0.41]},
-                           {'Name': 'Credits',
-                            'Position': [self.scrSize[0] * 0.2, self.scrSize[1] * 0.48]},
-                           {'Name': 'Back to Main Menu',
-                            'Position': [self.scrSize[0] * 0.2, self.scrSize[1] * 0.55]}]
-        self.currentMenu = 0
-        # Options interface text (will include images on next versions)
-        self.optText = []
-        for x in self.optionList:
-            self.optText.append(self.font.render(x['Name'], ANTIALIASING, COLORS['WHITE']))
-
         # Setting initial cursor's position
         self.cursor = self.cursorSurface.get_rect()
         self.cursor.x = self.optionList[0]['Position'][0]
@@ -336,19 +298,20 @@ class OptionsScreen(_Screen):
         self.musicSlider.fill(COLORS['GREY'])
         self.fxSlider = pygame.Surface((SLIDER[0], SLIDER[1]))
         self.fxSlider.fill(COLORS['GREY'])
-        self.volRatio = 1.0 / (VOLUME_BAR[0] - SLIDER[0])          # Volume map for SLIDER Controls
-        self.sliderFlags = [False, False]                          # Flags for continuum slider scrolling
+        # Volume map for SLIDER Controls
+        self.volRatio = 1.0 / (VOLUME_BAR[0] - SLIDER[0])
+        # Flags for continuum slider scrolling
+        self.sliderFlags = [False, False]
+        # Flag for complete game exit
+        self.quit_all = False
         # Setting GUI controls
-        if self.config is not None:
-            self.fullScreenFlag = self.config['full_screen']
-            pygame.mixer.music.set_volume(self.config['music_volume'])
-            self.musicSliderPoint = [self.optionList[1]['Position'][0] + 200
-                                     + (self.config['music_volume'] / self.volRatio),
+        if config is not None:
+            self.fullScreenFlag = config['full_screen']
+            self.soundMan.set_music_vol(config['music_volume'])
+            self.musicSliderPoint = [self.optionList[1]['Position'][0] + 200 + (config['music_volume'] / self.volRatio),
                                      self.optionList[1]['Position'][1]]
-            for sound in self.soundDict.values():
-                sound.set_volume(self.config['fx_volume'])
-            self.fxSliderPoint = [self.optionList[2]['Position'][0] + 200
-                                  + (self.config['fx_volume'] / self.volRatio),
+            self.soundMan.set_fx_vol(config['fx_volume'])
+            self.fxSliderPoint = [self.optionList[2]['Position'][0] + 200 + (config['fx_volume'] / self.volRatio),
                                   self.optionList[2]['Position'][1]]
         else:
             self.fullScreenFlag = FULL_SCREEN
@@ -356,11 +319,47 @@ class OptionsScreen(_Screen):
                                      self.optionList[1]['Position'][1]]
             self.fxSliderPoint = [self.optionList[2]['Position'][0] + 200 + VOLUME_BAR[0] - SLIDER[0],
                                   self.optionList[2]['Position'][1]]
-        # Debug text
+
         if self.debug:
             self.debugText = self.font.render(f'Music slider x = {self.musicSliderPoint[0]}; '
-                                              + f'Effects slider x = {self.fxSliderPoint[0]}',
+                                              f'Effects slider x = {self.fxSliderPoint[0]}',
                                               ANTIALIASING, COLORS['WHITE'])
+
+    # ---------------------------- MAIN LOOP FUNCTIONS ----------------------------
+    def event_handler(self):
+        for e in pygame.event.get():
+            if e.type == pygame.QUIT:
+                self.quit_all = True
+                return True
+
+            if e.type == pygame.KEYDOWN:
+                if e.key == pygame.K_UP:
+                    self.go_up()
+                elif e.key == pygame.K_DOWN:
+                    self.go_down()
+
+                if e.key == pygame.K_RIGHT:
+                    self.sliderFlags[0] = True
+                elif e.key == pygame.K_LEFT:
+                    self.sliderFlags[1] = True
+                elif e.key == pygame.K_ESCAPE:
+                    self.soundMan.play_fx('Cancel')
+                    return True
+                elif e.key == pygame.K_RETURN:
+                    if self.optionList[self.currentMenu]['Name'] == 'Back to Main Menu':
+                        self.soundMan.play_fx('Accept')
+                        self.save_config()
+                        return True
+                    elif self.optionList[self.currentMenu]['Name'] == 'FullScreen':
+                        self.switch_full_screen(not self.fullScreenFlag)
+
+            elif e.type == pygame.KEYUP:
+                if e.key == pygame.K_RIGHT:
+                    self.sliderFlags[0] = False
+                elif e.key == pygame.K_LEFT:
+                    self.sliderFlags[1] = False
+
+        return False
 
     def update(self):
         # Cursor
@@ -372,9 +371,9 @@ class OptionsScreen(_Screen):
             self.fullScreenTick.set_alpha(0)
         # Volume sliders
         if self.sliderFlags[0]:
-            self._slider_to_right()
+            self._slider_to_right(self.optionList[self.currentMenu])
         elif self.sliderFlags[1]:
-            self._slider_to_left()
+            self._slider_to_left(self.optionList[self.currentMenu])
         # Debug text
         if self.debug:
             self.debugText = self.font.render(f'Music slider x = {self.musicSliderPoint[0]}; '
@@ -406,64 +405,48 @@ class OptionsScreen(_Screen):
             self.screen.blit(self.debugText, [100, 50])
 
     def go_down(self):
-        self.soundDict['Select'].play()
-        if self.currentMenu == len(self.optionList) - 1:
-            self.currentMenu = 0
-        else:
-            self.currentMenu += 1
+        self.soundMan.play_fx('Select')
+        self.currentMenu = 0 if self.currentMenu == len(self.optionList) - 1 else self.currentMenu + 1
 
     def go_up(self):
-        # self.sounds[0].play()
-        self.soundDict['Select'].play()
-        if self.currentMenu == 0:
-            self.currentMenu = len(self.optionList) - 1
-        else:
-            self.currentMenu -= 1
+        self.soundMan.play_fx('Select')
+        self.currentMenu = len(self.optionList) - 1 if self.currentMenu == 0 else self.currentMenu - 1
 
-    def full_screen_on(self):
+    def switch_full_screen(self, full_screen=False):
         if self.optionList[self.currentMenu]['Name'] == 'FullScreen':
-            self.soundDict['Accept'].play()
-            self.fullScreenFlag = True
-
-    def full_screen_off(self):
-        if self.optionList[self.currentMenu]['Name'] == 'FullScreen':
-            self.soundDict['Accept'].play()
-            self.fullScreenFlag = False
+            self.soundMan.play_fx('Accept')
+            self.fullScreenFlag = full_screen
 
     def save_config(self):
-        """
-        It takes all config values set into this screen and saves them into a config file
-        """
-        save_changes(self.fullScreenFlag, pygame.mixer.music.get_volume(), self.soundDict['Select'].get_volume())
+        """ It takes all config values set into this screen and saves them into a config file """
+        SaveGame.save_changes(self.fullScreenFlag, self.soundMan.get_music_vol(), self.soundMan.get_fx_vol())
 
     # These two slider functions move the volume controls to left or right, depending on the desired
-    # direction. Apparently, they aren't callable if we put the '__' before the name, as if these
-    # functions were 'private'.
-    def _slider_to_right(self):
-        if self.optionList[self.currentMenu]['Name'] == 'Music Volume':
-            if self.musicSliderPoint[0] < self.optionList[self.currentMenu]['Position'][0] + 490:
+    # direction.
+    def _slider_to_right(self, slider_opt: {}) -> None:
+        if slider_opt['Name'] == 'Music Volume':
+            if self.musicSliderPoint[0] < slider_opt['Position'][0] + 490:
                 self.musicSliderPoint[0] += 1
-                self._convert_volume(self.musicSliderPoint[0], self.optionList[self.currentMenu]['Name'])
-        elif self.optionList[self.currentMenu]['Name'] == 'Effects Volume':
-            self.soundDict['Select'].play()
-            if self.fxSliderPoint[0] < self.optionList[self.currentMenu]['Position'][0] + 490:
+                self._convert_volume(self.musicSliderPoint[0], slider_opt['Name'])
+        elif slider_opt['Name'] == 'Effects Volume':
+            self.soundMan.play_fx('Select')
+            if self.fxSliderPoint[0] < slider_opt['Position'][0] + 490:
                 self.fxSliderPoint[0] += 1
-                self._convert_volume(self.fxSliderPoint[0], self.optionList[self.currentMenu]['Name'])
+                self._convert_volume(self.fxSliderPoint[0], slider_opt['Name'])
 
-    def _slider_to_left(self):
-        if self.optionList[self.currentMenu]['Name'] == 'Music Volume':
-            if self.musicSliderPoint[0] > self.optionList[self.currentMenu]['Position'][0] + 200:
+    def _slider_to_left(self, slider_opt: {}) -> None:
+        if slider_opt['Name'] == 'Music Volume':
+            if self.musicSliderPoint[0] > slider_opt['Position'][0] + 200:
                 self.musicSliderPoint[0] -= 1
-                self._convert_volume(self.musicSliderPoint[0], self.optionList[self.currentMenu]['Name'])
-        elif self.optionList[self.currentMenu]['Name'] == 'Effects Volume':
-            self.soundDict['Select'].play()
-            if self.fxSliderPoint[0] > self.optionList[self.currentMenu]['Position'][0] + 200:
+                self._convert_volume(self.musicSliderPoint[0], slider_opt['Name'])
+        elif slider_opt['Name'] == 'Effects Volume':
+            self.soundMan.play_fx('Select')
+            if self.fxSliderPoint[0] > slider_opt['Position'][0] + 200:
                 self.fxSliderPoint[0] -= 1
-                self._convert_volume(self.fxSliderPoint[0], self.optionList[self.currentMenu]['Name'])
+                self._convert_volume(self.fxSliderPoint[0], slider_opt['Name'])
 
     def _convert_volume(self, slider_level, option):
-        """
-        This converts the GUI volume control into real sound values for pygame lib
+        """ This converts the GUI volume control into real sound values for pygame lib
 
         :param slider_level:
         :param option:
@@ -471,7 +454,6 @@ class OptionsScreen(_Screen):
         """
         slider = slider_level - 360
         if option == 'Effects Volume':
-            for sound in self.soundDict.values():
-                sound.set_volume(slider * self.volRatio)
+            self.soundMan.set_fx_vol(slider * self.volRatio)
         elif option == 'Music Volume':
-            pygame.mixer.music.set_volume(slider * self.volRatio)
+            self.soundMan.set_music_vol(slider * self.volRatio)

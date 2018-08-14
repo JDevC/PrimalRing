@@ -4,34 +4,33 @@
 # Python libs
 import pygame
 # Own libs
-import SaveGame
-from models.Block6 import Player
-from models.Level6 import Level1, Level2
-from constants6 import COLORS, PLAYER_SIZE, ANTIALIASING, DEBUG
-from views import PauseScreen
+from SaveGame import SaveGame
+from models.Block import Player
+from models.Level import Level1, Level2
+from views.PauseScreen import PauseScreen
+from constants import COLORS, PLAYER_SIZE, ANTIALIASING, DEBUG
 
 
 class Game:
-    def __init__(self, screen, scr_size, saved_state_name=None):
-        """ This is the general manager game class. It has the
-            main functions and attributes which rule above all
-            the rest.
+    def __init__(self, screen, scr_size, sound_manager, saved_state_name=None):
+        """ This is the general manager game class. It has the main functions and attributes which rule above
+        all the rest.
 
         :param screen:
         :param scr_size:
-        :param saved_state_name:
-        """
+        :param saved_state_name: """
         # Main game attributes
-        self.gameOver = False                                           # Endgame (also a truly brutal Megadeth album)
-        self.quit_all = False
         self.screen = screen
         self.scrSize = scr_size
+        self.soundMan = sound_manager
         self.font = pygame.font.SysFont('Calibri', 25, True, False)
+        # Endgame (also a truly brutal Megadeth album)
+        self.gameOver = False
+        self.quit_all = False
         # GAME OVER text
-        self.gOverText = []
-        self.gOverText.append(self.font.render("GAME OVER", ANTIALIASING, COLORS['WHITE']))
-        self.gOverText.append(self.font.render("Want to try again?", ANTIALIASING, COLORS['WHITE']))
-        self.gOverText.append(self.font.render("Yes / No", ANTIALIASING, COLORS['WHITE']))
+        self.gOverText = [self.font.render("GAME OVER", ANTIALIASING, COLORS['WHITE']),
+                          self.font.render("Want to try again?", ANTIALIASING, COLORS['WHITE']),
+                          self.font.render("Yes / No", ANTIALIASING, COLORS['WHITE'])]
         # PAUSE elements
         self.pause = None
         self.pauseFlag = False                                          # Well, this is obvious
@@ -41,12 +40,12 @@ class Game:
         # Game loading
         saved_state = None
         if saved_state_name is not None:
-            saved_state = SaveGame.load_file(saved_state_name)           # We try to load a game file
+            saved_state = SaveGame.load_file(saved_state_name)
         # Player
-        self.player = Player(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, saved_state)
+        self.player = Player(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, sound_manager, saved_state)
         # Levels
-        self.levels = {"Doom Valley": Level1(screen, scr_size, self.player, DEBUG),
-                       "The RING": Level2(screen, scr_size, self.player, DEBUG)}
+        self.levels = {"Doom Valley": Level1(screen, scr_size, sound_manager, self.player, DEBUG),
+                       "The RING": Level2(screen, scr_size, sound_manager, self.player, DEBUG)}
         if saved_state is not None:
             # You've a game saved, so you start in the level and position stored
             self.level = self.levels[saved_state['Level']['ID']]
@@ -61,14 +60,12 @@ class Game:
         self.player.plainLevel = self.level.plainLevel
         # We activate the music in the current level
         self.level.set_theme()
-        pygame.mixer.music.play(-1)
 
     # ---------- Methods ----------------------
     def event_handler(self):
-        """
-        Manages all events in game
-        :return: True if the player wants to exit the game; False otherwise
-        """
+        """ Manages all events in game
+
+        :return: True if the player wants to exit the game; False otherwise """
         # Pause screen
         if self.pauseFlag:
             for event in pygame.event.get():                            # User did something
@@ -86,10 +83,10 @@ class Game:
                         self.pause.go_down()
                     elif event.key == pygame.K_p:
                         # We resume the music streaming
-                        pygame.mixer.music.unpause()
+                        self.soundMan.pause_music(False)
                         self.pauseFlag = False                          # Exits the pause screen
                     elif event.key == pygame.K_RETURN:
-                        self.pause.acceptSound.play()
+                        self.pause.soundMan.play_fx('Accept')
                         if self.pause.menuList[self.pause.currentMenu]['Name'] == '- Inventory':
                             print("Accessing inventory... soon!")
                         elif self.pause.menuList[self.pause.currentMenu]['Name'] == '- Skills':
@@ -116,10 +113,8 @@ class Game:
                         pass
                     elif event.key == pygame.K_y:                       # 's' key
                         # This saves your game!
-                        # (Pfffiuuuu... what a relief)
                         self.save.save_file()
-                        # Game saved
-                        # self.save.load_file()
+                        # Game saved (Pfffiuuuu... what a relief)
                         self.saveFlag = False
                         self.level.player.saveFlag = False
                         self.save = None
@@ -135,43 +130,41 @@ class Game:
             for event in pygame.event.get():                            # User did something
                 if event.type == pygame.QUIT:                           # If user clicked close
                     return self.quit_game()                             # We are done so we exit this loop
-                if event.type == pygame.KEYDOWN:
-                    # Figure out if it was an arrow key. If it's so, adjust speed.
+                if event.type == pygame.KEYDOWN:                        # User hit a key
                     if event.key == pygame.K_LEFT:                      # <-
-                        self.level.player.go_left()
+                        self.player.direction['LEFT'] = True
+                        self.player.direction['RIGHT'] = not self.player.direction['LEFT']
                     if event.key == pygame.K_RIGHT:                     # ->
-                        self.level.player.go_right()
+                        self.player.direction['RIGHT'] = True
+                        self.player.direction['LEFT'] = not self.player.direction['RIGHT']
                     if event.key == pygame.K_UP:
-                        if self.level.player.plainLevel:
-                            self.level.player.go_up()
-                        else:
-                            self.level.player.jump()
+                        self.player.direction['UP'] = True
                     if event.key == pygame.K_DOWN:
-                        if self.level.player.plainLevel:
-                            self.level.player.go_down()
+                        self.player.direction['DOWN'] = True
                     if event.key == pygame.K_p:                           # 'p' key
                         # We pause the music streaming
-                        pygame.mixer.music.pause()
+                        self.soundMan.pause_music()
                         self.pauseFlag = True
-                        self.pause = PauseScreen.PauseScreen(self.screen, self.scrSize, self.level.player)
+                        self.pause = PauseScreen(self.screen, self.scrSize, self.soundMan, self.level.player)
                     if event.key == pygame.K_TAB:                         # 'TAB' key
                         if self.level.player.saveFlag:
                             self.saveFlag = True
-                            self.save = SaveGame.SaveGame(self.screen, self.scrSize, self.level)
+                            self.save = SaveGame(self.screen, self.scrSize, self.level)
 
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_LEFT or event.key == pygame.K_RIGHT:
-                        self.level.player.stop_x()
-                    if event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                        if self.level.player.plainLevel:
-                            self.level.player.stop_y()
+                if event.type == pygame.KEYUP:                          # User released a key
+                    if event.key == pygame.K_LEFT:
+                        self.player.direction['LEFT'] = False
+                    if event.key == pygame.K_RIGHT:
+                        self.player.direction['RIGHT'] = False
+                    if event.key == pygame.K_UP:
+                        self.player.direction['UP'] = False
+                    if event.key == pygame.K_DOWN:
+                        self.player.direction['DOWN'] = False
 
         return False
 
     def run_logic(self):
-        """
-        This refresh all in-game objects and check collisions
-        """
+        """ This refresh all in-game objects and check collisions """
         # Checks if the player still lives on
         if not self.gameOver:
             if self.pauseFlag:
@@ -188,23 +181,22 @@ class Game:
                     if self.level.player.isDead:
                         self.gameOver = True
                     else:
-                        pygame.mixer.music.stop()
+                        self.soundMan.stop_music()
                         self.level = self.levels['The RING']
                         self.player.rect.x = self.level.levelInit[0]
                         self.player.rect.y = self.level.levelInit[1]
                         self.player.plainLevel = self.level.plainLevel
                         # We activate the music in the current level
                         self.level.set_theme()
-                        pygame.mixer.music.play(-1)
 
-    # This function displays all graphic resources and effects
     def display_frame(self):
+        """ This function displays all graphic resources and effects """
         self.screen.fill(COLORS['GREY'])                   # BLACK
         # Checks if the player still lives on
         if self.gameOver:
-            self.screen.blit(self.gOverText[0], [(self.scrSize[0]/2) - 45, self.scrSize[1]/2 - 50])
-            self.screen.blit(self.gOverText[1], [(self.scrSize[0]/2) - 70, self.scrSize[1]/2 - 25])
-            self.screen.blit(self.gOverText[2], [(self.scrSize[0]/2) - 50, self.scrSize[1]/2 + 50])
+            self.screen.blit(self.gOverText[0], [(self.scrSize[0] / 2) - 45, self.scrSize[1] / 2 - 50])
+            self.screen.blit(self.gOverText[1], [(self.scrSize[0] / 2) - 70, self.scrSize[1] / 2 - 25])
+            self.screen.blit(self.gOverText[2], [(self.scrSize[0] / 2) - 50, self.scrSize[1] / 2 + 50])
         else:
             self.level.display()
             # This implementation allows us to cover our game screen with the pause screen,
@@ -218,17 +210,9 @@ class Game:
         # --- This is 'update' for pygame library
         pygame.display.flip()
 
-    # Set music theme in this scene
-    def set_theme(self):
-        self.level.set_theme()
-        # pygame.mixer.music.load(self.music_dict['Main Theme'])
-        # We start later because we aren't displaying splash screen again
-        pygame.mixer.music.play(-1, 13)
-
-    # Quick game exit
     def quit_game(self):
+        """ Quick game exit """
         # We kill the music stream
-        pygame.mixer.music.stop()
-        pygame.mixer.quit()
+        self.soundMan.panic()
         self.quit_all = True
         return True

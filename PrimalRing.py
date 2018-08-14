@@ -3,12 +3,14 @@
 # ---------------------- IMPORTS ---------------------
 # Python libs
 import pygame
+import logging
 # Game libs
 from views.Title import TitleScreen
 from views.Splash import Splash
-from Game6 import Game
-from SaveGame import load_config
-from constants6 import SCR_HEIGHT, SCR_WIDTH, COLORS, FPS, ROOT, FULL_SCREEN
+from managers.SoundManager import SoundManager
+from Game import Game
+from SaveGame import SaveGame
+from constants import SCR_HEIGHT, SCR_WIDTH, COLORS, FPS, ROOT, FULL_SCREEN
 
 """ This is the main game file, where all classes and functions are
     called from. Now it's a tiny file, but we're on developing, so
@@ -37,36 +39,38 @@ def screen_set(screen_size, full_screen):
     return screen
 
 
-def configuration_preset(config, screen_size):
-    """
-    Defines some initial configuration parameters
+def configuration_preset(config, screen_size, sound_manager):
+    """ Defines some initial configuration parameters
 
     :param config: List with predefined configuration parameters
     :param screen_size: Initial dimensions
-    :return: A display instance
-    """
+    :param sound_manager: The game sound manager
+    :return: A display instance """
     if config is not None:
-        screen = screen_set(screen_size, config['full_screen'])
-        pygame.mixer.music.set_volume(config['music_volume'])
+        full_screen_val = config['full_screen']
+        sound_manager.set_music_vol(config['music_volume'])
+        sound_manager.set_fx_vol(config['fx_volume'])
     else:
-        screen = screen_set(screen_size, FULL_SCREEN)
+        full_screen_val = FULL_SCREEN
 
-    return screen
+    return screen_set(screen_size, full_screen_val)
 
 
-# MAIN FUNCTION (Here is where all actions run)
 def main():
-    # Initializing pygame and pre-initializing sound module
+    """ Here is where all actions run together """
+    # Initializing pygame
     pygame.init()
-    pygame.mixer.pre_init(44100, 16, 2, 4096)
+    # Setting general logging
+    logging.basicConfig(level=logging.INFO)
     # -------------------- Variables ---------------------
     # Setting game window's size
     scr_size = (SCR_WIDTH, SCR_HEIGHT)
-    ''' Here, we set many configuration properties, depending on our
-        config file or a group of defined values in case the config
-        file is missing '''
-    config = load_config()
-    screen = configuration_preset(config, scr_size)
+    # We get the game sound manager
+    sound_manager = SoundManager()
+    # Here, we set many configuration properties, depending on our config file or a group of defined values
+    # in case the config file is missing
+    config = SaveGame.load_config()
+    screen = configuration_preset(config, scr_size, sound_manager)
     # Setting the screen's title, game icon and hiding the mouse
     pygame.display.set_caption("Primal Ring")
     icon = pygame.image.load(f'{ROOT}/resources/images/Coin_Frames/coin.png')
@@ -78,7 +82,7 @@ def main():
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
     # Scene pointer
-    current_scene = Splash(screen, scr_size)
+    current_scene = Splash(screen, scr_size, sound_manager)
     # ---------------- MAIN PROGRAM LOOP -----------------
     while not done:
         # 1st step: Handling events
@@ -90,21 +94,21 @@ def main():
         # 4th step: Evaluating scene switching
         if switch:
             if isinstance(current_scene, Splash) and current_scene.endSplash:
-                current_scene = TitleScreen(screen, scr_size, config)
+                current_scene = TitleScreen(screen, scr_size, sound_manager, config)
             elif isinstance(current_scene, TitleScreen):
                 if current_scene.flags['NewGame']:
                     reset_flags(current_scene)
                     # We 'switch' to the game scene in a new game
-                    current_scene = Game(screen, scr_size)
+                    current_scene = Game(screen, scr_size, sound_manager)
                 elif current_scene.flags['LoadGame'][0]:
                     reset_flags(current_scene)
                     # We 'switch' to the game scene through a loaded game
-                    current_scene = Game(screen, scr_size, "Player")
+                    current_scene = Game(screen, scr_size, sound_manager, "Player")
                 elif current_scene.flags['Quit']:
                     # We exit the game
                     done = True
             elif isinstance(current_scene, Game) and not current_scene.quit_all:
-                current_scene = TitleScreen(screen, scr_size, config)
+                current_scene = TitleScreen(screen, scr_size, sound_manager, config)
                 current_scene.set_theme()
             else:
                 done = True

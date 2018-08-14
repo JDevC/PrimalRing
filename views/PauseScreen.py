@@ -2,50 +2,37 @@
 
 # ---------------------- IMPORTS ---------------------
 # Python libs
-from pygame import Surface, font, mixer
+from pygame import Surface, font
 # Own libs
-from constants6 import COLORS, SURFACE_MID_ALPHA, ANTIALIASING, ROOT
+from views.Title import _Screen
+from constants import COLORS, SURFACE_MID_ALPHA, ANTIALIASING
 
 
-class PauseScreen:
-    def __init__(self, screen, scr_size, player, debug=False):
-        """
-        This class will display our status and let us check, select and
-        use items, save our progress, checking our tasks and more things
-        I haven't thought yet. There's a minimal chance of including this
-        class on the Level file, so beware of it if you dare to contribute
-        to this project development!
+class PauseScreen(_Screen):
+    def __init__(self, screen, scr_size, sound_manager, player, debug=False):
+        """ This class will display our status and let us check, select and use items, save our progress,
+        checking our tasks and more things I haven't thought yet. There's a minimal chance of including this
+        class on the Level file, so beware of it if you dare to contribute to this project development!
 
         :param screen: A reference for the main screen
         :param scr_size: The screen size (Default: 600 * 800)
+        :param sound_manager:
         :param player: A reference to the player and his statistics
-        :param debug: Flag for debugging into the game
-        """
-        # -- Sources folders ------------------
-        sound_dir = f'{ROOT}/resources/sounds/'
-        # -- Attributes -----------------------
-        self.debug = debug
-        self.screen = screen
-        self.scrSize = scr_size
+        :param debug: Flag for debugging into the game """
+        super().__init__(screen, scr_size, sound_manager, debug)
+        self.player = player
+        # We make our background transparent
+        self.background.set_alpha(SURFACE_MID_ALPHA)
         # Cursor elements
         self.cursorSurface = Surface((170, 25))     # Pause Screen' highlight cursor
         self.cursorSurface.fill(COLORS['GREEN'])
         self.cursorSurface.set_alpha(128)
-        self.menuList = [
-            {'Name': '- Inventory', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.3]},
-            {'Name': '- Skills', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.4]},
-            {'Name': '- Options', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.5]},
-            {'Name': '- Quit', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.6]}]
-        # Sounds
-        self.selectSound = mixer.Sound(f'{sound_dir}select.ogg')
-        self.acceptSound = mixer.Sound(f'{sound_dir}accept.ogg')
+        # Menu
+        self.menuList = [{'Name': '- Inventory', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.3]},
+                         {'Name': '- Skills', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.4]},
+                         {'Name': '- Options', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.5]},
+                         {'Name': '- Quit', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.6]}]
         self.currentMenu = 0
-        # Player
-        self.player = player
-        # Setting a plane, transparent background
-        self.background = Surface(self.scrSize)
-        self.background.fill(COLORS['BLACK'])
-        self.background.set_alpha(SURFACE_MID_ALPHA)
         # Setting the text font for the pause menu
         self.font = font.SysFont('Calibri', 25, True, False)
         # Pause interface text (will include images on next versions)
@@ -89,14 +76,16 @@ class PauseScreen:
             pass
 
     def go_down(self):
-        self.selectSound.play()
+        """ Moves the pause screen cursor to the immediate inferior position """
+        self.soundMan.play_fx('Select')
         if self.currentMenu == len(self.menuList) - 1:
             self.currentMenu = 0
         else:
             self.currentMenu += 1
 
     def go_up(self):
-        self.selectSound.play()
+        """ Moves the pause screen cursor to the immediate superior position """
+        self.soundMan.play_fx('Select')
         if self.currentMenu == 0:
             self.currentMenu = len(self.menuList) - 1
         else:

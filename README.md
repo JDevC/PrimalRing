@@ -84,6 +84,6 @@ Brews:
 - Nesquik: About 60 pints consumed
 
 Music:
-- Soulitude: For being such an inspirational music band (honestly, I've
-             fixed almost every bug into the game by listening at you,
-             guys)
+- Soulitude: For being such an inspirational music band (honestly, I've fixed almost every bug into the game
+             by listening to you, guys)
+- Two Steps From Hell: A really nice choice for coding mood. Feels like you're coding the most epic program ever.
