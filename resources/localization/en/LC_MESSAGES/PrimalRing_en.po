@@ -1,0 +1,124 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR ORGANIZATION
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"POT-Creation-Date: 2018-08-14 15:07+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=utf-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Generated-By: pygettext.py 1.5\n"
+
+# ------------------------------ Title Screen ------------------------------
+
+#: ..\..\views\Title.py:70
+msgid "New Game"
+msgstr "New Game"
+
+#: ..\..\views\Title.py:74
+msgid "Load Game"
+msgstr "Load Game"
+
+#: ..\..\views\Title.py:78
+msgid "Options"
+msgstr "Options"
+
+#: ..\..\views\Title.py:82
+msgid "Quit"
+msgstr "Quit"
+
+# ------------------------------ Options Screen ------------------------------
+
+#: ..\..\views\Title.py:283
+msgid "FullScreen"
+msgstr "FullScreen"
+
+#: ..\..\views\Title.py:287
+msgid "Music Volume"
+msgstr "Music Volume"
+
+#: ..\..\views\Title.py:291
+msgid "Effects Volume"
+msgstr "Effects Volume"
+
+#: ..\..\views\Title.py:295
+msgid "Language"
+msgstr "Language"
+
+#: ..\..\views\Title.py:386
+msgid "English"
+msgstr "English"
+
+#: ..\..\views\Title.py:387
+msgid "Spanish"
+msgstr "Spanish"
+
+#: ..\..\views\Title.py:299
+msgid "Gallery"
+msgstr "Gallery"
+
+#: ..\..\views\Title.py:303
+msgid "Credits"
+msgstr "Credits"
+
+#: ..\..\views\Title.py:307
+msgid "Back to Main Menu"
+msgstr "Back to Main Menu"
+
+# ------------------------------ Save Screen ------------------------------
+
+#: ..\..\SaveGame.py:43
+msgid "Looking at this glittering spot fills you with det... "
+msgstr "Looking at this glittering spot fills you with det... "
+
+#: ..\..\SaveGame.py:45
+msgid "oh, wait, we don't want to be accused of plagiarism!"
+msgstr "oh, wait, we don't want to be accused of plagiarism!"
+
+#: ..\..\SaveGame.py:46
+msgid "Do you want to save your game? Y: Yes; N: No"
+msgstr "Do you want to save your game? Y: Yes; N: No"
+
+#: ..\..\SaveGame.py:47
+msgid "Game saved!"
+msgstr "Game saved!"
+
+# ------------------------------ Pause Screen ------------------------------
+
+#: ..\..\views\PauseScreen.py:35
+msgid "- Inventory"
+msgstr "- Inventory"
+
+#: ..\..\views\PauseScreen.py:36
+msgid "- Skills"
+msgstr "- Skills"
+
+#: ..\..\views\PauseScreen.py:37
+msgid "- Options"
+msgstr "- Options"
+
+#: ..\..\views\PauseScreen.py:38
+msgid "- Quit"
+msgstr "- Quit"
+
+#: ..\..\views\PauseScreen.py:49
+msgid "PAUSE"
+msgstr "PAUSE"
+
+#: ..\..\views\PauseScreen.py:50
+msgid "Life: {0}/{1}"
+msgstr "Life: {0}/{1}"
+
+#: ..\..\views\PauseScreen.py:52
+msgid "Energy: {0}/{1}"
+msgstr "Energy: {0}/{1}"
+
+#: ..\..\views\PauseScreen.py:54
+msgid "Coins: {0}/{1}"
+msgstr "Coins: {0}/{1}"
+

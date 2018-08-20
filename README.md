@@ -7,8 +7,6 @@ You can't even go on a boat because of you getting ill from the waves. And now, 
 In addition, the voices from the speakers command you to travel to a set of planets in their place. "You are the most disposable
 being in this station for the task.", they said. They're truly kind people.
 
-----------------------------------------------------------------------------------------------------------------------
-
 In this adventure, you'll have the duty of travel across the Primal Solar System looking for strange, powerful mineral shards
 required by your captors. Beware! These planets are wild and unknown, but no one asserts they are deserted...
 
@@ -16,8 +14,6 @@ Besides, can you trust on your misterious captors? They've never shown themselve
 or another kind of creature. They seem to be too much shy for those who have captured you.
 
 Go, face the duty! Stay alive!
-
-----------------------------------------------------------------------------------------------------------------------
 
 ## CONTROLS
 
@@ -62,15 +58,26 @@ That's all for now! I'm working on new features, stay tunned for news :D
 Moreover, I'll consider to make a wiki, in order to build a better-structured
 and comprehensive documentation ^-^
 
-----------------------------------------------------------------------------------------------------------------------
+## TRANSLATIONS
+
+Primal Ring comes with a new feature now: You're not bounded to English language anymore!
+
+A new language option is included in the options' screen in order to let you change it. Unfortunately, albhed,
+klingon or simlish are not included between the options :(
+
+Available language list:
+- English
+- Spanish
+
+(In fact, these are the only translations for now, we're working on it. If you want to contribute, feel free
+to tell us ^-^)
+
 ## RESOURCES
 
 I've included a text file in which I've detailed my font and sound external
 resources for the game. Although I'm not including those external files into
 the repository (those what I include are created on my own), I want to guide
 others in order to allow them add effects easily.
-
-----------------------------------------------------------------------------------------------------------------------
 
 ## GREETINGS
 

@@ -28,9 +28,9 @@ class Game:
         self.gameOver = False
         self.quit_all = False
         # GAME OVER text
-        self.gOverText = [self.font.render("GAME OVER", ANTIALIASING, COLORS['WHITE']),
-                          self.font.render("Want to try again?", ANTIALIASING, COLORS['WHITE']),
-                          self.font.render("Yes / No", ANTIALIASING, COLORS['WHITE'])]
+        self.gOverText = [self.font.render(_("GAME OVER"), ANTIALIASING, COLORS['WHITE']),
+                          self.font.render(_("Want to try again?"), ANTIALIASING, COLORS['WHITE']),
+                          self.font.render(_("Yes / No"), ANTIALIASING, COLORS['WHITE'])]
         # PAUSE elements
         self.pause = None
         self.pauseFlag = False                                          # Well, this is obvious
@@ -87,13 +87,13 @@ class Game:
                         self.pauseFlag = False                          # Exits the pause screen
                     elif event.key == pygame.K_RETURN:
                         self.pause.soundMan.play_fx('Accept')
-                        if self.pause.menuList[self.pause.currentMenu]['Name'] == '- Inventory':
+                        if self.pause.menuList[self.pause.currentMenu]['Name'] == _("- Inventory"):
                             print("Accessing inventory... soon!")
-                        elif self.pause.menuList[self.pause.currentMenu]['Name'] == '- Skills':
+                        elif self.pause.menuList[self.pause.currentMenu]['Name'] == _("- Skills"):
                             print("Accessing skill board... soon!")
-                        elif self.pause.menuList[self.pause.currentMenu]['Name'] == '- Options':
+                        elif self.pause.menuList[self.pause.currentMenu]['Name'] == _("- Options"):
                             print("Accessing options... soon!")
-                        elif self.pause.menuList[self.pause.currentMenu]['Name'] == '- Quit':
+                        elif self.pause.menuList[self.pause.currentMenu]['Name'] == _("- Quit"):
                             return True
         # Save screen
         elif self.saveFlag:

@@ -28,19 +28,22 @@ class PauseScreen(_Screen):
         self.cursorSurface.fill(COLORS['GREEN'])
         self.cursorSurface.set_alpha(128)
         # Menu
-        self.menuList = [{'Name': '- Inventory', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.3]},
-                         {'Name': '- Skills', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.4]},
-                         {'Name': '- Options', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.5]},
-                         {'Name': '- Quit', 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.6]}]
+        self.menuList = [{'Name': _("- Inventory"), 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.3]},
+                         {'Name': _("- Skills"), 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.4]},
+                         {'Name': _("- Options"), 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.5]},
+                         {'Name': _("- Quit"), 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.6]}]
         self.currentMenu = 0
         # Setting the text font for the pause menu
         self.font = font.SysFont('Calibri', 25, True, False)
         # Pause interface text (will include images on next versions)
         self.pauseText = [
-            self.font.render("PAUSE", ANTIALIASING, COLORS['WHITE']),
-            self.font.render(f'Life: {self.player.life}/{self.player.maxLife}', ANTIALIASING, COLORS['WHITE']),
-            self.font.render(f'Energy: {self.player.energy}/{self.player.maxEnergy}', ANTIALIASING, COLORS['WHITE']),
-            self.font.render(f'Coins: {self.player.coins}/{self.player.maxWallet}', ANTIALIASING, COLORS['WHITE'])]
+            self.font.render(_("PAUSE"), ANTIALIASING, COLORS['WHITE']),
+            self.font.render(_("Life: {0}/{1}").format(self.player.life, self.player.maxLife),
+                             ANTIALIASING, COLORS['WHITE']),
+            self.font.render(_("Energy: {0}/{1}").format(self.player.energy, self.player.maxEnergy),
+                             ANTIALIASING, COLORS['WHITE']),
+            self.font.render(_("Coins: {0}/{1}").format(self.player.coins, self.player.maxWallet),
+                             ANTIALIASING, COLORS['WHITE'])]
 
         for x in self.menuList:
             self.pauseText.append(self.font.render(x['Name'], ANTIALIASING, COLORS['WHITE']))

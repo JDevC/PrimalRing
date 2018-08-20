@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 
-# ---------------------- IMPORTS ---------------------
-# Python libs
+# -- Python libs --
 from pygame import Surface, font
 import pickle
 import json
 import logging
+# import gettext
 from os import walk
-# Own libs
+# -- Own libs --
 from constants import COLORS, SURFACE_MID_ALPHA, ANTIALIASING, ROOT
 
 
@@ -23,6 +23,8 @@ class SaveGame:
         :param debug: Flag for debugging into the game
         """
         # ------ Attributes -----------------------
+        # _ = gettext.translation(f"{ROOT}/resources/localization/save_game")
+
         self.screen = screen
         self.level = level
         self.debug = debug
@@ -35,10 +37,12 @@ class SaveGame:
         # Save interface text (will include images on next versions)
         self.game_saved = False
         self.saveText = [
-            self.font.render("Looking at this glittering spot fills you with det... ", ANTIALIASING, COLORS['WHITE']),
-            self.font.render("oh, wait, we don't want to be accused of plagiarism!", ANTIALIASING, COLORS['WHITE']),
-            self.font.render("Do you want to save your game? Y: Yes; N: No", ANTIALIASING, COLORS['WHITE']),
-            self.font.render("Game saved!", ANTIALIASING, COLORS['WHITE'])]
+            self.font.render(_("Looking at this glittering spot fills you with det... "),
+                             ANTIALIASING, COLORS['WHITE']),
+            self.font.render(_("oh, wait, we don't want to be accused of plagiarism!"),
+                             ANTIALIASING, COLORS['WHITE']),
+            self.font.render(_("Do you want to save your game? Y: Yes; N: No"), ANTIALIASING, COLORS['WHITE']),
+            self.font.render(_("Game saved!"), ANTIALIASING, COLORS['WHITE'])]
 
         if self.debug:
             pass
@@ -145,7 +149,7 @@ class SaveGame:
             cls.LOGGER.warning(f"Game configuration couldn't be loaded: {ose}")
 
     @classmethod
-    def save_changes(cls, full_screen, music_vol, fx_vol):
+    def save_changes(cls, full_screen, music_vol, fx_vol, lang):
         """ This function saves all config changes into the config file
 
         :param full_screen:
@@ -154,7 +158,8 @@ class SaveGame:
         """
         try:
             with open(f'{ROOT}/config.json', "w") as file:
-                json.dump({"full_screen": full_screen, "music_volume": music_vol, "fx_volume": fx_vol}, file)
+                json.dump({"full_screen": full_screen, "music_volume": music_vol, "fx_volume": fx_vol, "lang": lang},
+                          file)
                 cls.LOGGER.info("Game configuration saved successfully!")
         except FileNotFoundError as fnf:
             # This exception can be reached if the user is playing a new game, or if anyone has messed up
