@@ -1,13 +1,11 @@
 #!/usr/bin/env python3
-
-# -- Python libs --
+# -*- coding: utf-8 -*-
+import pygame
 from pygame import Surface, font
 import pickle
 import json
 import logging
-# import gettext
 from os import walk
-# -- Own libs --
 from constants import COLORS, SURFACE_MID_ALPHA, ANTIALIASING, ROOT
 
 
@@ -23,8 +21,7 @@ class SaveGame:
         :param debug: Flag for debugging into the game
         """
         # ------ Attributes -----------------------
-        # _ = gettext.translation(f"{ROOT}/resources/localization/save_game")
-
+        self.quit_all = self.resume = False
         self.screen = screen
         self.level = level
         self.debug = debug
@@ -47,7 +44,28 @@ class SaveGame:
         if self.debug:
             pass
 
-    # ---------- Methods --------------------------
+    # --------------- MAIN FLOW ---------------------
+    def event_handler(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                self.quit_all = True
+                return True
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_TAB or event.key == pygame.K_n:
+                    self.resume = True
+                    return True
+                elif event.key == pygame.K_UP:
+                    pass
+                elif event.key == pygame.K_DOWN:
+                    pass
+                elif event.key == pygame.K_y:  # 's' key
+                    self.save_file()
+                    # Game saved (Pfffiuuuu... what a relief)
+                    self.resume = True
+                    return True
+
+        return False
+
     def update(self):
         # WIP
         pass
@@ -60,7 +78,6 @@ class SaveGame:
         if self.debug:
             pass
 
-    # Function for saving a game file
     def save_file(self):
         """ It gathers all game statistics we need to save and pushes them into a game file. Phew, that was close... """
         player_status = {"Name": self.level.player.name,
@@ -86,7 +103,7 @@ class SaveGame:
             self.LOGGER.error(f"The game couldn't be saved: {pe}")
 
     @classmethod
-    def load_file(cls, name):
+    def load_file(cls, name: str):
         """ Function for loading a game file. This needs a revision, I'm not sure about this implementation.
         It works, by the way.
 
@@ -149,13 +166,7 @@ class SaveGame:
             cls.LOGGER.warning(f"Game configuration couldn't be loaded: {ose}")
 
     @classmethod
-    def save_changes(cls, full_screen, music_vol, fx_vol, lang):
-        """ This function saves all config changes into the config file
-
-        :param full_screen:
-        :param music_vol:
-        :param fx_vol:
-        """
+    def save_config(cls, full_screen: bool, music_vol: float, fx_vol: float, lang: str):
         try:
             with open(f'{ROOT}/config.json', "w") as file:
                 json.dump({"full_screen": full_screen, "music_volume": music_vol, "fx_volume": fx_vol, "lang": lang},

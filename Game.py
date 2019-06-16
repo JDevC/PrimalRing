@@ -1,18 +1,18 @@
 #!/usr/bin/env python3
-
-# ---------------------- IMPORTS ---------------------
-# Python libs
+# -*- coding: utf-8 -*-
 import pygame
-# Own libs
 from SaveGame import SaveGame
-from models.Block import Player
-from models.Level import Level1, Level2
+from models.Bodies.PlayerBody import PlayerBody
+from models.Level.Level1 import Level1
+from models.Level.Level2 import Level2
 from views.PauseScreen import PauseScreen
 from constants import COLORS, PLAYER_SIZE, ANTIALIASING, DEBUG
+from dataclasses import dataclass
+from typing import Any
 
 
 class Game:
-    def __init__(self, screen, scr_size, sound_manager, saved_state_name=None):
+    def __init__(self, screen, scr_size, sound_manager, image_manager, saved_state_name: str = None):
         """ This is the general manager game class. It has the main functions and attributes which rule above
         all the rest.
 
@@ -20,199 +20,157 @@ class Game:
         :param scr_size:
         :param saved_state_name: """
         # Main game attributes
-        self.screen = screen
-        self.scrSize = scr_size
-        self.soundMan = sound_manager
-        self.font = pygame.font.SysFont('Calibri', 25, True, False)
+        self._screen = screen
+        self._scrSize = scr_size
+        self._soundMan = sound_manager
+        self._imgMan = image_manager
+        self._font = pygame.font.SysFont('Calibri', 25, True, False)
         # Endgame (also a truly brutal Megadeth album)
         self.gameOver = False
         self.quit_all = False
         # GAME OVER text
-        self.gOverText = [self.font.render(_("GAME OVER"), ANTIALIASING, COLORS['WHITE']),
-                          self.font.render(_("Want to try again?"), ANTIALIASING, COLORS['WHITE']),
-                          self.font.render(_("Yes / No"), ANTIALIASING, COLORS['WHITE'])]
-        # PAUSE elements
-        self.pause = None
-        self.pauseFlag = False                                          # Well, this is obvious
-        # SAVE GAME elements
-        self.save = None
-        self.saveFlag = False                                           # Well, this is obvious
+        self.gOverText = [self._font.render(_("GAME OVER"), ANTIALIASING, COLORS['WHITE']),
+                          self._font.render(_("Want to try again?"), ANTIALIASING, COLORS['WHITE']),
+                          self._font.render(_("Yes / No"), ANTIALIASING, COLORS['WHITE'])]
+        self._pause = self.ScreenHolder()
+        self._save = self.ScreenHolder()
         # Game loading
-        saved_state = None
-        if saved_state_name is not None:
-            saved_state = SaveGame.load_file(saved_state_name)
+        saved_state = saved_state_name if saved_state_name is None else SaveGame.load_file(saved_state_name)
         # Player
-        self.player = Player(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, sound_manager, saved_state)
+        self.player = PlayerBody(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, sound_manager, image_manager, saved_state)
         # Levels
-        self.levels = {"Doom Valley": Level1(screen, scr_size, sound_manager, self.player, DEBUG),
-                       "The RING": Level2(screen, scr_size, sound_manager, self.player, DEBUG)}
-        if saved_state is not None:
-            # You've a game saved, so you start in the level and position stored
-            self.level = self.levels[saved_state['Level']['ID']]
-            self.player.rect.x = saved_state['Level']['PositionX']
-            self.player.rect.y = saved_state['Level']['PositionY']
-        else:
-            # Don't have a game file? You start where everyone does (We respect and support equality)
-            self.level = self.levels['Doom Valley']
-            self.player.rect.x = self.level.levelInit[0]
-            self.player.rect.y = self.level.levelInit[1]
-
-        self.player.plainLevel = self.level.plainLevel
+        self.levels = {"Doom Valley": Level1(screen, scr_size, sound_manager, image_manager, self.player, DEBUG),
+                       "The RING": Level2(screen, scr_size, sound_manager, image_manager, self.player, DEBUG)}
+        self._init_player_location(saved_state, self.player, self.levels)
         # We activate the music in the current level
-        self.level.set_theme()
+        self._level.set_theme()
 
-    # ---------- Methods ----------------------
+    @dataclass
+    class ScreenHolder:
+        screen: Any = None
+        flag: bool = False
+
+    # ---------- Public Methods ----------------------
     def event_handler(self):
-        """ Manages all events in game
-
-        :return: True if the player wants to exit the game; False otherwise """
-        # Pause screen
-        if self.pauseFlag:
-            for event in pygame.event.get():                            # User did something
-                if event.type == pygame.QUIT:                           # If user clicked close
-                    return self.quit_game()                             # We are done so we exit this loop
-                # Incoming functionality on next versions!
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_LEFT:
-                        pass
-                    elif event.key == pygame.K_RIGHT:
-                        pass
-                    elif event.key == pygame.K_UP:
-                        self.pause.go_up()
-                    elif event.key == pygame.K_DOWN:
-                        self.pause.go_down()
-                    elif event.key == pygame.K_p:
-                        # We resume the music streaming
-                        self.soundMan.pause_music(False)
-                        self.pauseFlag = False                          # Exits the pause screen
-                    elif event.key == pygame.K_RETURN:
-                        self.pause.soundMan.play_fx('Accept')
-                        if self.pause.menuList[self.pause.currentMenu]['Name'] == _("- Inventory"):
-                            print("Accessing inventory... soon!")
-                        elif self.pause.menuList[self.pause.currentMenu]['Name'] == _("- Skills"):
-                            print("Accessing skill board... soon!")
-                        elif self.pause.menuList[self.pause.currentMenu]['Name'] == _("- Options"):
-                            print("Accessing options... soon!")
-                        elif self.pause.menuList[self.pause.currentMenu]['Name'] == _("- Quit"):
-                            return True
-        # Save screen
-        elif self.saveFlag:
-            for event in pygame.event.get():                            # User did something
-                if event.type == pygame.QUIT:                           # If user clicked close
-                    return self.quit_game()                             # We are done so we exit this loop
-                # Incoming functionality on next versions!
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_TAB:                         # 'TAB' key
-                        # We clean all flags and the save screen object
-                        self.saveFlag = False
-                        self.level.player.saveFlag = False
-                        self.save = None
-                    elif event.key == pygame.K_UP:
-                        pass
-                    elif event.key == pygame.K_DOWN:
-                        pass
-                    elif event.key == pygame.K_y:                       # 's' key
-                        # This saves your game!
-                        self.save.save_file()
-                        # Game saved (Pfffiuuuu... what a relief)
-                        self.saveFlag = False
-                        self.level.player.saveFlag = False
-                        self.save = None
-                        pass
-                    elif event.key == pygame.K_n:                       # 'n' key
-                        # This avoids your game for being saved!
-                        # You have a confident will, don't you?
-                        self.saveFlag = False
-                        self.level.player.saveFlag = False
-                        self.save = None
-        # Game Screen
+        if self._pause.flag:
+            return self._handle_screen_events(self._pause, self._pause_screen_cleaning)
+        elif self._save.flag:
+            return self._handle_screen_events(self._save, self._save_screen_cleaning)
         else:
-            for event in pygame.event.get():                            # User did something
-                if event.type == pygame.QUIT:                           # If user clicked close
-                    return self.quit_game()                             # We are done so we exit this loop
-                if event.type == pygame.KEYDOWN:                        # User hit a key
-                    if event.key == pygame.K_LEFT:                      # <-
-                        self.player.direction['LEFT'] = True
-                        self.player.direction['RIGHT'] = not self.player.direction['LEFT']
-                    if event.key == pygame.K_RIGHT:                     # ->
-                        self.player.direction['RIGHT'] = True
-                        self.player.direction['LEFT'] = not self.player.direction['RIGHT']
-                    if event.key == pygame.K_UP:
-                        self.player.direction['UP'] = True
-                    if event.key == pygame.K_DOWN:
-                        self.player.direction['DOWN'] = True
-                    if event.key == pygame.K_p:                           # 'p' key
-                        # We pause the music streaming
-                        self.soundMan.pause_music()
-                        self.pauseFlag = True
-                        self.pause = PauseScreen(self.screen, self.scrSize, self.soundMan, self.level.player)
-                    if event.key == pygame.K_TAB:                         # 'TAB' key
-                        if self.level.player.saveFlag:
-                            self.saveFlag = True
-                            self.save = SaveGame(self.screen, self.scrSize, self.level)
-
-                if event.type == pygame.KEYUP:                          # User released a key
-                    if event.key == pygame.K_LEFT:
-                        self.player.direction['LEFT'] = False
-                    if event.key == pygame.K_RIGHT:
-                        self.player.direction['RIGHT'] = False
-                    if event.key == pygame.K_UP:
-                        self.player.direction['UP'] = False
-                    if event.key == pygame.K_DOWN:
-                        self.player.direction['DOWN'] = False
-
-        return False
+            return self._handle_game_screen_events()
 
     def run_logic(self):
-        """ This refresh all in-game objects and check collisions """
-        # Checks if the player still lives on
         if not self.gameOver:
-            if self.pauseFlag:
-                self.pause.update()
-            elif self.saveFlag:
-                pass
+            if self._pause.flag:
+                self._pause.screen.update()
+            elif self._save.flag:
+                self._save.screen.update()
             else:
                 # Updates all sprites and checks if the player has made a level change
-                update = self.level.update()
-                if update:
+                level_completed = self._level.update()
+                if level_completed:
                     # It swaps into another level.
                     # This point needs a revision: our game map should consist on a central level from where
                     # we can travel into the others, but at least it's a beginning
-                    if self.level.player.isDead:
+                    if self._level.player.isDead:
                         self.gameOver = True
                     else:
-                        self.soundMan.stop_music()
-                        self.level = self.levels['The RING']
-                        self.player.rect.x = self.level.levelInit[0]
-                        self.player.rect.y = self.level.levelInit[1]
-                        self.player.plainLevel = self.level.plainLevel
+                        self._soundMan.stop_music()
+                        self._level = self.levels['The RING']
+                        self.player.rect.x = self._level.levelInit[0]
+                        self.player.rect.y = self._level.levelInit[1]
+                        self.player.plainLevel = self._level.plainLevel
                         # We activate the music in the current level
-                        self.level.set_theme()
+                        self._level.set_theme()
 
     def display_frame(self):
         """ This function displays all graphic resources and effects """
-        self.screen.fill(COLORS['GREY'])                   # BLACK
+        self._screen.fill(COLORS['GREY'])                   # BLACK
         # Checks if the player still lives on
         if self.gameOver:
-            self.screen.blit(self.gOverText[0], [(self.scrSize[0] / 2) - 45, self.scrSize[1] / 2 - 50])
-            self.screen.blit(self.gOverText[1], [(self.scrSize[0] / 2) - 70, self.scrSize[1] / 2 - 25])
-            self.screen.blit(self.gOverText[2], [(self.scrSize[0] / 2) - 50, self.scrSize[1] / 2 + 50])
+            self._screen.blit(self.gOverText[0], [(self._scrSize[0] / 2) - 45, self._scrSize[1] / 2 - 50])
+            self._screen.blit(self.gOverText[1], [(self._scrSize[0] / 2) - 70, self._scrSize[1] / 2 - 25])
+            self._screen.blit(self.gOverText[2], [(self._scrSize[0] / 2) - 50, self._scrSize[1] / 2 + 50])
         else:
-            self.level.display()
-            # This implementation allows us to cover our game screen with the pause screen,
+            self._level.display()
+            # This logic allows us to cover our game screen with the pause screen,
             # stopping all mechanics and events in game except those who are involved in the
             # pause screen logic flow, but also letting us to see a static impression of the
             # game behind the pause screen.
-            if self.pauseFlag:
-                self.pause.display()
-            elif self.saveFlag:
-                self.save.display()
+            if self._pause.flag:
+                self._pause.screen.display()
+            elif self._save.flag:
+                self._save.screen.display()
         # --- This is 'update' for pygame library
         pygame.display.flip()
 
     def quit_game(self):
-        """ Quick game exit """
-        # We kill the music stream
-        self.soundMan.panic()
+        self._soundMan.panic()
         self.quit_all = True
         return True
+
+    # ---------- Internal Methods ----------------------
+    def _init_player_location(self, saved_state: dict, player, levels: dict):
+        if saved_state is not None:
+            # You've a game saved, so you start in the level and position stored
+            self._level = levels[saved_state['Level']['ID']]
+            player.rect.x = saved_state['Level']['PositionX']
+            player.rect.y = saved_state['Level']['PositionY']
+        else:
+            # Don't have a game file? You start where everyone does (We respect and support equality)
+            self._level = levels['Doom Valley']
+            player.rect.x = self._level.levelInit[0]
+            player.rect.y = self._level.levelInit[1]
+
+        player.plainLevel = self._level.plainLevel
+
+    def _handle_screen_events(self, screen_holder: ScreenHolder, callback):
+        if screen_holder.screen.event_handler():
+            if screen_holder.screen.quit_all:
+                return self.quit_game()
+            elif screen_holder.screen.resume:
+                callback()
+                return False
+            else:
+                return True
+
+    def _save_screen_cleaning(self):
+        self._level.player.saveFlag = False
+        self._save = self.ScreenHolder()
+
+    def _pause_screen_cleaning(self):
+        self._pause = self.ScreenHolder()
+
+    def _handle_game_screen_events(self):
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return self.quit_game()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_LEFT:
+                    self.player.direction.left = True
+                    self.player.direction.right = not self.player.direction.left
+                if event.key == pygame.K_RIGHT:
+                    self.player.direction.right = True
+                    self.player.direction.left = not self.player.direction.right
+                if event.key == pygame.K_UP:
+                    self.player.direction.up = True
+                if event.key == pygame.K_DOWN:
+                    self.player.direction.down = True
+                if event.key == pygame.K_p:
+                    screen = PauseScreen(self._screen, self._scrSize, self._soundMan, self._level.player)
+                    self._pause = self.ScreenHolder(screen, True)
+                if event.key == pygame.K_TAB:
+                    if self._level.player.saveFlag:
+                        self._save = self.ScreenHolder(SaveGame(self._screen, self._scrSize, self._level), True)
+
+            if event.type == pygame.KEYUP:
+                if event.key == pygame.K_LEFT:
+                    self.player.direction.left = False
+                if event.key == pygame.K_RIGHT:
+                    self.player.direction.right = False
+                if event.key == pygame.K_UP:
+                    self.player.direction.up = False
+                if event.key == pygame.K_DOWN:
+                    self.player.direction.down = False
+
+        return False

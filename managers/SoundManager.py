@@ -1,30 +1,29 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 from pygame import mixer
+import logging
 from constants import ROOT
 
 
 class SoundManager:
-    __slots__ = ['_soundDir', '_musicTracks', '_fxTracks', '_levelFxTracks']
+    __slots__ = ['_mixer', '_soundDir', '_musicTracks', '_fxTracks', '_levelFxTracks']
+    LOGGER = logging.getLogger(__name__)
 
     def __init__(self):
         """ This is a little manager class for all sound & music in game. All things involving sound and music
         handling should refer to the SoundManager in order to keep the code clean and easy to follow """
         mixer.pre_init(frequency=44100, size=16)
+        self._mixer = mixer
         self._soundDir = f'{ROOT}/resources/sounds/'
-        music_dir = f'{ROOT}/resources/music/'
-        self._musicTracks = {'Main Theme': f'{music_dir}strike_the_earth.ogg',
-                             'Doom Valley': f'{music_dir}doom_valley.ogg',
-                             'The RING': f'{music_dir}the_ring.ogg'}
-        self._fxTracks = {'Select': mixer.Sound(f'{self._soundDir}select.ogg'),
-                          'Accept': mixer.Sound(f'{self._soundDir}accept.ogg'),
-                          'Cancel': mixer.Sound(f'{self._soundDir}cancel.ogg'),
-                          'Coin': mixer.Sound(f'{self._soundDir}coin.wav')}
+        self._musicTracks = self._init_music_tracks_dict(f'{ROOT}/resources/music/')
+        self._fxTracks = self._init_fx_tracks_dict(self._soundDir)
         self._levelFxTracks = {}
 
+    # ------------- Public Methods -------------
     def get_fx_vol(self):
         return self._fxTracks.get('Select').get_volume()
 
-    def set_fx_vol(self, value, track_name=None):
+    def set_fx_vol(self, value: float, track_name: str = None):
         """ Defines a new fx volume for all tracks or the specified one
 
         :param value: Volume value
@@ -36,36 +35,45 @@ class SoundManager:
             self._fxTracks.get(track_name).set_volume(value)
 
     def set_level_tracks(self, tracks: {}) -> None:
-        self._levelFxTracks = {name: mixer.Sound(f'{self._soundDir}{fx}') for name, fx in tracks.items()}
+        del self._levelFxTracks
+        self._levelFxTracks = {name: self._mixer.Sound(f'{self._soundDir}{fx}') for name, fx in tracks.items()}
 
-    @staticmethod
-    def get_music_vol():
-        return mixer.music.get_volume()
+    def music_fadeout(self, seconds: int):
+        self._mixer.music.fadeout(seconds)
 
-    @staticmethod
-    def set_music_vol(value):
-        """ Defines a music volume
+    def get_music_vol(self) -> float:
+        return self._mixer.music.get_volume()
 
-        :param value: Volume value """
-        mixer.music.set_volume(value)
+    def set_music_vol(self, value) -> None:
+        self._mixer.music.set_volume(value)
 
-    def play_fx(self, name):
+    def play_fx(self, name: str) -> None:
         self._fxTracks[name].play()
 
-    def play_music(self, name, start=0):
-        mixer.music.load(self._musicTracks[name])
-        mixer.music.play(-1, start)
+    def play_music(self, name: str, start: float = 0) -> None:
+        self._mixer.music.load(self._musicTracks[name])
+        self._mixer.music.play(-1, start)
 
-    @staticmethod
-    def pause_music(pause=True):
-        mixer.music.pause() if pause else mixer.music.unpause()
+    def pause_music(self, pause: bool = True) -> None:
+        self._mixer.music.pause() if pause else self._mixer.music.unpause()
 
-    @staticmethod
-    def stop_music():
-        mixer.music.stop()
+    def stop_music(self):
+        self._mixer.music.stop()
 
-    @staticmethod
-    def panic():
+    def panic(self):
         """ It stops the music module """
-        mixer.music.stop()
-        mixer.quit()
+        self._mixer.music.stop()
+        self._mixer.quit()
+
+    # ------------- Internal Methods -------------
+    @staticmethod
+    def _init_music_tracks_dict(music_dir):
+        return {'Main Theme': f'{music_dir}strike_the_earth.ogg',
+                'Doom Valley': f'{music_dir}doom_valley.ogg',
+                'The RING': f'{music_dir}the_ring.ogg'}
+
+    def _init_fx_tracks_dict(self, sound_dir):
+        return {'Select': self._mixer.Sound(f'{sound_dir}select.ogg'),
+                'Accept': self._mixer.Sound(f'{sound_dir}accept.ogg'),
+                'Cancel': self._mixer.Sound(f'{sound_dir}cancel.ogg'),
+                'Coin': self._mixer.Sound(f'{sound_dir}coin.wav')}
