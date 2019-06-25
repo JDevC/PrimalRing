@@ -7,10 +7,8 @@ from constants import COLORS, SURFACE_MID_ALPHA, ANTIALIASING, VOLUME_BAR, SLIDE
 
 
 class OptionsScreen(_Screen):
-    def __init__(self, screen, scr_size, sound_manager, lang_manager, config, font, debug: bool = False):
-        super().__init__(screen, scr_size, sound_manager, debug)
-
-        self.langMan = lang_manager
+    def __init__(self, screen, scr_size, managers, config, font, debug: bool = False):
+        super().__init__(screen, scr_size, managers, debug)
         self.font = font
         # Options interface text (will include images on next versions)
         self.optionList, self.optText, self.currentMenu = self._init_ui_text(self.font)
@@ -27,10 +25,10 @@ class OptionsScreen(_Screen):
         # Setting GUI controls
         if config is not None:
             self.fullScreenFlag = config['full_screen']
-            self.soundMan.set_music_vol(config['music_volume'])
+            self._managers.sound.set_music_vol(config['music_volume'])
             self.musicSliderPoint = [self.optionList[1]['Position'][0] + 220 + (config['music_volume'] / self.volRatio),
                                      self.optionList[1]['Position'][1]]
-            self.soundMan.set_fx_vol(config['fx_volume'])
+            self._managers.sound.set_fx_vol(config['fx_volume'])
             self.fxSliderPoint = [self.optionList[2]['Position'][0] + 220 + (config['fx_volume'] / self.volRatio),
                                   self.optionList[2]['Position'][1]]
             self.currentLang = self.langUtils.set_index(config["lang"])
@@ -138,11 +136,11 @@ class OptionsScreen(_Screen):
                 elif e.key == pygame.K_LEFT:
                     self._change_language(self.langUtils.prev_index, self.currentLang, 1)
                 elif e.key == pygame.K_ESCAPE:
-                    self.soundMan.play_fx('Cancel')
+                    self._managers.sound.play_fx('Cancel')
                     return True
                 elif e.key == pygame.K_RETURN:
                     if self.optionList[self.currentMenu]["ID"] == "Back":
-                        self.soundMan.play_fx('Accept')
+                        self._managers.sound.play_fx('Accept')
                         self._save_config()
                         return True
                     elif self.optionList[self.currentMenu]["ID"] == "FullScreen":
@@ -171,7 +169,7 @@ class OptionsScreen(_Screen):
             self._slider_to_left(self.optionList[self.currentMenu])
         # Language change
         if self.langUtils.has_changed(self.currentLang):
-            self.langMan.set_lang(self.langUtils.get_id(self.currentLang))
+            self._managers.localization.set_lang(self.langUtils.get_id(self.currentLang))
 
             self.optionList, self.optText, self.currentMenu = self._init_ui_text(self.font, True)
             self.langUtils.refresh(self.font)
@@ -210,22 +208,22 @@ class OptionsScreen(_Screen):
 
     # ----------------------------- METHODS -----------------------------
     def _go_down(self):
-        self.soundMan.play_fx('Select')
+        self._managers.sound.play_fx('Select')
         self.currentMenu = 0 if self.currentMenu == len(self.optionList) - 1 else self.currentMenu + 1
 
     def _go_up(self):
-        self.soundMan.play_fx('Select')
+        self._managers.sound.play_fx('Select')
         self.currentMenu = len(self.optionList) - 1 if self.currentMenu == 0 else self.currentMenu - 1
 
     def _switch_full_screen(self, full_screen: bool = False):
         if self.optionList[self.currentMenu]["ID"] == "FullScreen":
-            self.soundMan.play_fx('Accept')
+            self._managers.sound.play_fx('Accept')
             self.fullScreenFlag = full_screen
 
     def _save_config(self):
         """ It takes all config values set into this screen and saves them into a config file """
-        SaveGame.save_config(self.fullScreenFlag, self.soundMan.get_music_vol(), self.soundMan.get_fx_vol(),
-                             self.langUtils.get_id(self.currentLang))
+        SaveGame.save_config(self.fullScreenFlag, self._managers.sound.get_music_vol(),
+                             self._managers.sound.get_fx_vol(), self.langUtils.get_id(self.currentLang))
 
     # These two slider functions move the volume controls to left or right, depending on the desired
     # direction.
@@ -235,7 +233,7 @@ class OptionsScreen(_Screen):
                 self.musicSliderPoint[0] += 1
                 self._convert_volume(self.musicSliderPoint[0], slider_opt["ID"])
         elif slider_opt["ID"] == "EffectsVol":
-            self.soundMan.play_fx('Select')
+            self._managers.sound.play_fx('Select')
             if self.fxSliderPoint[0] < slider_opt['Position'][0] + 510:
                 self.fxSliderPoint[0] += 1
                 self._convert_volume(self.fxSliderPoint[0], slider_opt["ID"])
@@ -246,7 +244,7 @@ class OptionsScreen(_Screen):
                 self.musicSliderPoint[0] -= 1
                 self._convert_volume(self.musicSliderPoint[0], slider_opt["ID"])
         elif slider_opt["ID"] == "EffectsVol":
-            self.soundMan.play_fx('Select')
+            self._managers.sound.play_fx('Select')
             if self.fxSliderPoint[0] > slider_opt['Position'][0] + 220:
                 self.fxSliderPoint[0] -= 1
                 self._convert_volume(self.fxSliderPoint[0], slider_opt["ID"])
@@ -260,9 +258,9 @@ class OptionsScreen(_Screen):
         """
         slider = slider_level - 380
         if option == "EffectsVol":
-            self.soundMan.set_fx_vol(slider * self.volRatio)
+            self._managers.sound.set_fx_vol(slider * self.volRatio)
         elif option == "MusicVol":
-            self.soundMan.set_music_vol(slider * self.volRatio)
+            self._managers.sound.set_music_vol(slider * self.volRatio)
 
     def _change_language(self, callback, current_lang, flag_index: int):
         if self.optionList[self.currentMenu]["ID"] == "Language":

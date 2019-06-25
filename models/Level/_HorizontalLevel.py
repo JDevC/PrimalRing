@@ -6,7 +6,7 @@ from constants import ROOT
 
 
 class _HorizontalLevel(_LevelBase):
-    def __init__(self, screen, scr_size, sound_manager, image_manager, player, debug: bool = False):
+    def __init__(self, screen, scr_size, managers, player, debug: bool = False):
         """ 2D Horizontal level's type class
 
         :param screen:
@@ -14,7 +14,7 @@ class _HorizontalLevel(_LevelBase):
         :param sound_manager:
         :param player:
         :param debug: """
-        super().__init__(screen, scr_size, sound_manager, image_manager, player, debug)
+        super().__init__(screen, scr_size, managers, player, debug)
         self.backgroundImg = image.load(f'{ROOT}/resources/images/astro.jpg').convert()
         self.plainLevel = False
 

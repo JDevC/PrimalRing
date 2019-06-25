@@ -8,23 +8,22 @@ from .LavaBody import LavaBody
 from .PlatformBody import PlatformBody
 from .SavePointBody import SavePointBody
 from models.Bodies._BodyBase import _BodyBase
-from managers import ImageManager
-from managers import SoundManager
+from managers import ManagerDataClass
 from constants import GRAVITY, MAX_FALL_VELOCITY
 from dataclasses import dataclass
 
 
 class PlayerBody(_BodyBase):
-    def __init__(self, color: [], width: int, height: int, sound_manager: SoundManager, image_manager: ImageManager, save_file=None):
+    def __init__(self, color: [], width: int, height: int, managers: ManagerDataClass, save_file=None):
         """ Class for the player character (It will extend from _AnimatedBlock in a future; Still lacks tiles)
 
         :param color:
         :param width:
         :param height:
-        :param sound_manager:
+        :param managers:
         :param save_file: """
-        super().__init__(color, width, height, image_manager)
-        self.soundMan = sound_manager
+        super().__init__(color, width, height, managers)
+        self._managers = managers
         # We set its conditions depending on the save file
         if save_file is not None:
             self.name = save_file['Name']

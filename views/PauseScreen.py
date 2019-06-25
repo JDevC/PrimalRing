@@ -6,18 +6,18 @@ from constants import COLORS, SURFACE_MID_ALPHA, ANTIALIASING
 
 
 class PauseScreen(_Screen):
-    def __init__(self, screen, scr_size, sound_manager, player, debug: bool = False):
+    def __init__(self, screen, scr_size, managers, player, debug: bool = False):
         """ This class will display our status and let us check, select and use items, save our progress,
         checking our tasks and more things I haven't thought yet. There's a minimal chance of including this
         class on the Level file, so beware of it if you dare to contribute to this project development!
 
         :param screen: A reference for the main screen
         :param scr_size: The screen size (Default: 600 * 800)
-        :param sound_manager:
+        :param managers:
         :param player: A reference to the player and his statistics
         :param debug: Flag for debugging into the game """
-        super().__init__(screen, scr_size, sound_manager, debug)
-        self.soundMan.pause_music()
+        super().__init__(screen, scr_size, managers, debug)
+        self._managers.sound.pause_music()
         self.player = player
         # Flags
         self.quit_all = False
@@ -59,11 +59,11 @@ class PauseScreen(_Screen):
                     self._go_down()
                 elif event.key == pygame.K_p:
                     # We resume the music streaming
-                    self.soundMan.pause_music(False)
+                    self._managers.sound.pause_music(False)
                     self.resume = True
                     return True
                 elif event.key == pygame.K_RETURN:
-                    self.soundMan.play_fx('Accept')
+                    self._managers.sound.play_fx('Accept')
                     # Incoming functionality on next versions!
                     if self.menuList[self.currentMenu]['Name'] == _("- Inventory"):
                         print("Accessing inventory... soon!")
@@ -114,7 +114,7 @@ class PauseScreen(_Screen):
 
     def _go_down(self) -> None:
         """ Moves the pause screen cursor to the immediate inferior position """
-        self.soundMan.play_fx('Select')
+        self._managers.sound.play_fx('Select')
         if self.currentMenu == len(self.menuList) - 1:
             self.currentMenu = 0
         else:
@@ -122,7 +122,7 @@ class PauseScreen(_Screen):
 
     def _go_up(self) -> None:
         """ Moves the pause screen cursor to the immediate superior position """
-        self.soundMan.play_fx('Select')
+        self._managers.sound.play_fx('Select')
         if self.currentMenu == 0:
             self.currentMenu = len(self.menuList) - 1
         else:

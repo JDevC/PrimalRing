@@ -5,7 +5,7 @@ from constants import COLORS
 
 
 class _Screen:
-    def __init__(self, screen, scr_size, sound_manager, debug: bool = False):
+    def __init__(self, screen, scr_size, managers, debug: bool = False):
         """ Parent class for game screens
 
         :param screen: A reference for the main screen
@@ -15,7 +15,7 @@ class _Screen:
         """
         self.screen = screen
         self.scrSize = scr_size
-        self.soundMan = sound_manager
+        self._managers = managers
         self.debug = debug
         # Setting a plane black background
         self.background = pygame.Surface(self.scrSize)

@@ -5,14 +5,13 @@ from SaveGame import SaveGame
 from models.Bodies.PlayerBody import PlayerBody
 from models.Level.Level1 import Level1
 from models.Level.Level2 import Level2
+from views._ScreenHolder import _ScreenHolder
 from views.PauseScreen import PauseScreen
 from constants import COLORS, PLAYER_SIZE, ANTIALIASING, DEBUG
-from dataclasses import dataclass
-from typing import Any
 
 
 class Game:
-    def __init__(self, screen, scr_size, sound_manager, image_manager, saved_state_name: str = None):
+    def __init__(self, screen, scr_size, managers, saved_state_name: str = None):
         """ This is the general manager game class. It has the main functions and attributes which rule above
         all the rest.
 
@@ -22,8 +21,7 @@ class Game:
         # Main game attributes
         self._screen = screen
         self._scrSize = scr_size
-        self._soundMan = sound_manager
-        self._imgMan = image_manager
+        self._managers = managers
         self._font = pygame.font.SysFont('Calibri', 25, True, False)
         # Endgame (also a truly brutal Megadeth album)
         self.gameOver = False
@@ -32,23 +30,18 @@ class Game:
         self.gOverText = [self._font.render(_("GAME OVER"), ANTIALIASING, COLORS['WHITE']),
                           self._font.render(_("Want to try again?"), ANTIALIASING, COLORS['WHITE']),
                           self._font.render(_("Yes / No"), ANTIALIASING, COLORS['WHITE'])]
-        self._pause = self.ScreenHolder()
-        self._save = self.ScreenHolder()
+        self._pause = _ScreenHolder()
+        self._save = _ScreenHolder()
         # Game loading
         saved_state = saved_state_name if saved_state_name is None else SaveGame.load_file(saved_state_name)
         # Player
-        self.player = PlayerBody(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, sound_manager, image_manager, saved_state)
+        self.player = PlayerBody(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, managers, saved_state)
         # Levels
-        self.levels = {"Doom Valley": Level1(screen, scr_size, sound_manager, image_manager, self.player, DEBUG),
-                       "The RING": Level2(screen, scr_size, sound_manager, image_manager, self.player, DEBUG)}
+        self.levels = {"Doom Valley": Level1(screen, scr_size, managers, self.player, DEBUG),
+                       "The RING": Level2(screen, scr_size, managers, self.player, DEBUG)}
         self._init_player_location(saved_state, self.player, self.levels)
         # We activate the music in the current level
         self._level.set_theme()
-
-    @dataclass
-    class ScreenHolder:
-        screen: Any = None
-        flag: bool = False
 
     # ---------- Public Methods ----------------------
     def event_handler(self):
@@ -67,15 +60,14 @@ class Game:
                 self._save.screen.update()
             else:
                 # Updates all sprites and checks if the player has made a level change
-                level_completed = self._level.update()
-                if level_completed:
+                if self._level.update():
                     # It swaps into another level.
                     # This point needs a revision: our game map should consist on a central level from where
                     # we can travel into the others, but at least it's a beginning
-                    if self._level.player.isDead:
+                    if self.player.isDead:
                         self.gameOver = True
                     else:
-                        self._soundMan.stop_music()
+                        self._managers.sound.stop_music()
                         self._level = self.levels['The RING']
                         self.player.rect.x = self._level.levelInit[0]
                         self.player.rect.y = self._level.levelInit[1]
@@ -105,7 +97,7 @@ class Game:
         pygame.display.flip()
 
     def quit_game(self):
-        self._soundMan.panic()
+        self._managers.sound.panic()
         self.quit_all = True
         return True
 
@@ -124,7 +116,7 @@ class Game:
 
         player.plainLevel = self._level.plainLevel
 
-    def _handle_screen_events(self, screen_holder: ScreenHolder, callback):
+    def _handle_screen_events(self, screen_holder: _ScreenHolder, callback):
         if screen_holder.screen.event_handler():
             if screen_holder.screen.quit_all:
                 return self.quit_game()
@@ -136,10 +128,10 @@ class Game:
 
     def _save_screen_cleaning(self):
         self._level.player.saveFlag = False
-        self._save = self.ScreenHolder()
+        self._save = _ScreenHolder()
 
     def _pause_screen_cleaning(self):
-        self._pause = self.ScreenHolder()
+        self._pause = _ScreenHolder()
 
     def _handle_game_screen_events(self):
         for event in pygame.event.get():
@@ -157,11 +149,11 @@ class Game:
                 if event.key == pygame.K_DOWN:
                     self.player.direction.down = True
                 if event.key == pygame.K_p:
-                    screen = PauseScreen(self._screen, self._scrSize, self._soundMan, self._level.player)
-                    self._pause = self.ScreenHolder(screen, True)
+                    screen = PauseScreen(self._screen, self._scrSize, self._managers, self._level.player)
+                    self._pause = _ScreenHolder(screen, True)
                 if event.key == pygame.K_TAB:
                     if self._level.player.saveFlag:
-                        self._save = self.ScreenHolder(SaveGame(self._screen, self._scrSize, self._level), True)
+                        self._save = _ScreenHolder(SaveGame(self._screen, self._scrSize, self._level), True)
 
             if event.type == pygame.KEYUP:
                 if event.key == pygame.K_LEFT:

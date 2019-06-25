@@ -5,15 +5,15 @@ from constants import COLORS
 
 
 class LifePowerUpBody(_BodyBase):
-    def __init__(self, color: [], width: int, height: int, image_manager):
+    def __init__(self, color: [], width: int, height: int, managers):
         """ Class for life power-ups
 
         :param color:
         :param width:
         :param height: """
-        super().__init__(color, width, height, image_manager)
+        super().__init__(color, width, height, managers)
         self.name = "LifePowerUp"
-        self.image = image_manager.load_image('LifePowerUp.png').convert()
+        self.image = self._managers.image.load_image('LifePowerUp.png').convert()
         # We set a transparent color for the image
         self.image.set_colorkey(COLORS['WHITE'])
 

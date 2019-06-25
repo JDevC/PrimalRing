@@ -11,8 +11,9 @@ from constants import COLORS, SURFACE_MID_ALPHA, ANTIALIASING, ROOT
 
 class SaveGame:
     LOGGER = logging.getLogger(__name__)
+    SAVE_DIR = f'{ROOT}/saves/'
 
-    def __init__(self, screen, scr_size, level, debug=False):
+    def __init__(self, screen, scr_size, level, debug: bool = False):
         """ This class will display the save game dialog and provide a set of load/save game tools
 
         :param screen: A reference for the main screen
@@ -89,7 +90,7 @@ class SaveGame:
                                    'PositionY': self.level.player.rect.y + abs(self.level.reference[0].rect.y)}}
 
         try:
-            with open(f'{ROOT}/saves/{self.level.player.name}.sv', "wb") as game_file:
+            with open(f'{self.SAVE_DIR}{self.level.player.name}.sv', "wb") as game_file:
                 pickle.dump(player_status, game_file)
                 self.LOGGER.info("Game saved successfully!")
         except FileNotFoundError as fnf:
@@ -111,7 +112,7 @@ class SaveGame:
         :return: Your requested game data if succeed; None otherwise
         """
         try:
-            with open(f'{ROOT}/saves/{name}.sv', "rb") as game_file:
+            with open(f'{cls.SAVE_DIR}{name}.sv', "rb") as game_file:
                 game_data = pickle.load(game_file)
                 cls.LOGGER.info(f"Game loaded successfully!")
                 return game_data
@@ -132,7 +133,7 @@ class SaveGame:
         """ Function for loading a game file list """
         try:
             files = []
-            for save in walk(f'{ROOT}/saves'):
+            for save in walk(cls.SAVE_DIR):
                 for s in save[2]:
                     files.append(s)
 

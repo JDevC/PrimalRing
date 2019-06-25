@@ -6,7 +6,7 @@ from constants import COLORS, FPS
 
 
 class SplashScreen:
-    def __init__(self, screen, scr_size, sound_manager, image_manager, debug: bool = False):
+    def __init__(self, screen, scr_size, managers, debug: bool = False):
         """ This class holds the initial splash window, in which I put my fictional game dev studio
         and some partners and tools involved into this development.
 
@@ -26,14 +26,14 @@ class SplashScreen:
         # Delay counter for shown images
         self.ticker = 0
         # Setting our studio splash background
-        self._imgMan = image_manager
-        self.background = image_manager.load_image(f'Karmical.png').convert()
+        self._managers = managers
+        self.background = managers.image.load_image(f'Karmical.png').convert()
         self.partners_bg = f'Partners.png'
         # Let's create another surface, which will go on the previous
         self.cover = pygame.Surface(scr_size)
         self.cover.set_alpha(self.opacity)
         # We set and play the main theme
-        sound_manager.play_music('Main Theme')
+        self._managers.sound.play_music('Main Theme')
 
     def event_handler(self):
         """ It handles all events thrown while the splash sequence is running
@@ -73,6 +73,7 @@ class SplashScreen:
 
         pygame.display.flip()
 
+    # -------- Internal Methods --------
     def _fade_in(self, callback, color_tag: str, stage_value):
         if self.opacity >= 0:
             self._change_opacity(-2)
@@ -97,7 +98,7 @@ class SplashScreen:
         self._currentStage = stage_value
 
     def _first_fade_out_complete(self):
-        self.background = self._imgMan.load_image(self.partners_bg).convert()
+        self.background = self._managers.image.load_image(self.partners_bg).convert()
         self._currentStage = _StageEnum.THIRD
 
     def _second_fade_out_complete(self):

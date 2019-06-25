@@ -12,30 +12,29 @@ from constants import COLORS, ANTIALIASING, COIN_SIZE, FLOOR_SIZE, LIFE_POWER_UP
 
 
 class _LevelBase:
-    def __init__(self, screen, scr_size, sound_manager, img_manager, player, debug: bool = False):
+    def __init__(self, screen, scr_size, managers, player, debug: bool = False):
         """ This class manages all in terms of creating level structures and loading graphic and audio resources.
         Every level created has inheritance from this Level class.
 
         :param screen: A reference for the main screen
         :param scr_size: The screen size
-        :param sound_manager:
+        :param managers:
         :param player:
         :param debug: Flag for debugging into the game """
         # -- Attributes -----------------------
         self.debug = debug
         self.screen = screen
         self.scrSize = scr_size
-        self.soundMan = sound_manager
-        self.imgMan = img_manager
+        self._managers = managers
         self.ID = None                              # A level identifier
         self.structure = []                         # Level structure map
         self.levelInit = [0, 0]                     # Level enter point
         self.reference = []                         # Level fixed references for scroll
         self.backgroundImg = None                   # Background image reference
         # HUD graphic elements
-        self.hud = [self.imgMan.load_image(f'Life.png').convert(),
-                    self.imgMan.load_image(f'Energy.png').convert(),
-                    self.imgMan.load_image(f'Coin_Frames/coin.png').convert()]
+        self.hud = [self._managers.image.load_image(f'Life.png').convert(),
+                    self._managers.image.load_image(f'Energy.png').convert(),
+                    self._managers.image.load_image(f'Coin_Frames/coin.png').convert()]
         for x in range(len(self.hud)):
             self.hud[x].set_colorkey(COLORS['WHITE'])
 
@@ -51,8 +50,8 @@ class _LevelBase:
         self.musicTheme = None
         # Debug
         if self.debug:
-            self.debText = self.font.render(f'X: {self.player.rect.x}; Y: {self.player.rect.y}',
-                                            ANTIALIASING, COLORS['WHITE'])
+            text = f'X: {self.player.rect.x}; Y: {self.player.rect.y}'
+            self.debText = self.font.render(text, ANTIALIASING, COLORS['WHITE'])
 
     # ---------- Public Methods --------------------------
     def update(self):
@@ -80,7 +79,7 @@ class _LevelBase:
 
     def set_theme(self):
         if self.musicTheme is not None:
-            self.soundMan.play_music(self.musicTheme)
+            self._managers.sound.play_music(self.musicTheme)
 
     # ---------- Internal Methods --------------------------
     def _fill_level(self, structure: list):
@@ -94,7 +93,7 @@ class _LevelBase:
             temp_col = 0
             for char in row:
                 if char == "f":  # 'f' stands for 'Floor'
-                    floor = FloorBody(COLORS['BLUE'], FLOOR_SIZE, FLOOR_SIZE, self.imgMan)
+                    floor = FloorBody(COLORS['BLUE'], FLOOR_SIZE, FLOOR_SIZE, self._managers)
                     self._set_body(floor, cnt_x, cnt_y, self._solid_group)
                     # We append the opposite level corners
                     if cnt_y == 0 and cnt_x == 0:
@@ -103,30 +102,30 @@ class _LevelBase:
                         self.reference.append(floor)
                 elif char == "h":  # 'h' stands for 'Hole'
                     if structure[temp_row - 1][temp_col] == ' ' or structure[temp_row - 1][temp_col] == 'c':
-                        hole = HoleBody(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE, self.imgMan, "hole_metal")
+                        hole = HoleBody(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE, self._managers, "hole_metal")
                     elif structure[temp_row - 1][temp_col] == 'f':
-                        hole = HoleBody(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE, self.imgMan, "hole_floor")
+                        hole = HoleBody(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE, self._managers, "hole_floor")
                     else:
-                        hole = HoleBody(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE, self.imgMan)
+                        hole = HoleBody(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE, self._managers)
                     self._set_body(hole, cnt_x, cnt_y, self._solid_group)
                 elif char == "s":  # 's' stands for 'SavePoint'
-                    save = SavePointBody(COLORS['WHITE'], FLOOR_SIZE, FLOOR_SIZE, self.imgMan)
+                    save = SavePointBody(COLORS['WHITE'], FLOOR_SIZE, FLOOR_SIZE, self._managers)
                     self._set_body(save, cnt_x, cnt_y, self._solid_group)
                 elif char == "c":  # 'c' stands for 'Coin'
-                    coin = CoinBody(COLORS['ORANGE'], COIN_SIZE, COIN_SIZE, self.soundMan, self.imgMan)
+                    coin = CoinBody(COLORS['ORANGE'], COIN_SIZE, COIN_SIZE, self._managers)
                     self._set_body(coin, cnt_x + 10, cnt_y + 10, self._weak_group)
                 elif char == "p":  # 'p' stands for 'Platform on Y'
-                    platform = PlatformBody(COLORS['GREEN'], FLOOR_SIZE, FLOOR_SIZE, self.imgMan, [cnt_x, cnt_y], 'Y')
+                    platform = PlatformBody(COLORS['GREEN'], FLOOR_SIZE, FLOOR_SIZE, self._managers, [cnt_x, cnt_y], 'Y')
                     self._set_body(platform, cnt_x, cnt_y, self._solid_group)
                 elif char == "P":  # 'p' stands for 'Platform on X'
-                    platform = PlatformBody(COLORS['GREEN'], FLOOR_SIZE, FLOOR_SIZE, self.imgMan, [cnt_x, cnt_y])
+                    platform = PlatformBody(COLORS['GREEN'], FLOOR_SIZE, FLOOR_SIZE, self._managers, [cnt_x, cnt_y])
                     self._set_body(platform, cnt_x, cnt_y, self._solid_group)
                 elif char == "l":  # 'l' stands for 'Lava'
-                    lava = LavaBody(COLORS['RED'], FLOOR_SIZE, FLOOR_SIZE, self.imgMan)
+                    lava = LavaBody(COLORS['RED'], FLOOR_SIZE, FLOOR_SIZE, self._managers)
                     self._set_body(lava, cnt_x, cnt_y, self._solid_group)
                 elif char == "v":
                     life_power_up =\
-                        LifePowerUpBody(COLORS['ORANGE'], LIFE_POWER_UP_SIZE, LIFE_POWER_UP_SIZE, self.imgMan)
+                        LifePowerUpBody(COLORS['ORANGE'], LIFE_POWER_UP_SIZE, LIFE_POWER_UP_SIZE, self._managers)
                     self._set_body(life_power_up, cnt_x, cnt_y, self._weak_group)
 
                 # Increment X-axis for the next tile

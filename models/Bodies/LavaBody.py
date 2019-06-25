@@ -5,13 +5,13 @@ from constants import COLORS
 
 
 class LavaBody(_AnimatedBody):
-    def __init__(self, color: list, width: int, height: int, image_manager):
+    def __init__(self, color: list, width: int, height: int, managers):
         """ The floor is this block
 
         :param color:
         :param width:
         :param height: """
-        super().__init__(color, width, height, image_manager)
+        super().__init__(color, width, height, managers)
         self.name = "Lava"
         # Animation image frames
         self._set_frames('Lava_Frames/Lava', 10)

@@ -2,15 +2,14 @@
 # -*- coding: utf-8 -*-
 import pygame
 from views._Screen import _Screen
+from views._ScreenHolder import _ScreenHolder
 from .OptionsScreen import OptionsScreen
 from constants import COLORS, ANTIALIASING, ROOT
 from SaveGame import SaveGame
-from dataclasses import dataclass
-from typing import Any
 
 
 class TitleScreen(_Screen):
-    def __init__(self, screen, scr_size, sound_manager, lang_manager, config, debug: bool = False):
+    def __init__(self, screen, scr_size, managers, config, debug: bool = False):
         """ This class will display the title screen, showing a background animation and playing the main theme
         while we navigate though the main menu. That's the initial idea, of course.
 
@@ -21,8 +20,7 @@ class TitleScreen(_Screen):
         :param config: General game configuration settings
         :param debug: Flag for debugging into the game
         """
-        super().__init__(screen, scr_size, sound_manager, debug)
-        self._langMan = lang_manager
+        super().__init__(screen, scr_size, managers, debug)
         self._config = config
         # Setting the text fonts (set your own)
         fonts_dir = f'{ROOT}/resources/fonts/'
@@ -32,9 +30,9 @@ class TitleScreen(_Screen):
         self._savedFiles = SaveGame.load_files()
         self._musicTheme = 'Main Theme'
         # ---------------------------- Sub-screen elements ---------------------------
-        self._newGame = self.ScreenHolder()
-        self._loadGame = self.ScreenHolder()
-        self._options = self.ScreenHolder()
+        self._newGame = _ScreenHolder()
+        self._loadGame = _ScreenHolder()
+        self._options = _ScreenHolder()
         # ------------------------------- Flag list --------------------------------
         self.flags = {'NewGame': False, 'LoadGame': [False, False], 'Options': False, 'Quit': False}
         # New Game/Load Game fading surface
@@ -47,8 +45,7 @@ class TitleScreen(_Screen):
         # Menu
         self.menuList, self.titleText, self.currentMenu = self._init_ui_text(self._font, self._titleFont)
         # Cursor elements
-        img_dir = f'{ROOT}/resources/images/'
-        self.cursorSurface = pygame.image.load(f"{img_dir}Cursor.png").convert()
+        self.cursorSurface = self._managers.image.load_image(f"Cursor.png").convert()
         self.cursorSurface.set_colorkey(COLORS['WHITE'])
         # Setting initial cursor's position
         self.cursor = self.cursorSurface.get_rect()
@@ -64,11 +61,6 @@ class TitleScreen(_Screen):
 
         if self.debug:
             pass
-
-    @dataclass
-    class ScreenHolder:
-        screen: Any = None
-        flag: bool = False
 
     # ---------- MAIN FLOW --------------------------
     def event_handler(self):
@@ -91,7 +83,7 @@ class TitleScreen(_Screen):
                     self._config = SaveGame.load_config()
                     self.menuList, self.titleText, self.currentMenu =\
                         self._init_ui_text(self._font, self._titleFont, True)
-                    self._options = self.ScreenHolder()
+                    self._options = _ScreenHolder()
         # Title Screen's events
         else:
             for e in pygame.event.get():
@@ -113,8 +105,8 @@ class TitleScreen(_Screen):
                 # Options menu
                 elif self.flags['Options']:
                     screen =\
-                        OptionsScreen(self.screen, self.scrSize, self.soundMan, self._langMan, self._config, self._font)
-                    self._options = self.ScreenHolder(screen, True)
+                        OptionsScreen(self.screen, self.scrSize, self._managers, self._config, self._font)
+                    self._options = _ScreenHolder(screen, True)
                     self.flags['Options'] = False
                 # Title menu
                 else:
@@ -124,7 +116,7 @@ class TitleScreen(_Screen):
                         elif e.key == pygame.K_DOWN:
                             self._cursor_down()
                         elif e.key == pygame.K_RETURN:
-                            self.soundMan.play_fx('Accept')
+                            self._managers.sound.play_fx('Accept')
                             if self.menuList[self.currentMenu]["ID"] == "NewGame":
                                 self.flags['NewGame'] = True
                             elif self.menuList[self.currentMenu]["ID"] == "LoadGame":
@@ -176,7 +168,7 @@ class TitleScreen(_Screen):
 
     def set_theme(self):
         if self._musicTheme is not None:
-            self.soundMan.play_music(self._musicTheme, 13)
+            self._managers.sound.play_music(self._musicTheme, 13)
 
     # -------------- Internal Methods --------------
     def _init_ui_text(self, font, title_font, refresh: bool = False):
@@ -208,16 +200,16 @@ class TitleScreen(_Screen):
     def _start_game(self):
         if not self.initGame:
             self.initGame = True
-            self.soundMan.music_fadeout(1500)
+            self._managers.sound.music_fadeout(1500)
 
     def _quit_game(self):
         # We kill the music stream
-        self.soundMan.panic()
+        self._managers.sound.panic()
         self.flags['Quit'] = True
         return True
 
     def _cursor_down(self):
-        self.soundMan.play_fx('Select')
+        self._managers.sound.play_fx('Select')
         if self.currentMenu == len(self.menuList) - 1:
             self.currentMenu = 0
         else:
@@ -226,7 +218,7 @@ class TitleScreen(_Screen):
                 self.currentMenu += 1
 
     def _cursor_up(self):
-        self.soundMan.play_fx('Select')
+        self._managers.sound.play_fx('Select')
         if self.currentMenu == 0:
             self.currentMenu = len(self.menuList) - 1
         else:

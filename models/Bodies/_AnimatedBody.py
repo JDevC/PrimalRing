@@ -2,20 +2,20 @@
 # -*- coding: utf-8 -*-
 from ._BodyBase import _BodyBase
 from constants import COLORS, FPS
-from managers.ImageManager import ImageManager
+from managers import ManagerDataClass
 
 
 class _AnimatedBody(_BodyBase):
-    def __init__(self, color: [], width: int, height: int, image_manager: ImageManager):
+    def __init__(self, color: [], width: int, height: int, managers: ManagerDataClass):
         """ It's alive! Class for animated blocks, with some additions (Animated is for textures, not for changing its
         position (at least for now...))
 
         :param color:
         :param width:
         :param height:
-        :param image_manager:
+        :param managers:
         """
-        super().__init__(color, width, height, image_manager)
+        super().__init__(color, width, height, managers)
         self.name = "AnimatedBlock"
         # Tile container and pointer on animation
         self.imageList = []
@@ -48,4 +48,4 @@ class _AnimatedBody(_BodyBase):
         :param origin: The tile folder and image name in the format '{folder}/{image}'
         :param quantity: Count of tiles for the animation
         :return: None """
-        self.imageList = [self.imgManager.load_image(f'{origin}{i + 1}.png').convert() for i in range(quantity)]
+        self.imageList = [self._managers.image.load_image(f'{origin}{i + 1}.png').convert() for i in range(quantity)]

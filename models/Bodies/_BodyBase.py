@@ -3,11 +3,11 @@
 import logging
 from pygame import Surface
 from pygame.sprite import Sprite
-from managers import ImageManager
+from managers import ManagerDataClass
 
 
 class _BodyBase(Sprite):
-    def __init__(self, color: [], width: int, height: int, image_manager: ImageManager):
+    def __init__(self, color: [], width: int, height: int, managers: ManagerDataClass):
         """
         A parent class for all sprites in the game screen, such as the main player, all kind of platforms, enemies
         and so on.
@@ -18,7 +18,7 @@ class _BodyBase(Sprite):
         """
         super().__init__()
         self.name = "Block"
-        self.imgManager = image_manager
+        self._managers = managers
         self.velX = self.velY = 0
         # We create the block's surface
         self.image = Surface([width, height])

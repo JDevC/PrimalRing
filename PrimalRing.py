@@ -4,7 +4,7 @@ import pygame
 import logging
 from views.Title.TitleScreen import TitleScreen
 from views.Splash.SplashScreen import SplashScreen
-from managers import lang_man
+from managers import managers
 from managers.ImageManager import ImageManager
 from managers.SoundManager import SoundManager
 from Game import Game
@@ -38,22 +38,21 @@ def screen_set(screen_size, full_screen):
     return screen
 
 
-def configuration_preset(config, screen_size, sound_manager, lang_manager):
+def configuration_preset(config, screen_size, managers):
     """ Defines some initial configuration parameters
 
     :param config: List with predefined configuration parameters
     :param screen_size: Initial dimensions
-    :param sound_manager: The game sound manager
-    :param lang_manager: The game localization manager
+    :param managers: The game manager container
     :return: A display instance """
     if config is None:
         full_screen_val = FULL_SCREEN
-        lang_manager.set_lang("en")
+        managers.localization.set_lang("en")
     else:
         full_screen_val = config['full_screen']
-        sound_manager.set_music_vol(config['music_volume'])
-        sound_manager.set_fx_vol(config['fx_volume'])
-        lang_manager.set_lang(config['lang'])
+        managers.sound.set_music_vol(config['music_volume'])
+        managers.sound.set_fx_vol(config['fx_volume'])
+        managers.localization.set_lang(config['lang'])
 
     return screen_set(screen_size, full_screen_val)
 
@@ -73,20 +72,20 @@ def main():
     # -------------------- Variables ---------------------
     # Setting game window's size
     screen_measurements = (SCR_WIDTH, SCR_HEIGHT)
-    # We get the game sound manager
-    sound_man = SoundManager()
-    img_man = ImageManager()
+    # We get the game sound & image managers
+    managers.sound = SoundManager()
+    managers.image = ImageManager()
     # Here, we set many configuration properties, depending on our config file or a group of defined values
     # in case the config file is missing
     config = SaveGame.load_config()
-    screen = configuration_preset(config, screen_measurements, sound_man, lang_man)
-    set_game_window(img_man)
+    screen = configuration_preset(config, screen_measurements, managers)
+    set_game_window(managers.image)
     # Loop until the user clicks the close button.
     done = False
     # Used to manage how fast the screen updates
     clock = pygame.time.Clock()
     # Scene pointer
-    current_scene = SplashScreen(screen, screen_measurements, sound_man, img_man)
+    current_scene = SplashScreen(screen, screen_measurements, managers)
     # ---------------- MAIN LOOP -----------------
     while not done:
         # 1st step: Handling events
@@ -98,20 +97,20 @@ def main():
         # 4th step: Evaluating scene switching
         if switch:
             if isinstance(current_scene, SplashScreen) and current_scene.endSplash:
-                current_scene = TitleScreen(screen, screen_measurements, sound_man, lang_man, config)
+                current_scene = TitleScreen(screen, screen_measurements, managers, config)
             elif isinstance(current_scene, TitleScreen):
                 if current_scene.flags['NewGame']:
                     reset_flags(current_scene)
                     # We 'switch' to the game scene in a new game
-                    current_scene = Game(screen, screen_measurements, sound_man, img_man)
+                    current_scene = Game(screen, screen_measurements, managers)
                 elif current_scene.flags['LoadGame'][0]:
                     reset_flags(current_scene)
                     # We 'switch' to the game scene through a loaded game
-                    current_scene = Game(screen, screen_measurements, sound_man, img_man, "Player")
+                    current_scene = Game(screen, screen_measurements, managers, "Player")
                 elif current_scene.flags['Quit']:
                     done = True
             elif isinstance(current_scene, Game) and not current_scene.quit_all:
-                current_scene = TitleScreen(screen, screen_measurements, sound_man, lang_man, config)
+                current_scene = TitleScreen(screen, screen_measurements, managers, config)
                 current_scene.set_theme()
             else:
                 done = True

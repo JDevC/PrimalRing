@@ -4,8 +4,8 @@ from ._BodyBase import _BodyBase
 
 
 class SnowBody(_BodyBase):
-    def __init__(self, color: [], width: int, height: int, screen_size: tuple, image_manager):
-        super().__init__(color, width, height, image_manager)
+    def __init__(self, color: [], width: int, height: int, screen_size: tuple, managers):
+        super().__init__(color, width, height, managers)
         self.name = "Snow"
         self.screen_size = screen_size
         self.firstX = 0

@@ -5,8 +5,8 @@ from models.Level._PlainLevel import _PlainLevel
 
 # All levels must inherit from 'HorizontalLevel' or 'Plain Level'
 class Level2(_PlainLevel):
-    def __init__(self, screen, src_size, sound_manager, image_manager, player, debug: bool = False):
-        super().__init__(screen, src_size, sound_manager, image_manager, player, debug)
+    def __init__(self, screen, src_size, managers, player, debug: bool = False):
+        super().__init__(screen, src_size, managers, player, debug)
         # Level data
         self.ID = "The RING"
         self.levelInit = (150, 850)  # Initial player position's coordinates (50, 500)

@@ -7,8 +7,8 @@ from constants import COLORS
 
 
 class Level1(_HorizontalLevel):
-    def __init__(self, screen, scr_size, sound_manager, image_manager, player, debug: bool = False):
-        super().__init__(screen, scr_size, sound_manager, image_manager, player, debug)
+    def __init__(self, screen, scr_size, managers, player, debug: bool = False):
+        super().__init__(screen, scr_size, managers, player, debug)
         # Level data
         self.ID = "Doom Valley"
         self.levelInit = (56, 900)                     # Initial player position's coordinates (50, 900)
@@ -40,7 +40,7 @@ class Level1(_HorizontalLevel):
         # Random location for snow flakes
         for i in range(50):     # 50
             # Snow instance
-            flake = SnowBody(COLORS['WHITE'], 2, 2, self.scrSize, image_manager)
+            flake = SnowBody(COLORS['WHITE'], 2, 2, self.scrSize, self._managers)
             # We create a random placement
             flake.rect.x = randrange(len(self.structure[0]) * 50)
             flake.rect.y = randrange(len(self.structure) * 50)
