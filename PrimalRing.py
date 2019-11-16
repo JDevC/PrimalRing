@@ -57,7 +57,7 @@ def configuration_preset(config, screen_size, managers):
     return screen_set(screen_size, full_screen_val)
 
 
-def set_game_window(img_manager):
+def set_game_window(img_manager: ImageManager):
     pygame.display.set_caption("Primal Ring")
     icon = img_manager.load_image('Coin_Frames/coin.png')
     icon.set_colorkey(COLORS['WHITE'])

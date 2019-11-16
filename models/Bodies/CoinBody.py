@@ -14,7 +14,7 @@ class CoinBody(_BodyBase):
         :param height: """
         super().__init__(color, width, height, managers)
         self.name = "Coin"
-        self.image = self._managers.image.load_image("Coin_Frames/coin.png").convert()
+        self.image = self._managers.image.load_image("Coin_Frames/coin.png")
         # We set a transparent color for the image
         self.image.set_colorkey(COLORS['WHITE'])
 

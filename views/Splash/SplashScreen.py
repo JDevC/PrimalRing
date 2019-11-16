@@ -27,7 +27,7 @@ class SplashScreen:
         self.ticker = 0
         # Setting our studio splash background
         self._managers = managers
-        self.background = managers.image.load_image(f'Karmical.png').convert()
+        self.background = managers.image.load_image(f'Karmical.png')
         self.partners_bg = f'Partners.png'
         # Let's create another surface, which will go on the previous
         self.cover = pygame.Surface(scr_size)
@@ -98,7 +98,7 @@ class SplashScreen:
         self._currentStage = stage_value
 
     def _first_fade_out_complete(self):
-        self.background = self._managers.image.load_image(self.partners_bg).convert()
+        self.background = self._managers.image.load_image(self.partners_bg)
         self._currentStage = _StageEnum.THIRD
 
     def _second_fade_out_complete(self):

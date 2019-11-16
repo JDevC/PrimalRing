@@ -14,7 +14,7 @@ class HoleBody(_BodyBase):
         super().__init__(color, width, height, managers)
         self.name = "Hole"
         if img_tag is not None:
-            self.image = self._managers.image.load_image(f'plain_hole/{img_tag}.png').convert()
+            self.image = self._managers.image.load_image(f'plain_hole/{img_tag}.png')
 
     def react(self, player):
         if player.distance(self.rect) < self.rect.width * 0.75:

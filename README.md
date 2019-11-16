@@ -28,8 +28,11 @@ Title Screen:
 Title Screen (Options):
 - Up and Down keys = Highlight different options
 - Right and Left keys (On volume controls) = Turns the volume high or low (WIP)
+    - Music Volume = It sets the main volume for songs (WIP)
+    - Effects Volume = It sets the main volume for FX sounds (WIP)
 - ENTER = Select option:
   - FullScreen = Toggles between FullScreen and Normal view mode (WIP)
+  - Language = Select the game language (WIP)
   - Gallery: Art game gallery (WIP)
   - Credits: Who made it?! I am, of course, but in case somebody else
     make a collaboration, come here to see all of them. (WIP)

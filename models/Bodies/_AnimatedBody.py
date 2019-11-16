@@ -48,4 +48,4 @@ class _AnimatedBody(_BodyBase):
         :param origin: The tile folder and image name in the format '{folder}/{image}'
         :param quantity: Count of tiles for the animation
         :return: None """
-        self.imageList = [self._managers.image.load_image(f'{origin}{i + 1}.png').convert() for i in range(quantity)]
+        self.imageList = [self._managers.image.load_image(f'{origin}{i + 1}.png') for i in range(quantity)]

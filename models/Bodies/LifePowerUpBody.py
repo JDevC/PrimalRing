@@ -13,7 +13,7 @@ class LifePowerUpBody(_BodyBase):
         :param height: """
         super().__init__(color, width, height, managers)
         self.name = "LifePowerUp"
-        self.image = self._managers.image.load_image('LifePowerUp.png').convert()
+        self.image = self._managers.image.load_image('LifePowerUp.png')
         # We set a transparent color for the image
         self.image.set_colorkey(COLORS['WHITE'])
 

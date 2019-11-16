@@ -45,7 +45,7 @@ class TitleScreen(_Screen):
         # Menu
         self.menuList, self.titleText, self.currentMenu = self._init_ui_text(self._font, self._titleFont)
         # Cursor elements
-        self.cursorSurface = self._managers.image.load_image(f"Cursor.png").convert()
+        self.cursorSurface = self._managers.image.load_image(f"Cursor.png")
         self.cursorSurface.set_colorkey(COLORS['WHITE'])
         # Setting initial cursor's position
         self.cursor = self.cursorSurface.get_rect()

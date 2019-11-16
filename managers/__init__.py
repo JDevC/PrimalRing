@@ -4,3 +4,4 @@ from .LocalizationManager import LocalizationManager
 from .ManagerDataClass import ManagerDataClass
 
 managers = ManagerDataClass()
+managers.localization = LocalizationManager()

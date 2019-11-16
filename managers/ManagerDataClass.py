@@ -9,5 +9,5 @@ from dataclasses import dataclass
 @dataclass
 class ManagerDataClass:
     image: ImageManager = None
-    localization: LocalizationManager = LocalizationManager()
+    localization: LocalizationManager = None
     sound: SoundManager = None

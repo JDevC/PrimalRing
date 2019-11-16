@@ -119,22 +119,11 @@ class PlayerBody(_BodyBase):
                     self.rect.right = body.rect.left
             elif isinstance(body, PlatformBody):
                 # Moving to the right
-                # if self.velX > 0:
-                #    self.rect.right = body.rect.left
+                if self.velX > 0:
+                    self.rect.right = body.rect.left - 0.5
                 # Moving to the left
-                # elif self.velX < 0:
-                #    self.rect.left = body.rect.right
-                if self.velX == 0:
-                    # Platforms collides with the player
-                    if body.velY < 0:
-                        # Platform's moving up
-                        self.rect.bottom = body.rect.top
-                    elif body.velY > 0:
-                        # Platform's moving down
-                        self.stop_y()
-                        self.rect.top = body.rect.bottom
-                else:
-                    pass
+                elif self.velX < 0:
+                    self.rect.left = body.rect.right + 0.5
             elif isinstance(body, HoleBody):
                 if self.distance(body.rect) < body.rect.width * 0.75:
                     if self.rect.x > body.rect.x:
@@ -161,9 +150,11 @@ class PlayerBody(_BodyBase):
                     self._rigid_body_upon(body)
             elif isinstance(body, PlatformBody):
                 if self.velY > 0:
-                    self._rigid_body_under(body)
+                    self.stop_fall()
+                    self.rect.bottom = body.rect.top - 2
                 elif self.velY < 0:
-                    self._rigid_body_upon(body)
+                    self.stop_y()
+                    self.rect.top = body.rect.bottom + 2
             elif isinstance(body, HoleBody):
                 if self.distance(body.rect) < body.rect.width * 0.75:
                     if self.rect.y > body.rect.y:

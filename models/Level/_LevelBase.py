@@ -32,9 +32,9 @@ class _LevelBase:
         self.reference = []                         # Level fixed references for scroll
         self.backgroundImg = None                   # Background image reference
         # HUD graphic elements
-        self.hud = [self._managers.image.load_image(f'Life.png').convert(),
-                    self._managers.image.load_image(f'Energy.png').convert(),
-                    self._managers.image.load_image(f'Coin_Frames/coin.png').convert()]
+        self.hud = [self._managers.image.load_image(f'Life.png'),
+                    self._managers.image.load_image(f'Energy.png'),
+                    self._managers.image.load_image(f'Coin_Frames/coin.png')]
         for x in range(len(self.hud)):
             self.hud[x].set_colorkey(COLORS['WHITE'])
 
@@ -54,7 +54,7 @@ class _LevelBase:
             self.debText = self.font.render(text, ANTIALIASING, COLORS['WHITE'])
 
     # ---------- Public Methods --------------------------
-    def update(self):
+    def update(self) -> bool:
         pass
 
     def display(self):

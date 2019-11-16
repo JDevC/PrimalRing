@@ -12,4 +12,4 @@ class ImageManager:
         self._imageDir = f'{ROOT}/resources/images/'
 
     def load_image(self, image_name):
-        return image.load(f'{self._imageDir}/{image_name}')
+        return image.load(f'{self._imageDir}/{image_name}').convert()

@@ -19,7 +19,7 @@ class _HorizontalLevel(_LevelBase):
         self.plainLevel = False
 
     # ---------- Methods --------------------------
-    def update(self):
+    def update(self) -> bool:
         # Update all elements in level
         self._bodies.update()
         # Checks the condition for going out the level

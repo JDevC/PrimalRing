@@ -12,10 +12,16 @@ class LocalizationManager:
         """
         This manager handles all involving in-game translations
         """
-        self.lang_dict = {
-            "en": gettext.translation("PrimalRing_en", f"{ROOT}/resources/localization", languages=["en"]),
-            "es": gettext.translation("PrimalRing_es", f"{ROOT}/resources/localization", languages=["es_ES"])
-        }
+        localization_route = f"{ROOT}/resources/localization"
+        try:
+            print(localization_route)
+            self.lang_dict = {
+                "en": gettext.translation("PrimalRing_en", localization_route, languages=["en"]),
+                "es": gettext.translation("PrimalRing_es", localization_route, languages=["es_ES"])
+            }
+        except FileNotFoundError as fnfex:
+            print(fnfex.strerror)
+            print(localization_route)
 
     def set_lang(self, lang_code: str) -> None:
         try:

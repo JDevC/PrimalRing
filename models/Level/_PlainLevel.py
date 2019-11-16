@@ -16,7 +16,7 @@ class _PlainLevel(_LevelBase):
         self.plainLevel = True
 
     # ---------- Methods --------------------------
-    def update(self):
+    def update(self) -> bool:
         # Update all elements in level
         self._bodies.update()
         self.player.update(self._solid_group, self._weak_group)

@@ -104,13 +104,13 @@ class PauseScreen(_Screen):
                 {'Name': _("- Quit"), 'Position': [self.scrSize[0] * 0.6, self.scrSize[1] * 0.6]}]
 
     def _init_pause_text(self) -> []:
-        return [self.font.render(_("PAUSE"), ANTIALIASING, COLORS['WHITE']),
-                self.font.render(_("Life: {0}/{1}").format(self.player.life, self.player.maxLife),
-                                 ANTIALIASING, COLORS['WHITE']),
-                self.font.render(_("Energy: {0}/{1}").format(self.player.energy, self.player.maxEnergy),
-                                 ANTIALIASING, COLORS['WHITE']),
-                self.font.render(_("Coins: {0}/{1}").format(self.player.coins, self.player.maxWallet),
-                                 ANTIALIASING, COLORS['WHITE'])]
+        texts = [
+            _("PAUSE"),
+            _("Life: {0}/{1}").format(self.player.life, self.player.maxLife),
+            _("Energy: {0}/{1}").format(self.player.energy, self.player.maxEnergy),
+            _("Coins: {0}/{1}").format(self.player.coins, self.player.maxWallet),
+        ]
+        return [self.font.render(texts[i], ANTIALIASING, COLORS['WHITE']) for i in range(len(texts))]
 
     def _go_down(self) -> None:
         """ Moves the pause screen cursor to the immediate inferior position """
