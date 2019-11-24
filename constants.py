@@ -31,7 +31,8 @@ COLORS = {'BLACK': [0x00, 0x00, 0x00],                      # Hex for black
           'RED': [0xFF, 0x00, 0x00],                        # Hex for red
           'GREEN': [0x00, 0xFF, 0x00],                      # Hex for green
           'BLUE': [0x00, 0x00, 0xFF],                       # Hex for blue
-          'ORANGE': [0xFF, 0xFF, 0x00]}                     # Hex for orange
+          'ORANGE': [0xFF, 0xFF, 0x00],
+          'DEF_ALPHA': [0xAC, 0x00, 0xBE]}                  # Hex for orange
 FPS = 60                                                    # General FPS value
 GRAVITY = 0.35                                              # Gravity for all bodies
 ANTIALIASING = True                                         # Smoothing text fonts

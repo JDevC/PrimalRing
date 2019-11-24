@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<map version="1.2" tiledversion="1.3.0" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="64" height="20" tilewidth="50" tileheight="50" infinite="0" nextlayerid="4" nextobjectid="10">
+ <editorsettings>
+  <export target="../../PrimalRing/resources/images/TheRingLevel.json" format="json"/>
+ </editorsettings>
+ <tileset firstgid="1" name="TheRingFloor" tilewidth="50" tileheight="50" tilecount="48" columns="8">
+  <image source="TheRingFloor.png" width="400" height="300"/>
+  <terraintypes>
+   <terrain name="Trail" tile="9"/>
+  </terraintypes>
+  <tile id="0" terrain=",,,0">
+   <properties>
+    <property name="Name" value="Stepable1"/>
+   </properties>
+  </tile>
+  <tile id="1" terrain=",,0,0">
+   <properties>
+    <property name="Name" value="Stepable2"/>
+   </properties>
+  </tile>
+  <tile id="2" terrain=",,0,">
+   <properties>
+    <property name="Name" value="Stepable3"/>
+   </properties>
+  </tile>
+  <tile id="3">
+   <properties>
+    <property name="Name" value="Stepable19"/>
+   </properties>
+  </tile>
+  <tile id="4">
+   <properties>
+    <property name="Name" value="Floor6"/>
+   </properties>
+  </tile>
+  <tile id="5">
+   <properties>
+    <property name="Name" value="Floor7"/>
+   </properties>
+  </tile>
+  <tile id="6">
+   <properties>
+    <property name="Name" value="Floor8"/>
+   </properties>
+  </tile>
+  <tile id="7">
+   <properties>
+    <property name="Name" value="Floor1"/>
+   </properties>
+   <objectgroup draworder="index" id="3">
+    <object id="2" name="Floor" type="Solid" x="0" y="0" width="50" height="50"/>
+   </objectgroup>
+  </tile>
+  <tile id="8" terrain=",0,,0">
+   <properties>
+    <property name="Name" value="Stepable4"/>
+   </properties>
+  </tile>
+  <tile id="9" terrain="0,0,0,0">
+   <properties>
+    <property name="Name" value="Stepable5"/>
+   </properties>
+  </tile>
+  <tile id="10" terrain="0,,0,">
+   <properties>
+    <property name="Name" value="Stepable6"/>
+   </properties>
+  </tile>
+  <tile id="11">
+   <properties>
+    <property name="Name" value="Stepable20"/>
+   </properties>
+  </tile>
+  <tile id="12">
+   <properties>
+    <property name="Name" value="Floor9"/>
+   </properties>
+  </tile>
+  <tile id="13">
+   <properties>
+    <property name="Name" value="Floor10"/>
+   </properties>
+  </tile>
+  <tile id="14">
+   <properties>
+    <property name="Name" value="Floor11"/>
+   </properties>
+  </tile>
+  <tile id="15">
+   <properties>
+    <property name="Name" value="Floor2"/>
+   </properties>
+   <objectgroup draworder="index" id="2">
+    <object id="1" name="Floor" type="Solid" x="0" y="0" width="50" height="50"/>
+   </objectgroup>
+  </tile>
+  <tile id="16" terrain=",0,,">
+   <properties>
+    <property name="Name" value="Stepable7"/>
+   </properties>
+  </tile>
+  <tile id="17" terrain="0,0,,">
+   <properties>
+    <property name="Name" value="Stepable8"/>
+   </properties>
+  </tile>
+  <tile id="18" terrain="0,,,">
+   <properties>
+    <property name="Name" value="Stepable9"/>
+   </properties>
+  </tile>
+  <tile id="19">
+   <properties>
+    <property name="Name" value="Stepable21"/>
+   </properties>
+  </tile>
+  <tile id="20">
+   <properties>
+    <property name="Name" value="Floor12"/>
+   </properties>
+  </tile>
+  <tile id="21">
+   <properties>
+    <property name="Name" value="Floor13"/>
+   </properties>
+  </tile>
+  <tile id="22">
+   <properties>
+    <property name="Name" value="Floor14"/>
+   </properties>
+  </tile>
+  <tile id="23">
+   <properties>
+    <property name="Name" value="Floor3"/>
+   </properties>
+   <objectgroup draworder="index" id="2">
+    <object id="1" name="Floor" type="Solid" x="0" y="0" width="50" height="50"/>
+   </objectgroup>
+  </tile>
+  <tile id="24" terrain="0,0,0,">
+   <properties>
+    <property name="Name" value="Stepable10"/>
+   </properties>
+  </tile>
+  <tile id="25" terrain="0,0,,">
+   <properties>
+    <property name="Name" value="Stepable11"/>
+   </properties>
+  </tile>
+  <tile id="26" terrain="0,0,,0">
+   <properties>
+    <property name="Name" value="Stepable12"/>
+   </properties>
+  </tile>
+  <tile id="27">
+   <properties>
+    <property name="Name" value="Stepable22"/>
+   </properties>
+  </tile>
+  <tile id="28">
+   <properties>
+    <property name="Name" value="Floor15"/>
+   </properties>
+  </tile>
+  <tile id="29">
+   <properties>
+    <property name="Name" value="Floor16"/>
+   </properties>
+  </tile>
+  <tile id="30">
+   <properties>
+    <property name="Name" value="Floor17"/>
+   </properties>
+  </tile>
+  <tile id="31">
+   <properties>
+    <property name="Name" value="Floor4"/>
+   </properties>
+   <objectgroup draworder="index" id="2">
+    <object id="1" name="Floor" type="Solid" x="0" y="0" width="50" height="50"/>
+   </objectgroup>
+  </tile>
+  <tile id="32" terrain="0,,0,">
+   <properties>
+    <property name="Name" value="Stepable13"/>
+   </properties>
+  </tile>
+  <tile id="33">
+   <properties>
+    <property name="Name" value="Stepable14"/>
+   </properties>
+  </tile>
+  <tile id="34" terrain=",0,,0">
+   <properties>
+    <property name="Name" value="Stepable15"/>
+   </properties>
+  </tile>
+  <tile id="35">
+   <properties>
+    <property name="Name" value="Hole1"/>
+   </properties>
+   <objectgroup draworder="index" id="2">
+    <object id="1" name="Hole" type="Solid" x="0" y="12.5" width="50" height="37.5"/>
+   </objectgroup>
+  </tile>
+  <tile id="36">
+   <properties>
+    <property name="Name" value="Floor18"/>
+   </properties>
+  </tile>
+  <tile id="38">
+   <properties>
+    <property name="Name" value="Floor19"/>
+   </properties>
+  </tile>
+  <tile id="39">
+   <properties>
+    <property name="Name" value="Floor5"/>
+   </properties>
+  </tile>
+  <tile id="40" terrain="0,,0,0">
+   <properties>
+    <property name="Name" value="Stepable16"/>
+   </properties>
+  </tile>
+  <tile id="41" terrain=",,0,0">
+   <properties>
+    <property name="Name" value="Stepable17"/>
+   </properties>
+  </tile>
+  <tile id="42" terrain=",0,0,0">
+   <properties>
+    <property name="Name" value="Stepable18"/>
+   </properties>
+  </tile>
+  <tile id="43">
+   <properties>
+    <property name="Name" value="Hole2"/>
+   </properties>
+   <objectgroup draworder="index" id="2">
+    <object id="1" name="Hole" type="Solid" x="0" y="0" width="50" height="50"/>
+   </objectgroup>
+  </tile>
+  <tile id="44">
+   <properties>
+    <property name="Name" value="Floor20"/>
+   </properties>
+  </tile>
+  <tile id="45">
+   <properties>
+    <property name="Name" value="Floor21"/>
+   </properties>
+  </tile>
+  <tile id="46">
+   <properties>
+    <property name="Name" value="Floor22"/>
+   </properties>
+  </tile>
+  <tile id="47">
+   <properties>
+    <property name="Name" value="Floor23"/>
+   </properties>
+  </tile>
+ </tileset>
+ <tileset firstgid="49" source="ItemsTileSet.tsx"/>
+ <tileset firstgid="51" source="SavePointSet.tsx"/>
+ <layer id="1" name="Floor" width="64" height="20">
+  <data encoding="base64" compression="zlib">
+   eAGlltluFEEMRRMStkGEfRdiEIMUlgj+/+vwkepIV1ZVZjo8WHa77PK9Lnd3XZ2dnX0ueTvkS+mrkmclz4c8HT7i3oUvY4zdotn3f/a4S/6bqilHeHaurNMLcF0OkT++9+HLGGO3aGrRz8MQcrfY8u81z2ufnyX3hmBflBD3qKT3IHmwzhmmjzr45M4+YqcWdbJe1k2bGAU81GLP30PYd4stBvE4e99qn12Tr/VMHNJ7kFyNSR/89avZY1/yuKTXOuX5R+XRi+yPfcSv6Ms41uzfvmwwXZcchhzjTzz4c67l5R6dv37j1Mf4f6g6L0s+Dq3Nsz41aymf6nm3EPrXe2Kvfk1y8vzFDn+/afqYKd5/3svbfK4d40/dw0Lul//hYo0czjH7l33SVh/rGzheDxE7/DnnfK+Zi/6uz3xif1HxWVs8nh11fae7tn73+wz/U/oHH87NPs/OJPfxbK1vP7boY7m+g08W/Onfn5KbEmZAzqnln760E0Oe0Yw/ODIGrub73UydM5F+bXNXPbuNv9z9/656wB6r/tGHFQZmkjl0BnmHXpV0rKv8jGOu8lmb3Lw3eX9SJ3+/Ka7Ju2vX0cyo/Hu+cdxjVhjM5/vJ7M/2IN/vPGfyYAhn7Plfly3n1PbOeUhNbvJ37owBS97B/Aa7jnYPsPd8407FsNrDfHhhH0rki518tf8Of+a6llr++d05jBrwsQdyh6/ravaY5bu+wnBeedwR/A/yr7wouWyS+dh9vT8zI347wa/d43iW/+z9PdQ6PbC+3PPbhs0es3zjEgO2c2HtvDuwj+vitj54sfclnYvzAF7ywUoMz9j0ut9Dsvecn3hT0wPxY+ea9jH+YNiXgAec7IOs+LtOLDnJHyz4FGLhBhf5eb9KnzOWvU57xR+O4pdv1/BgdrMets9piw09w8T5y02d/MXiGlhm/9Fd+b2Tce/xH4N/JuIHq33UVutX40dmPHajDhi8a6m9h80wcQ6caQr8b0q4f8hbDf+821kDzb+UbwF5s1kT421a/O4rdp/RKyE2MYCZ+ZXbDFOfw7yDzHrgd95+dO3s2CNxy0Mth/6c+MVNjS22GMhjfv0+zfgz/75fyd07SO/B94pn35Vk7VXMMb97iIv4Lbb5vY73P3pu/+k3e8+4Zw+8A9EP7Zn27j5bO9X3v3vcJZ8c+aL/AXx0XNI=
+  </data>
+ </layer>
+ <layer id="2" name="Items" width="64" height="20">
+  <data encoding="base64" compression="zlib">
+   eAHtk8ENgDAMAzsTA7D/WLwi3YMiNw+UpuZTK3GDbcIYfqokcEGIgkEf5LNOrHDI/xtTn4JDH7lRm51f3OjFyRlvNfZ3wp28ZHN3BtnkfK9aApldztyp5pt6VvyscPkO454JnL4P9t9zr2/Rlr//PCg1w/kEd5yAlgD/QwVrU/dhKZ7J2cdZXaUPUgkHIQ==
+  </data>
+ </layer>
+ <objectgroup id="3" name="GameObjects">
+  <object id="1" name="StartingPoint" x="150" y="850" width="50" height="50"/>
+  <object id="4" name="Exit" x="2800" y="100" width="50" height="50"/>
+ </objectgroup>
+</map>

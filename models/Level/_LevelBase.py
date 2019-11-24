@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-from pygame import font, sprite
+from dataclasses import dataclass
+from pytmx import TiledMap
+from pygame import font, sprite, Surface
 from models.Bodies.LavaBody import LavaBody
 from models.Bodies.FloorBody import FloorBody
 from models.Bodies.HoleBody import HoleBody
@@ -8,11 +10,12 @@ from models.Bodies.SavePointBody import SavePointBody
 from models.Bodies.PlatformBody import PlatformBody
 from models.Bodies.CoinBody import CoinBody
 from models.Bodies.LifePowerUpBody import LifePowerUpBody
-from constants import COLORS, ANTIALIASING, COIN_SIZE, FLOOR_SIZE, LIFE_POWER_UP_SIZE
+from constants import COLORS, ANTIALIASING, FLOOR_SIZE
+from models.Bodies.StepableBody import StepableBody
 
 
 class _LevelBase:
-    def __init__(self, screen, scr_size, managers, player, debug: bool = False):
+    def __init__(self, screen, scr_size, managers, player, tilemap: TiledMap, debug: bool = False):
         """ This class manages all in terms of creating level structures and loading graphic and audio resources.
         Every level created has inheritance from this Level class.
 
@@ -27,7 +30,7 @@ class _LevelBase:
         self.scrSize = scr_size
         self._managers = managers
         self.ID = None                              # A level identifier
-        self.structure = []                         # Level structure map
+        self._tilemap = tilemap
         self.levelInit = [0, 0]                     # Level enter point
         self.reference = []                         # Level fixed references for scroll
         self.backgroundImg = None                   # Background image reference
@@ -82,59 +85,80 @@ class _LevelBase:
             self._managers.sound.play_music(self.musicTheme)
 
     # ---------- Internal Methods --------------------------
-    def _fill_level(self, structure: list):
+    @dataclass
+    class TmxBody:
+        img: Surface = None
+        name: str = ""
+        width: int = 0
+        height: int = 0
+        x: int = 0
+        y: int = 0
+        img_list: list = list
+
+    def _fill_tmx_level(self, structure: TiledMap):
         """ It fills all level gaps with elements taking a pattern
 
         :param structure: A string list which contains all elements available in a level (WIP) """
-        cnt_y = 0  # Initial Y-axis tile grid
-        temp_row = 0
-        for row in structure:
-            cnt_x = 0  # Initial X-axis tile grid
-            temp_col = 0
-            for char in row:
-                if char == "f":  # 'f' stands for 'Floor'
-                    floor = FloorBody(COLORS['BLUE'], FLOOR_SIZE, FLOOR_SIZE, self._managers)
-                    self._set_body(floor, cnt_x, cnt_y, self._solid_group)
-                    # We append the opposite level corners
-                    if cnt_y == 0 and cnt_x == 0:
-                        self.reference.append(floor)
-                    elif cnt_y == (len(structure) - 1) * FLOOR_SIZE and cnt_x == (len(structure[0]) - 1) * FLOOR_SIZE:
-                        self.reference.append(floor)
-                elif char == "h":  # 'h' stands for 'Hole'
-                    if structure[temp_row - 1][temp_col] == ' ' or structure[temp_row - 1][temp_col] == 'c':
-                        hole = HoleBody(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE, self._managers, "hole_metal")
-                    elif structure[temp_row - 1][temp_col] == 'f':
-                        hole = HoleBody(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE, self._managers, "hole_floor")
-                    else:
-                        hole = HoleBody(COLORS['BLACK'], FLOOR_SIZE, FLOOR_SIZE, self._managers)
-                    self._set_body(hole, cnt_x, cnt_y, self._solid_group)
-                elif char == "s":  # 's' stands for 'SavePoint'
-                    save = SavePointBody(COLORS['WHITE'], FLOOR_SIZE, FLOOR_SIZE, self._managers)
-                    self._set_body(save, cnt_x, cnt_y, self._solid_group)
-                elif char == "c":  # 'c' stands for 'Coin'
-                    coin = CoinBody(COLORS['ORANGE'], COIN_SIZE, COIN_SIZE, self._managers)
-                    self._set_body(coin, cnt_x + 10, cnt_y + 10, self._weak_group)
-                elif char == "p":  # 'p' stands for 'Platform on Y'
-                    platform = PlatformBody(COLORS['GREEN'], FLOOR_SIZE, FLOOR_SIZE, self._managers, [cnt_x, cnt_y], 'Y')
-                    self._set_body(platform, cnt_x, cnt_y, self._solid_group)
-                elif char == "P":  # 'p' stands for 'Platform on X'
-                    platform = PlatformBody(COLORS['GREEN'], FLOOR_SIZE, FLOOR_SIZE, self._managers, [cnt_x, cnt_y])
-                    self._set_body(platform, cnt_x, cnt_y, self._solid_group)
-                elif char == "l":  # 'l' stands for 'Lava'
-                    lava = LavaBody(COLORS['RED'], FLOOR_SIZE, FLOOR_SIZE, self._managers)
-                    self._set_body(lava, cnt_x, cnt_y, self._solid_group)
-                elif char == "v":
-                    life_power_up =\
-                        LifePowerUpBody(COLORS['ORANGE'], LIFE_POWER_UP_SIZE, LIFE_POWER_UP_SIZE, self._managers)
-                    self._set_body(life_power_up, cnt_x, cnt_y, self._weak_group)
+        floor_layer = structure.get_layer_by_name("Floor").id - 1
+        items_layer = structure.get_layer_by_name("Items").id - 1
+        for row in range(structure.width):
+            for col in range(structure.height):
+                floor_tile = self._build_tmx_body(row, col, floor_layer, structure)
+                item_tile = self._build_tmx_body(row, col, items_layer, structure)
+                if floor_tile is not None:
+                    self._fill_tmx_floor(row, col, floor_tile, structure)
+                if item_tile is not None:
+                    self._fill_tmx_items(item_tile)
 
-                # Increment X-axis for the next tile
-                cnt_x += FLOOR_SIZE
-                temp_col += 1
+    def _fill_tmx_floor(self, row: int, col: int, tile: TmxBody, structure: TiledMap):
+        body = None
+        if "Floor" in tile.name:
+            body = FloorBody(COLORS['BLUE'], tile.width, tile.height, self._managers)
+            # We append the opposite level corners
+            if (col == 0 and row == 0) or (col == structure.height - 1 and row == structure.width - 1):
+                self.reference.append(body)
+        elif "Hole" in tile.name:
+            body = HoleBody(COLORS['BLACK'], tile.width, tile.height, self._managers)
+        elif "Stepable" in tile.name:
+            body = StepableBody(COLORS['BLACK'], tile.width, tile.height, self._managers)
+        elif "YPlatform" in tile.name:
+            init_point = [row, col]
+            body = PlatformBody(COLORS['GREEN'], tile.width, tile.height, self._managers, init_point, 'Y')
+        elif "XPlatform" in tile.name:
+            init_point = [row, col]
+            body = PlatformBody(COLORS['GREEN'], tile.width, tile.height, self._managers, init_point)
+        elif "Lava" in tile.name:
+            body = LavaBody(COLORS['RED'], tile.width, tile.height, self._managers)
+            body.imageList = tile.img_list
 
-            # Increment Y-axis for the next tile
-            cnt_y += FLOOR_SIZE
-            temp_row += 1
+        body.image = tile.img
+        body.image.set_colorkey(COLORS['DEF_ALPHA'])
+        self._set_body(body, tile.x, tile.y, self._solid_group)
+
+    def _fill_tmx_items(self, tile: TmxBody):
+        if "SavePoint" in tile.name:
+            body = SavePointBody(COLORS['WHITE'], tile.width, tile.height, self._managers)
+            body.imageList = tile.img_list
+            body.image = tile.img
+            body.image.set_colorkey(COLORS['BLACK'])
+            self._set_body(body, tile.x, tile.y, self._solid_group)
+        elif "Coin" in tile.name:
+            body = CoinBody(COLORS['ORANGE'], tile.width, tile.height, self._managers)
+            body.image = tile.img
+            body.image.set_colorkey(COLORS['WHITE'])
+            self._set_body(body, tile.x, tile.y, self._weak_group)
+        elif "LifePowerUp" in tile.name:
+            body = LifePowerUpBody(COLORS['ORANGE'], tile.width, tile.height, self._managers)
+            self._set_body(body, tile.x, tile.y, self._weak_group)
+        
+    def _build_tmx_body(self, row: int, col: int, layer_id: int, structure: TiledMap) -> TmxBody:
+        image = structure.get_tile_image(row, col, layer_id)
+        if image is not None:
+            props = structure.get_tile_properties(row, col, layer_id)
+            x = props["width"] * row
+            y = props["height"] * col
+            img_list = [structure.get_tile_image_by_gid(x.gid).convert() for x in props["frames"]]
+            return self.TmxBody(image.convert(), props["Name"], props["width"], props["height"], x, y, img_list)
 
     def _set_body(self, body, pos_x, pos_y, sprite_group):
         body.rect.x = pos_x

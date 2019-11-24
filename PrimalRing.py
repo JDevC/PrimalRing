@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import pygame
 import logging
+from pygame.surface import Surface
 from views.Title.TitleScreen import TitleScreen
 from views.Splash.SplashScreen import SplashScreen
 from managers import managers
@@ -27,7 +28,7 @@ def reset_flags(scene: TitleScreen):
     scene.reset_opacity()
 
 
-def screen_set(screen_size, full_screen):
+def screen_set(screen_size: tuple, full_screen: bool) -> Surface:
     if full_screen:
         screen = pygame.display.set_mode(screen_size, pygame.FULLSCREEN)
         # This delay helps to start displaying all at proper time
@@ -38,7 +39,7 @@ def screen_set(screen_size, full_screen):
     return screen
 
 
-def configuration_preset(config, screen_size, managers):
+def configuration_preset(config: {}, screen_size: tuple, managers) -> Surface:
     """ Defines some initial configuration parameters
 
     :param config: List with predefined configuration parameters

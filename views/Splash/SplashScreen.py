@@ -1,12 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import pygame
+from pygame.surface import Surface
+
 from ._StageEnum import _StageEnum
 from constants import COLORS, FPS
 
 
 class SplashScreen:
-    def __init__(self, screen, scr_size, managers, debug: bool = False):
+    def __init__(self, screen: Surface, scr_size: tuple, managers, debug: bool = False):
         """ This class holds the initial splash window, in which I put my fictional game dev studio
         and some partners and tools involved into this development.
 
@@ -35,7 +37,7 @@ class SplashScreen:
         # We set and play the main theme
         self._managers.sound.play_music('Main Theme')
 
-    def event_handler(self):
+    def event_handler(self) -> bool:
         """ It handles all events thrown while the splash sequence is running
 
         :return: True if the player hits the X-window exit button OR the splash sequence is finished; False otherwise

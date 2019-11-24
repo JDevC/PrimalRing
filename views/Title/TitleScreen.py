@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import pygame
+from pygame.surface import Surface
+
 from views._Screen import _Screen
 from views._ScreenHolder import _ScreenHolder
 from .OptionsScreen import OptionsScreen
@@ -9,7 +11,7 @@ from SaveGame import SaveGame
 
 
 class TitleScreen(_Screen):
-    def __init__(self, screen, scr_size, managers, config, debug: bool = False):
+    def __init__(self, screen: Surface, scr_size: tuple, managers, config: {}, debug: bool = False):
         """ This class will display the title screen, showing a background animation and playing the main theme
         while we navigate though the main menu. That's the initial idea, of course.
 

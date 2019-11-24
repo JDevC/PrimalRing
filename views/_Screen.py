@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import pygame
+from pygame.surface import Surface
+
 from constants import COLORS
 
 
 class _Screen:
-    def __init__(self, screen, scr_size, managers, debug: bool = False):
+    def __init__(self, screen: Surface, scr_size: tuple, managers, debug: bool = False):
         """ Parent class for game screens
 
         :param screen: A reference for the main screen

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import pygame
+import pytmx
 from SaveGame import SaveGame
 from models.Bodies.PlayerBody import PlayerBody
 from models.Level.Level1 import Level1
@@ -27,18 +28,19 @@ class Game:
         self.gameOver = False
         self.quit_all = False
         # GAME OVER text
-        self.gOverText = [self._font.render(_("GAME OVER"), ANTIALIASING, COLORS['WHITE']),
-                          self._font.render(_("Want to try again?"), ANTIALIASING, COLORS['WHITE']),
-                          self._font.render(_("Yes / No"), ANTIALIASING, COLORS['WHITE'])]
+        g_over_str = [_("GAME OVER"), _("Want to try again?"), _("Yes / No")]
+        self.gOverText = [self._font.render(x, ANTIALIASING, COLORS['WHITE']) for x in g_over_str]
         self._pause = _ScreenHolder()
         self._save = _ScreenHolder()
         # Game loading
         saved_state = saved_state_name if saved_state_name is None else SaveGame.load_file(saved_state_name)
+        doom_valley_map = pytmx.load_pygame("resources/images/LevelMaps/DoomValley/DoomValleyLevel.tmx")
+        the_ring_map = pytmx.load_pygame("resources/images/LevelMaps/TheRing/TheRingLevel.tmx")
         # Player
         self.player = PlayerBody(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, managers, saved_state)
         # Levels
-        self.levels = {"Doom Valley": Level1(screen, scr_size, managers, self.player, DEBUG),
-                       "The RING": Level2(screen, scr_size, managers, self.player, DEBUG)}
+        self.levels = {"DoomValley": Level1(screen, scr_size, managers, self.player, doom_valley_map, DEBUG),
+                       "TheRing": Level2(screen, scr_size, managers, self.player, the_ring_map, DEBUG)}
         self._init_player_location(saved_state, self.player, self.levels)
         # We activate the music in the current level
         self._level.set_theme()
@@ -68,7 +70,7 @@ class Game:
                         self.gameOver = True
                     else:
                         self._managers.sound.stop_music()
-                        self._level = self.levels['The RING']
+                        self._level = self.levels['TheRing']
                         self.player.rect.x = self._level.levelInit[0]
                         self.player.rect.y = self._level.levelInit[1]
                         self.player.plainLevel = self._level.plainLevel
@@ -110,7 +112,7 @@ class Game:
             player.rect.y = saved_state['Level']['PositionY']
         else:
             # Don't have a game file? You start where everyone does (We respect and support equality)
-            self._level = levels['Doom Valley']
+            self._level = levels['DoomValley']
             player.rect.x = self._level.levelInit[0]
             player.rect.y = self._level.levelInit[1]
 
