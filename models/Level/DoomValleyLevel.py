@@ -7,11 +7,12 @@ from models.Bodies.SnowBody import SnowBody
 from constants import COLORS
 
 
-class Level1(_HorizontalLevel):
+class DoomValleyLevel(_HorizontalLevel):
     def __init__(self, screen, scr_size, managers, player, tilemap: TiledMap, debug: bool = False):
         super().__init__(screen, scr_size, managers, player, tilemap, debug)
         # Level data
         self.ID = "DoomValley"
+        self.next_id = "TheRing"
         self.levelInit = (56, 900)                     # Initial player position's coordinates (50, 900)
         # Populating level
         self._fill_tmx_level(self._tilemap)

@@ -1,8 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import pytest
+from constants import ROOT
 from pygame import error
 from managers.ImageManager import ImageManager
+
+ROOT = "C:/Users/jcarl/PycharmProjects/PrimalRingProject/PrimalRing"
 
 
 @pytest.fixture()

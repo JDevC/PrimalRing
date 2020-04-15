@@ -29,7 +29,8 @@ class _LevelBase:
         self.screen = screen
         self.scrSize = scr_size
         self._managers = managers
-        self.ID = None                              # A level identifier
+        self.ID = None                              # Current level identifier
+        self.next_id = None                         # The next level to show
         self._tilemap = tilemap
         self.levelInit = [0, 0]                     # Level enter point
         self.reference = []                         # Level fixed references for scroll
@@ -132,7 +133,7 @@ class _LevelBase:
             body.imageList = tile.img_list
 
         body.image = tile.img
-        body.image.set_colorkey(COLORS['DEF_ALPHA'])
+        body.image.set_colorkey(COLORS['WHITE'])
         self._set_body(body, tile.x, tile.y, self._solid_group)
 
     def _fill_tmx_items(self, tile: TmxBody):

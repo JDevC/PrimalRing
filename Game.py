@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 import pygame
-import pytmx
 from SaveGame import SaveGame
+from managers.LevelManager.LevelDataClass import LevelDataClass
+from managers.LevelManager.LevelManager import LevelManager
 from models.Bodies.PlayerBody import PlayerBody
-from models.Level.Level1 import Level1
-from models.Level.Level2 import Level2
 from views._ScreenHolder import _ScreenHolder
 from views.PauseScreen import PauseScreen
-from constants import COLORS, PLAYER_SIZE, ANTIALIASING, DEBUG
+from constants import COLORS, PLAYER_SIZE, ANTIALIASING
 
 
 class Game:
@@ -34,14 +33,9 @@ class Game:
         self._save = _ScreenHolder()
         # Game loading
         saved_state = saved_state_name if saved_state_name is None else SaveGame.load_file(saved_state_name)
-        doom_valley_map = pytmx.load_pygame("resources/images/LevelMaps/DoomValley/DoomValleyLevel.tmx")
-        the_ring_map = pytmx.load_pygame("resources/images/LevelMaps/TheRing/TheRingLevel.tmx")
         # Player
         self.player = PlayerBody(COLORS['RED'], PLAYER_SIZE, PLAYER_SIZE, managers, saved_state)
-        # Levels
-        self.levels = {"DoomValley": Level1(screen, scr_size, managers, self.player, doom_valley_map, DEBUG),
-                       "TheRing": Level2(screen, scr_size, managers, self.player, the_ring_map, DEBUG)}
-        self._init_player_location(saved_state, self.player, self.levels)
+        self._init_player_location(saved_state, self.player, self._managers.levels)
         # We activate the music in the current level
         self._level.set_theme()
 
@@ -70,7 +64,9 @@ class Game:
                         self.gameOver = True
                     else:
                         self._managers.sound.stop_music()
-                        self._level = self.levels['TheRing']
+                        next_id = self._level.next_id
+                        level_data = LevelDataClass(next_id, self._screen, self._scrSize, self._managers, self.player)
+                        self._level = self._managers.levels.load_level(level_data)
                         self.player.rect.x = self._level.levelInit[0]
                         self.player.rect.y = self._level.levelInit[1]
                         self.player.plainLevel = self._level.plainLevel
@@ -79,7 +75,7 @@ class Game:
 
     def display_frame(self):
         """ This function displays all graphic resources and effects """
-        self._screen.fill(COLORS['GREY'])                   # BLACK
+        self._screen.fill(COLORS['GREY'])
         # Checks if the player still lives on
         if self.gameOver:
             self._screen.blit(self.gOverText[0], [(self._scrSize[0] / 2) - 45, self._scrSize[1] / 2 - 50])
@@ -104,15 +100,17 @@ class Game:
         return True
 
     # ---------- Internal Methods ----------------------
-    def _init_player_location(self, saved_state: dict, player, levels: dict):
+    def _init_player_location(self, saved_state: dict, player, level_manager: LevelManager):
         if saved_state is not None:
             # You've a game saved, so you start in the level and position stored
-            self._level = levels[saved_state['Level']['ID']]
+            level_data = LevelDataClass(saved_state['Level']['ID'], self._screen, self._scrSize, self._managers, player)
+            self._level = level_manager.load_level(level_data)
             player.rect.x = saved_state['Level']['PositionX']
             player.rect.y = saved_state['Level']['PositionY']
         else:
             # Don't have a game file? You start where everyone does (We respect and support equality)
-            self._level = levels['DoomValley']
+            level_data = LevelDataClass("DoomValley", self._screen, self._scrSize, self._managers, player)
+            self._level = level_manager.load_level(level_data)
             player.rect.x = self._level.levelInit[0]
             player.rect.y = self._level.levelInit[1]
 

@@ -20,7 +20,7 @@ class LocalizationManager:
                 "es": gettext.translation("PrimalRing_es", localization_route, languages=["es_ES"])
             }
         except FileNotFoundError as fnfex:
-            print(fnfex.strerror)
+            self.LOGGER.error(fnfex.strerror)
             print(localization_route)
 
     def set_lang(self, lang_code: str) -> None:

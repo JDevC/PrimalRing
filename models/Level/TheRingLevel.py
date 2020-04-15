@@ -4,7 +4,7 @@ from pytmx import TiledMap
 from models.Level._PlainLevel import _PlainLevel
 
 
-class Level2(_PlainLevel):
+class TheRingLevel(_PlainLevel):
     def __init__(self, screen, src_size, managers, player, tilemap: TiledMap, debug: bool = False):
         super().__init__(screen, src_size, managers, player, tilemap, debug)
         # Level data

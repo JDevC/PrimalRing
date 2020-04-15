@@ -24,14 +24,12 @@ class _HorizontalLevel(_LevelBase):
         # Update all elements in level
         self._bodies.update()
         # Checks the condition for going out the level
-        if self.player.isDead:
+        if self.player.isDead or self.player.coins == 10:
             return True
-        elif self.player.coins < 10:
-            self.player.update(self._solid_group, self._weak_group)
-            self._scroll()
-            if self.debug:
-                self._update_player_debug()
 
-            return False
-        else:
-            return True
+        self.player.update(self._solid_group, self._weak_group)
+        self._scroll()
+        if self.debug:
+            self._update_player_debug()
+
+        return False
