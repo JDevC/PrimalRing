@@ -11,12 +11,12 @@ from constants import COLORS, PLAYER_SIZE, ANTIALIASING
 
 
 class Game:
-    def __init__(self, screen, scr_size, managers, saved_state_name: str = None):
+    def __init__(self, screen, scr_size: tuple, managers, saved_state_name: str = None):
         """ This is the general manager game class. It has the main functions and attributes which rule above
         all the rest.
 
         :param screen:
-        :param scr_size:
+        :param scr_size: The screen size (Default: 600 * 800)
         :param saved_state_name: """
         # Main game attributes
         self._screen = screen
@@ -100,7 +100,7 @@ class Game:
         return True
 
     # ---------- Internal Methods ----------------------
-    def _init_player_location(self, saved_state: dict, player, level_manager: LevelManager):
+    def _init_player_location(self, saved_state: dict, player: PlayerBody, level_manager: LevelManager):
         if saved_state is not None:
             # You've a game saved, so you start in the level and position stored
             level_data = LevelDataClass(saved_state['Level']['ID'], self._screen, self._scrSize, self._managers, player)

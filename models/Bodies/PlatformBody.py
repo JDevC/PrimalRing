@@ -43,4 +43,9 @@ class PlatformBody(_BodyBase):
         # self.refresh = 0
 
     def react(self, player):
-        pass
+        if player.velY > 0:
+            player.stop_fall()
+            player.rect.bottom = self.rect.top - 2
+        elif player.velY < 0:
+            player.stop_y()
+            player.rect.top = self.rect.bottom + 2

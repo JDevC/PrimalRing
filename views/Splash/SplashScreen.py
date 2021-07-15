@@ -13,13 +13,14 @@ class SplashScreen:
         and some partners and tools involved into this development.
 
         :param screen: A reference for the main screen
-        :param scr_size:
-        :param sound_manager:
+        :param scr_size: Initial dimensions
+        :param managers:
         :param debug: Flag for debugging into the game
         """
         self.screen = screen
         self.debug = debug
         self.fps = FPS
+        self._managers = managers
         # Opacity for fade in and fade out effects (254)
         self.opacity = 255
         # Animation flags
@@ -28,7 +29,6 @@ class SplashScreen:
         # Delay counter for shown images
         self.ticker = 0
         # Setting our studio splash background
-        self._managers = managers
         self.background = managers.image.load_image(f'Karmical.png')
         self.partners_bg = f'Partners.png'
         # Let's create another surface, which will go on the previous

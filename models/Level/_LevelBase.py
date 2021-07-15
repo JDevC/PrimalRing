@@ -1,11 +1,14 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from dataclasses import dataclass
+
+from pygame.sprite import Sprite
 from pytmx import TiledMap
 from pygame import font, sprite, Surface
 from models.Bodies.LavaBody import LavaBody
 from models.Bodies.FloorBody import FloorBody
 from models.Bodies.HoleBody import HoleBody
+from models.Bodies.PlayerBody import PlayerBody
 from models.Bodies.SavePointBody import SavePointBody
 from models.Bodies.PlatformBody import PlatformBody
 from models.Bodies.CoinBody import CoinBody
@@ -15,12 +18,12 @@ from models.Bodies.StepableBody import StepableBody
 
 
 class _LevelBase:
-    def __init__(self, screen, scr_size, managers, player, tilemap: TiledMap, debug: bool = False):
+    def __init__(self, screen, scr_size: tuple, managers, player: PlayerBody, tilemap: TiledMap, debug: bool = False):
         """ This class manages all in terms of creating level structures and loading graphic and audio resources.
         Every level created has inheritance from this Level class.
 
         :param screen: A reference for the main screen
-        :param scr_size: The screen size
+        :param scr_size: The screen size (Default: 600 * 800)
         :param managers:
         :param player:
         :param debug: Flag for debugging into the game """
@@ -61,7 +64,7 @@ class _LevelBase:
     def update(self) -> bool:
         pass
 
-    def display(self):
+    def display(self) -> None:
         # We check if the level has a background image and blit it to the screen
         if self.backgroundImg is not None:
             self.screen.blit(self.backgroundImg, [0, 0])
@@ -81,7 +84,7 @@ class _LevelBase:
         if self.debug:
             self.screen.blit(self.debText, [50, 560])
 
-    def set_theme(self):
+    def set_theme(self) -> None:
         if self.musicTheme is not None:
             self._managers.sound.play_music(self.musicTheme)
 
@@ -96,7 +99,7 @@ class _LevelBase:
         y: int = 0
         img_list: list = list
 
-    def _fill_tmx_level(self, structure: TiledMap):
+    def _fill_tmx_level(self, structure: TiledMap) -> None:
         """ It fills all level gaps with elements taking a pattern
 
         :param structure: A string list which contains all elements available in a level (WIP) """
@@ -111,7 +114,7 @@ class _LevelBase:
                 if item_tile is not None:
                     self._fill_tmx_items(item_tile)
 
-    def _fill_tmx_floor(self, row: int, col: int, tile: TmxBody, structure: TiledMap):
+    def _fill_tmx_floor(self, row: int, col: int, tile: TmxBody, structure: TiledMap) -> None:
         body = None
         if "Floor" in tile.name:
             body = FloorBody(COLORS['BLUE'], tile.width, tile.height, self._managers)
@@ -136,7 +139,7 @@ class _LevelBase:
         body.image.set_colorkey(COLORS['WHITE'])
         self._set_body(body, tile.x, tile.y, self._solid_group)
 
-    def _fill_tmx_items(self, tile: TmxBody):
+    def _fill_tmx_items(self, tile: TmxBody) -> None:
         if "SavePoint" in tile.name:
             body = SavePointBody(COLORS['WHITE'], tile.width, tile.height, self._managers)
             body.imageList = tile.img_list
@@ -161,13 +164,13 @@ class _LevelBase:
             img_list = [structure.get_tile_image_by_gid(x.gid).convert() for x in props["frames"]]
             return self.TmxBody(image.convert(), props["Name"], props["width"], props["height"], x, y, img_list)
 
-    def _set_body(self, body, pos_x, pos_y, sprite_group):
+    def _set_body(self, body: Sprite, pos_x: int, pos_y: int, sprite_group: sprite.Group) -> None:
         body.rect.x = pos_x
         body.rect.y = pos_y
         sprite_group.add(body)
         self._bodies.add(body)
 
-    def _scroll(self):
+    def _scroll(self) -> None:
         """ It manages the level scrolling """
         self.player.rect.x = \
             self._scroll_on_corner(self.player.rect.x, self.scrSize[0], self.reference[1].rect.x + FLOOR_SIZE, 'x')
@@ -176,7 +179,7 @@ class _LevelBase:
             self._scroll_on_corner(self.player.rect.y, self.scrSize[1], self.reference[1].rect.y + FLOOR_SIZE, 'y')
         self.player.rect.y = self._scroll_axis(self.player.rect.y, self.scrSize[1] / 2, 'y')
 
-    def _scroll_on_corner(self, player_coordinate, screen_coordinate, self_ref_coordinate, axis):
+    def _scroll_on_corner(self, player_coordinate: int, screen_coordinate: int, self_ref_coordinate: int, axis):
         new_player_coord = player_coordinate
         if player_coordinate < 0:
             screen_midpoint = screen_coordinate / 2
@@ -190,7 +193,14 @@ class _LevelBase:
 
         return new_player_coord
 
-    def _scroll_axis(self, player_coordinate, screen_midpoint, axis):
+    def _scroll_axis(self, player_coordinate: int, screen_midpoint: float, axis):
+        """
+
+        :param player_coordinate:
+        :param screen_midpoint:
+        :param axis: x: horizontal update; y: vertical update
+        :return:
+        """
         new_player_coord = player_coordinate
         if player_coordinate < screen_midpoint:
             # The player is far from the beginning of the level
@@ -210,7 +220,13 @@ class _LevelBase:
 
         return new_player_coord
 
-    def _update_bodies(self, diff, axis):
+    def _update_bodies(self, diff: float, axis: str):
+        """
+
+        :param diff:
+        :param axis: x: horizontal update; y: vertical update
+        :return:
+        """
         if axis == 'x':
             for body in self._bodies:
                 body.rect.x += diff

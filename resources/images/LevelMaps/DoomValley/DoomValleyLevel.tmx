@@ -2,7 +2,7 @@
 <map version="1.2" tiledversion="1.3.0" orientation="orthogonal" renderorder="right-down" compressionlevel="0" width="32" height="20" tilewidth="50" tileheight="50" infinite="0" nextlayerid="4" nextobjectid="1">
  <tileset firstgid="1" source="DoomValleyFloor.tsx"/>
  <tileset firstgid="193" source="Lava.tsx"/>
- <tileset firstgid="209" source="ItemsTileSet.tsx"/>
+ <tileset firstgid="209" source="../ItemsTileSet.tsx"/>
  <layer id="1" name="Floor" width="32" height="20">
   <data encoding="base64" compression="zlib">
    eAHNlQEOwyAIRd12gnX3P1EvNV+6nxACrRpNR2KtVHx8cNlWStluHJ/KvsveFYz2l0ngUd+fE4Y90xxf7PmwV+qHtf+0MPuc0G/56J5taMQ0H6vj6fl4ydnneeye/4z4UGxNMuqMWmV8aqU76Guh+xPVM8s182f8bP9s/z/ye/qqXhDj+9RSqxH9lkM892D0LvTy0Wl/G8R7U02Up9ZRjTxftY9i8KHT8j37au1jPf8qXt+Vp9YtM/mf8fm+0qJeef3qWW8e6tdZfAu/l8v+kV6I4/XLv2KOagOfO42GaBDD/7Yd0b5Wn85hP++wv+1IDeA=

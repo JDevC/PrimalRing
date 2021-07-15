@@ -29,3 +29,4 @@ class LocalizationManager:
             self.lang_dict[lang_code].install()
         except IOError as ie:
             self.LOGGER.error(f"Error at loading translation: {ie}")
+            self.lang_dict["en"].install()

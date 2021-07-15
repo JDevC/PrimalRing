@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.2" tiledversion="1.3.0" name="TheRingFloor" tilewidth="50" tileheight="50" tilecount="24" columns="4">
- <image source="../../../PycharmProjects/PrimalRing/resources/images/plain_hole/TheRingFloor.png" width="200" height="300"/>
+ <image source="TheRingFloor.png" width="200" height="300"/>
  <terraintypes>
   <terrain name="Trail" tile="5"/>
  </terraintypes>

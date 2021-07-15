@@ -17,8 +17,7 @@ class TitleScreen(_Screen):
 
         :param screen: A reference for the main screen
         :param scr_size: The screen size (Default: 600 * 800)
-        :param sound_manager:
-        :param lang_manager:
+        :param managers:
         :param config: General game configuration settings
         :param debug: Flag for debugging into the game
         """

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <tileset version="1.2" tiledversion="1.3.0" name="SavePointSet" tilewidth="50" tileheight="50" tilecount="12" columns="4">
- <image source="../../../../../gimp/SPFrames.png" trans="000000" width="204" height="153"/>
+ <image source="SPFrames.png" trans="000000" width="204" height="153"/>
  <tile id="11">
   <properties>
    <property name="Name" value="SavePoint"/>

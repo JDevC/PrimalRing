@@ -5,10 +5,11 @@ from pytmx import TiledMap
 from ._HorizontalLevel import _HorizontalLevel
 from models.Bodies.SnowBody import SnowBody
 from constants import COLORS
+from ..Bodies.PlayerBody import PlayerBody
 
 
 class DoomValleyLevel(_HorizontalLevel):
-    def __init__(self, screen, scr_size, managers, player, tilemap: TiledMap, debug: bool = False):
+    def __init__(self, screen, scr_size, managers, player: PlayerBody, tilemap: TiledMap, debug: bool = False):
         super().__init__(screen, scr_size, managers, player, tilemap, debug)
         # Level data
         self.ID = "DoomValley"

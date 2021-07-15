@@ -16,25 +16,38 @@ class FloorBody(_BodyBase):
         self.toggle = True
 
     def react(self, player):
-        # X checking
-        if self.toggle:
-            dist = player.rect.centerx - self.rect.centerx
-            if 45 > dist > 0:
-                # Moving to the left
-                player.rect.left = self.rect.right
-            elif -45 < dist < 0:
-                # Moving to the right
-                player.rect.right = self.rect.left
-        # Y checking
-        else:
-            dist = player.rect.centery - self.rect.centery
-            if -45 < dist < 0:
-                # Wall under the player
-                player.stop_fall()
-                player.rect.bottom = self.rect.top
-            elif 45 > dist > 0:
-                # Wall upon the player
-                player.stop_y()
-                player.rect.top = self.rect.bottom
+        # # X checking
+        # if self.toggle:
+        #     dist = player.rect.centerx - self.rect.centerx
+        #     if 45 > dist > 0:
+        #         # Moving to the left
+        #         player.rect.left = self.rect.right
+        #     elif -45 < dist < 0:
+        #         # Moving to the right
+        #         player.rect.right = self.rect.left
+        # # Y checking
+        # else:
+        #     dist = player.rect.centery - self.rect.centery
+        #     if -45 < dist < 0:
+        #         # Wall under the player
+        #         player.stop_fall()
+        #         player.rect.bottom = self.rect.top
+        #     elif 45 > dist > 0:
+        #         # Wall upon the player
+        #         player.stop_y()
+        #         player.rect.top = self.rect.bottom
 
-        self.toggle = not self.toggle
+        # self.toggle = not self.toggle
+        dist = player.rect.centery - self.rect.centery
+        if -45 < dist < 0:
+            self._rigid_body_under(player)
+        elif 45 > dist > 0:
+            self._rigid_body_upon(player)
+
+    def _rigid_body_under(self, body):
+        body.stop_fall()
+        body.rect.bottom = self.rect.top
+
+    def _rigid_body_upon(self, body):
+        body.stop_y()
+        body.rect.top = self.rect.bottom

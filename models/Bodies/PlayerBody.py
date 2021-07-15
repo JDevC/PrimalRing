@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from math import sqrt
+
+from pygame import sprite
 from pygame.sprite import spritecollide
 from .HoleBody import HoleBody
 from .FloorBody import FloorBody
@@ -56,7 +58,7 @@ class PlayerBody(_BodyBase):
         right: bool = False
 
     # ---------- Public Methods --------------------------
-    def update(self, solid: [], weak: []):
+    def update(self, solid: sprite.Group, weak: sprite.Group) -> None:
         if self.saveFlag:
             self.saveFlag = False
 
@@ -104,7 +106,7 @@ class PlayerBody(_BodyBase):
         return sqrt(x_operator + y_operator)
 
     # ---------- Internal Methods --------------------------
-    def _do_horizontal_checking(self, solid_boxes, weak_boxes):
+    def _do_horizontal_checking(self, solid_boxes: sprite.Group, weak_boxes: sprite.Group) -> None:
         self.rect.x += self.velX
         # We divide all collisions done in two lists (False for avoiding automatic drop)
         solid_collide_list = spritecollide(self, solid_boxes, False)
@@ -137,46 +139,16 @@ class PlayerBody(_BodyBase):
 
         self._manage_weak_collisions(weak_boxes)
 
-    def _do_vertical_checking(self, solid_boxes, weak_boxes):
+    def _do_vertical_checking(self, solid_boxes: sprite.Group, weak_boxes: sprite.Group):
         self.rect.y += self.velY
         # We divide all collisions done in two lists (False for avoiding automatic drop)
         solid_collide_list = spritecollide(self, solid_boxes, False)
         for body in solid_collide_list:
-            if isinstance(body, FloorBody):
-                dist = self.rect.centery - body.rect.centery
-                if -45 < dist < 0:
-                    self._rigid_body_under(body)
-                elif 45 > dist > 0:
-                    self._rigid_body_upon(body)
-            elif isinstance(body, PlatformBody):
-                if self.velY > 0:
-                    self.stop_fall()
-                    self.rect.bottom = body.rect.top - 2
-                elif self.velY < 0:
-                    self.stop_y()
-                    self.rect.top = body.rect.bottom + 2
-            elif isinstance(body, HoleBody):
-                if self.distance(body.rect) < body.rect.width * 0.75:
-                    if self.rect.y > body.rect.y:
-                        self.rect.y -= 2
-                    elif self.rect.y < body.rect.y:
-                        self.rect.y += 2
-            elif isinstance(body, SavePointBody):
-                body.react(self)
-            elif isinstance(body, LavaBody):
-                body.react(self)
+            body.react(self)
 
         self._manage_weak_collisions(weak_boxes)
 
-    def _rigid_body_under(self, body):
-        self.stop_fall()
-        self.rect.bottom = body.rect.top
-
-    def _rigid_body_upon(self, body):
-        self.stop_y()
-        self.rect.top = body.rect.bottom
-
-    def _manage_weak_collisions(self, boxes):
+    def _manage_weak_collisions(self, boxes: sprite.Group):
         bodies = spritecollide(self, boxes, True)
         for body in bodies:
             body.react(self)
